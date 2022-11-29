@@ -1,4 +1,4 @@
-from PyQt6.QtGui import QIcon, QAction
+from PyQt6.QtGui import QIcon, QAction, QPixmap
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QApplication
 from PyQt6.QtCore import Qt, QSize
 from board import Board
@@ -134,9 +134,14 @@ class Go(QMainWindow):
         rules_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
         rules_window.setMinimumSize(int(self.width() / 2), int(self.height() / 4))
         rules_window.setStyleSheet(
-        """background-image: url("icons/robots.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
+        """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
         label = QLabel(self.rules)
+        pix = QPixmap('./icons/games-icon.png')
+        label1 = QLabel()
+        label1.setPixmap(pix)
+        label1.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout = QVBoxLayout()
+        layout.addWidget(label1)
         layout.addWidget(label)
         rules_window.setLayout(layout)
 
@@ -150,7 +155,7 @@ class Go(QMainWindow):
         about_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
         about_window.setMinimumSize(int(self.width() / 2), int(self.height() / 4))
         about_window.setStyleSheet(
-        """background-image: url("icons/robots.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
+        """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
 
         label = QLabel(self.about)
         layout = QVBoxLayout()

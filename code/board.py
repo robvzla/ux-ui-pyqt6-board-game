@@ -11,8 +11,8 @@ class Board(QFrame):  # base the board on a QFrame widget
     # TODO set the board width and height to be square
     boardWidth  = 0     # board is 0 squares wide # TODO this needs updating
     boardHeight = 0     #
-    timerSpeed  = 1     # the timer updates every 1 millisecond
-    counter     = 10    # the number the counter will count down from
+    timerSpeed  = 1000     # the timer updates every 1 millisecond
+    counter = 15    # the number the counter will count down from
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -57,6 +57,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             if Board.counter == 0:
                 print("Game over")
             self.counter -= 1
+
             print('timerEvent()', self.counter)
             self.updateTimerSignal.emit(self.counter)
         else:
