@@ -26,7 +26,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # game is not currently started
         self.start()  # start the game which will start the timer
 
-        self.boardArray = []  # TODO - create a 2d int/Piece array to store the state of the game
+        self.boardArray = [[0 for i in range(Board.boardHeight + 1)] for j in range(Board.boardWidth + 1)]  # TODO - create a 2d int/Piece array to store the state of the game
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
 
         # Create an instance of the logic object here to enforce the rules of this game
@@ -106,7 +106,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # self.getCol()
         # self.getRow()
         # Try to make the move
-        self.tryMove(self.getCol(), self.getRow())
+        self.tryMove(self.getRow(), self.getCol())
 
 
     def resetGame(self):
@@ -117,8 +117,20 @@ class Board(QFrame):  # base the board on a QFrame widget
         """tries to move a piece"""
         print("Col: " + str(newX))
         print("Row: " + str(newY))
-        self.logic.myFun()
-        self.logic.checkTurn()
+        # Check whose turn it is
+        turn = self.logic.checkTurn()
+        # Check if there are any liberties around the piece
+        # Create method in game_logic to check the liberties, pass the turn, newX and newY
+
+        # Create the piece
+        new_piece = Piece(turn, newX, newY)
+        print("Piece type: " + str(new_piece.getPiece()))
+        print()
+
+        # Add the piece to the boardArray
+        self.boardArray[newX][newY] = turn
+        for row in range(0, len(self.boardArray)):
+            print(self.boardArray[row])
 
 
 
