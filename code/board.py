@@ -115,11 +115,12 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def tryMove(self, newX, newY):
         """tries to move a piece"""
-        print("Col: " + str(newX))
-        print("Row: " + str(newY))
+        print("Row: " + str(newX))
+        print("Col: " + str(newY))
         # Check whose turn it is
         turn = self.logic.checkTurn()
         # Check if there are any liberties around the piece
+        print("Liberties: " + str(self.logic.checkAroundIntersection(newX, newY, self.boardArray, 0)))
         # Create method in game_logic to check the liberties, pass the turn, newX and newY
 
         # Create the piece
