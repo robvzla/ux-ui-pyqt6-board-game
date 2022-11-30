@@ -31,51 +31,52 @@ def checkBottomLeft(array, x, y):
     return array[x + 1][y - 1]
 
 
-def checkTopLeftCorner(count, array, x, y, z):
+def checkTopLeftCorner(array, x, y, z):
+    count = 0
     if checkBottom(array, x, y) == z:
-        count += count
+        count += 1
     if checkBottomRight(array, x, y) == z:
-        count += count
+        count += 1
     if checkRight(array, x, y) == z:
-        count += count
+        count += 1
     return count
 
 
-def checkTopRightCorner(count, array, x, y, z):
+def checkTopRightCorner(array, x, y, z):
+    count = 0
     if checkLeft(array, x, y) == z:
-        count += count
+        print("Left: " + str(checkLeft(array, x, y)))
+        count += 1
     if checkBottomLeft(array, x, y) == z:
-        count += count
+        count += 1
     if checkBottom(array, x, y) == z:
-        count += count
+        count += 1
     return count
 
 
-def checkTopRow(count, array, x, y, z):
-    if checkLeft(array, x, y) == z:
-        count += count
-    if checkBottomLeft(array, x, y) == z:
-        count += count
-    if checkBottom(array, x, y) == z:
-        count += count
+def checkTopRow(array, x, y, z):
+    count = checkTopRightCorner(array, x, y, z)
     if checkBottomRight(array, x, y) == z:
-        count += count
+        count += 1
     if checkRight(array, x, y) == z:
-        count += count
+        count += 1
     return count
 
-def checkBottomLeftCorner(count, array, x, y, z):
+
+def checkBottomLeftCorner(array, x, y, z):
+    count = 0
     if y == 0:
         if checkTop(array, x, y) == z:
-            count += count
+            count += 1
         if checkTopRight(array, x, y) == z:
-            count += count
+            count += 1
         if checkRight(array, x, y) == z:
-            count += count
+            count += 1
         return count
 
 
-def checkBottomRightCorner(count, array, x, y, z):
+def checkBottomRightCorner(array, x, y, z):
+    count = 0
     if checkLeft(array, x, y) == z:
         count += count
     if checkTopLeft(array, x, y) == z:
@@ -85,13 +86,8 @@ def checkBottomRightCorner(count, array, x, y, z):
     return count
 
 
-def checkBottomRow(count, array, x, y, z):
-    if checkLeft(array, x, y) == z:
-        count += count
-    if checkTopLeft(array, x, y) == z:
-        count += count
-    if checkTop(array, x, y) == z:
-        count += count
+def checkBottomRow(array, x, y, z):
+    count = checkBottomRightCorner(array, x, y, z)
     if checkTopRight(array, x, y) == z:
         count += count
     if checkRight(array, x, y) == z:
@@ -99,32 +95,35 @@ def checkBottomRow(count, array, x, y, z):
     return count
 
 
-def checkLeftColumn(count, array, x, y, z):
+def checkLeftColumn(array, x, y, z):
+    count = 0
     if checkTop(array, x, y) == z:
-        count += count
+        count += 1
     if checkTopRight(array, x, y) == z:
-        count += count
+        count += 1
     if checkRight(array, x, y) == z:
-        count += count
+        count += 1
     if checkBottomRight(array, x, y) == z:
-        count += count
+        count += 1
     if checkBottom(array, x, y) == z:
-        count += count
+        count += 1
     return count
 
 
-def checkRightColumn(count, array, x, y, z):
+def checkRightColumn(array, x, y, z):
+    count = 0
     if checkTop(array, x, y) == z:
-        count += count
+        count += 1
     if checkTopLeft(array, x, y) == z:
-        count += count
+        count += 1
     if checkLeft(array, x, y) == z:
-        count += count
+        count += 1
     if checkBottomLeft(array, x, y) == z:
-        count += count
+        count += 1
     if checkBottom(array, x, y) == z:
-        count += count
+        count += 1
     return count
+
 
 class GameLogic:
     print("Game Logic Object Created")
@@ -143,43 +142,41 @@ class GameLogic:
             return 1
 
     def checkAroundIntersection(self, x, y, array, z):
-        count = 0
-
         # Search the intersections surrounding the intersection in question
         # Check the top left and right corners & the top row
         if x == 0:
             # Check top left corner
             if y == 0:
-                return checkTopLeftCorner(count, array, x, y, z)
+                return checkTopLeftCorner(array, x, y, z)
             # Check top right corner
-            elif y == len(array):
-                return checkTopRightCorner(count, array, x, y, z)
+            elif y == (len(array) - 1):
+                return checkTopRightCorner(array, x, y, z)
             # Check the top row
             else:
-                return checkTopRow(count, array, x, y, z)
+                return checkTopRow(array, x, y, z)
 
         # Check the bottom corners and the bottom row
-        elif x == len(array):
+        elif x == (len(array) - 1):
             # Check the bottom left corner
             if y == 0:
-                return checkBottomLeftCorner(count, array, x, y, z)
+                return checkBottomLeftCorner(array, x, y, z)
             # Check the bottom right corner
-            elif y == len(array):
-                return checkBottomRightCorner(count, array, x, y, z)
+            elif y == (len(array) - 1):
+                return checkBottomRightCorner(array, x, y, z)
             # Check the bottom row
             else:
-                return checkBottomRow(count, array, x, y, z)
+                return checkBottomRow(array, x, y, z)
         # Check the left column
         elif y == 0:
-            if 0 < x < len(array):
-                return checkLeftColumn(count, array, x, y, z)
+            if 0 < x < (len(array) - 1):
+                return checkLeftColumn(array, x, y, z)
         # Check the right column
-        elif y == len(array):
-            if 0 < x < len(array):
-                return checkRightColumn(count, array, x, y, z)
+        elif y == (len(array) - 1):
+            if 0 < x < (len(array) - 1):
+                return checkRightColumn(array, x, y, z)
         # Check everywhere else
         else:
-            count = checkBottomRow(count, array, x, y, z)
+            count = checkBottomRow(array, x, y, z)
             if checkBottomLeft(array, x, y) == z:
                 count += count
             if checkBottom(array, x, y) == z:
