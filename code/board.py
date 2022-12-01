@@ -11,8 +11,8 @@ class Board(QFrame):  # base the board on a QFrame widget
     clickLocationSignal = pyqtSignal(str)  # signal sent when there is a new click location
 
     # TODO set the board width and height to be square
-    boardWidth = 7  # board is 0 squares wide # TODO this needs updating
-    boardHeight = 7  #
+    boardWidth = 9  # board is 0 squares wide # TODO this needs updating
+    boardHeight = 9  #
     timerSpeed = 1000  # the timer updates every 1 millisecond
     counter = 10  # the number the counter will count down from
 
@@ -144,8 +144,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Declaring and initializing the colors for the board
         color_one = QColor(214, 178, 112)
         color_two = QColor(199, 105, 41)
-        for row in range(0, Board.boardHeight):
-            for col in range(0, Board.boardWidth):
+        for row in range(1, Board.boardHeight-1):
+            for col in range(1, Board.boardWidth-1):
                 painter.save()
                 # Setting the value equal the transformation in the column direction
                 colTransformation = self.squareWidth() * col
