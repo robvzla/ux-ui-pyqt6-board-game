@@ -11,8 +11,8 @@ class Board(QFrame):  # base the board on a QFrame widget
     clickLocationSignal = pyqtSignal(str)  # signal sent when there is a new click location
 
     # TODO set the board width and height to be square
-    boardWidth = 7  # board is 0 squares wide # TODO this needs updating
-    boardHeight = 7  #
+    boardWidth = 9  # board is 0 squares wide # TODO this needs updating
+    boardHeight = 9  #
     timerSpeed = 1000  # the timer updates every 1 millisecond
     counter = 10  # the number the counter will count down from
 
@@ -26,7 +26,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # game is not currently started
         self.start()  # start the game which will start the timer
 
-        self.boardArray = [[0 for i in range(Board.boardHeight + 1)] for j in range(Board.boardWidth + 1)]  # TODO - create a 2d int/Piece array to store the state of the game
+        self.boardArray = [[0 for i in range(Board.boardHeight - 2)] for j in range(Board.boardWidth - 2)]  # TODO - create a 2d int/Piece array to store the state of the game
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
 
         # Create an instance of the logic object here to enforce the rules of this game
@@ -89,7 +89,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         '''paints the board and the pieces of the game'''
         painter = QPainter(self)
         self.drawBoardSquares(painter)
-        # self.drawPieces(painter)
+        self.drawPieces(painter)
 
     def mousePressEvent(self, event):
         '''this event is automatically called when the mouse is pressed'''
@@ -144,8 +144,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Declaring and initializing the colors for the board
         color_one = QColor(214, 178, 112)
         color_two = QColor(199, 105, 41)
-        for row in range(0, Board.boardHeight):
-            for col in range(0, Board.boardWidth):
+        for row in range(1, Board.boardHeight-1):
+            for col in range(1, Board.boardWidth-1):
                 painter.save()
                 # Setting the value equal the transformation in the column direction
                 colTransformation = self.squareWidth() * col
@@ -178,9 +178,23 @@ class Board(QFrame):  # base the board on a QFrame widget
         for row in range(0, len(self.boardArray)):
             for col in range(0, len(self.boardArray[0])):
                 painter.save()
-                painter.translate()
-
                 # TODO draw some the pieces as ellipses
+                # resize the piece by 2
+                painter.translate(((self.squareWidth()) * row) + self.squareWidth() / 2,
+                                  (self.squareHeight()) * col + self.squareHeight() / 2)
+
+                # Transparent for when there is no piece on the board
+                if self.boardArray[col][row] == 0:
+                    colour = QColor(Qt.GlobalColor.transparent)
+                # White color for when it is white's turn
+                elif self.boardArray[col][row] == 1:
+                    colour = QColor(Qt.GlobalColor.white)
+                # Black color for when there black's turn
+                elif self.boardArray[col][row] == 2:
+                    colour = QColor(Qt.GlobalColor.black)
+
+                painter.setPen(colour)
+                painter.setBrush(colour)
                 # TODO choose your colour and set the painter brush to the correct colour
                 radius = self.squareWidth() / 4
                 center = QPointF(radius, radius)
