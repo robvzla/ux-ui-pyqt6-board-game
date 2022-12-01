@@ -89,7 +89,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         '''paints the board and the pieces of the game'''
         painter = QPainter(self)
         self.drawBoardSquares(painter)
-        # self.drawPieces(painter)
+        self.drawPieces(painter)
 
     def mousePressEvent(self, event):
         '''this event is automatically called when the mouse is pressed'''
@@ -178,9 +178,23 @@ class Board(QFrame):  # base the board on a QFrame widget
         for row in range(0, len(self.boardArray)):
             for col in range(0, len(self.boardArray[0])):
                 painter.save()
-                painter.translate()
-
                 # TODO draw some the pieces as ellipses
+                # resize the piece by 2
+                painter.translate(((self.squareWidth()) * row) + self.squareWidth() / 2,
+                                  (self.squareHeight()) * col + self.squareHeight() / 2)
+
+                # Transparent for when there is no piece on the board
+                if self.boardArray[col][row] == 0:
+                    colour = QColor(Qt.GlobalColor.transparent)
+                # White color for when it is white's turn
+                elif self.boardArray[col][row] == 1:
+                    colour = QColor(Qt.GlobalColor.white)
+                # Black color for when there black's turn
+                elif self.boardArray[col][row] == 2:
+                    colour = QColor(Qt.GlobalColor.black)
+
+                painter.setPen(colour)
+                painter.setBrush(colour)
                 # TODO choose your colour and set the painter brush to the correct colour
                 radius = self.squareWidth() / 4
                 center = QPointF(radius, radius)
