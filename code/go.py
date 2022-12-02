@@ -1,6 +1,9 @@
-from PyQt6.QtGui import QIcon, QAction, QPixmap
-from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QApplication
-from PyQt6.QtCore import Qt, QSize
+import random
+
+from PyQt6.QtGui import QIcon, QAction, QPixmap, QRegularExpressionValidator
+from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QApplication, QGridLayout, QPushButton, \
+    QRadioButton, QButtonGroup, QLineEdit
+from PyQt6.QtCore import Qt, QSize, QRegularExpression
 from board import Board
 from score_board import ScoreBoard
 
@@ -41,7 +44,8 @@ class Go(QMainWindow):
         self.about = """ About ...
                  """
 
-        # Window version
+
+        # Window version app icon
         self.setWindowIcon(  # adding icos to window
             QIcon("./icons/games-icon-icon.png"))  # documentation: https://doc.qt.io/qt-6/qwidget.html#windowIcon-prop
 
@@ -87,7 +91,7 @@ class Go(QMainWindow):
         playAction = QAction(QIcon("./icons/play.png"), "Start", self)  # action for play button
         playAction.setShortcut("Ctrl+S")  # add keyboard shortcut
         playAction.setStatusTip("Play")  # label upon hovering
-        #  playAction.triggered.connect(self...)  -> call method to start game
+        playAction.triggered.connect(self.get_game_setup) # call method to get user settings
 
         # Skip turn button
         skipTurnAction = QAction(QIcon("./icons/skip.png"), "Skip Turn",
@@ -144,7 +148,6 @@ class Go(QMainWindow):
         layout.addWidget(label1)
         layout.addWidget(label)
         rules_window.setLayout(layout)
-
         rules_window.exec()
 
 
@@ -177,3 +180,106 @@ class Go(QMainWindow):
         self.move(gr.topLeft())
         #size = self.geometry()
         #self.move((screen.width() - size.width()) / 2,(screen.height() - size.height()) / 2)
+
+    def get_game_setup(self):
+
+
+        # dialog for game settings
+        game_setup_window = QDialog(self)
+        layout = QGridLayout() #layoug of dialog
+
+        game_setup_window.setWindowTitle("Game Settings")
+        game_setup_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
+        game_setup_window.setMinimumSize(int(self.width() / 2), int(self.height() / 4))
+        game_setup_window.setStyleSheet(
+            """background-image: url("icons/binding_dark.png"); color:#f6fff8; font-size: 18px """)
+        # Play button to start game
+
+        # EXTRA FEATURE; determine the game time per round
+        time_label = QLabel("Time Limit:")
+        time_btn_1 = QRadioButton("30 sec", self)
+        time_btn_1.clicked.connect(lambda: self.set_round_time(30))
+        time_btn_2 = QRadioButton("45 sec", self)
+        time_btn_2.clicked.connect(lambda: self.set_round_time(60))
+        time_btn_3 = QRadioButton("60 sec", self)
+        time_btn_3.clicked.connect(lambda: self.set_round_time(90))
+        time_btn_4 = QRadioButton("90 sec", self)
+        time_btn_4.clicked.connect(lambda: self.set_round_time(120))
+
+        start_game = QPushButton(QIcon("./icons/play.png"), "Play", self)
+
+        # stylesheet for button
+        start_game.setAutoFillBackground(True)
+        start_game.setStyleSheet(""" 
+                      QPushButton{
+                          font-weight:1000;
+                          color:#f6fff8; 
+                          font-family:'Baskerville'; 
+                          background-color:#f6fff8;
+                          font-size: 19px;
+                          height: 30px;
+                          width: 100px;
+                          border-color: #f6fff8;
+
+                      }
+                      QPushButton:hover {
+                          color:#00a896;
+                      }
+                  """)
+        # regex expression for name input
+        rx = QRegularExpression("[a-zA-Z]{20}")
+        # valitor for ascii input
+        validator = QRegularExpressionValidator(rx)
+
+
+        # players names labels
+        name1 = QLabel("Player 1")
+        name2 = QLabel("Player 2")
+        # user input for names
+        self.player1 = QLineEdit(placeholderText="Enter name", clearButtonEnabled=True)
+        self.player2 = QLineEdit(placeholderText="Enter name", clearButtonEnabled=True)
+        self.player1.setValidator(validator) # validate input
+        self.player2.setValidator(validator) #validate input
+        self.player1.setStyleSheet("color: #14213d")
+        self.player2.setStyleSheet("color: #14213d")
+
+        self.player1.setFixedWidth(150)
+        self.player2.setFixedWidth(150)
+
+        # adding buttons to dialog
+        group_1 = QButtonGroup()
+        group_1.addButton(time_btn_1)
+        group_1.addButton(time_btn_2)
+        group_1.addButton(time_btn_3)
+        group_1.addButton(time_btn_4)
+
+        # positioning of the buttons
+        layout.addWidget(time_label, 0, 0)
+        layout.addWidget(time_btn_1, 1, 0)
+        layout.addWidget(time_btn_2, 1, 1)
+        layout.addWidget(time_btn_3, 1, 2)
+        layout.addWidget(time_btn_4, 1, 3)
+        layout.addWidget(name1, 2, 0)
+        layout.addWidget(name2, 3, 0)
+        layout.addWidget(self.player1, 2, 2)
+        layout.addWidget(self.player2, 3, 2)
+        layout.addWidget(start_game, 6, 3, Qt.AlignmentFlag.AlignRight)
+        # set layout of dialog
+        game_setup_window.setLayout(layout)
+        # upon setting selection
+        #time_btn_1.click()
+
+        # *****start_game.clicked.connect(self.game_start) -> connect once method to start game
+
+        game_setup_window.exec() # show dialog
+
+    """Set timer per round EXTRA FEATURE"""
+
+    def set_round_time(self, time_per_round):
+        self.time_per_round = time_per_round
+    def onChanged(self, text):
+        self.player1.setText(text)
+        self.lbl.adjustSize()
+
+
+

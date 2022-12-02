@@ -2,7 +2,6 @@ from PyQt6.QtWidgets import QFrame
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF
 from PyQt6.QtGui import QPainter
 from PyQt6.QtTest import QTest
-from piece import Piece
 
 class Board(QFrame):  # base the board on a QFrame widget
     updateTimerSignal = pyqtSignal(int) # signal sent when timer is updated

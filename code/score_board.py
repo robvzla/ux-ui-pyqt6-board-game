@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QWidget, QLabel, \
 from PyQt6.QtCore import pyqtSlot, Qt, QTimer
 
 
+
 class ScoreBoard(QDockWidget):
     '''# base the score_board on a QDockWidget'''
 
@@ -138,7 +139,7 @@ class ScoreBoard(QDockWidget):
     def setTimeRemaining(self, timeRemainng):
         '''updates the time remaining label to show the time remaining'''
         '''updates the time remaining label to show the time remaining'''
-        if timeRemainng<10: # if 10 seconds left update icon
+        if timeRemainng < 10: # if 10 seconds left update icon
             self.stop_watch_label.setPixmap(self.stop_watch_red) #updating icon
             self.stop_watch_label.update() #icon update
 
