@@ -26,8 +26,12 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # game is not currently started
         self.start()  # start the game which will start the timer
 
-        self.boardArray = [[0 for i in range(Board.boardHeight - 2)] for j in range(Board.boardWidth - 2)]  # TODO - create a 2d int/Piece array to store the state of the game
+        self.boardArray = [[0 for i in range(Board.boardHeight - 1)] for j in
+                           range(
+                               Board.boardWidth - 1)]  # TODO - create a 2d int/Piece array to store the state of the game
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
+
+        # self.addBorderToArray()
 
         # Create an instance of the logic object here to enforce the rules of this game
         self.logic = GameLogic()
@@ -37,25 +41,39 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.x_position = 0
         self.y_position = 0
 
+    # Create the addBorder method to just add 7's to the array around the board. Where there is a 7 it is a null spot in
+    # the array
+    def addBorderToArray(self):
+        for i in range(len(self.boardArray)):
+            for j in range(len(self.boardArray[0])):
+                if j == 0 or i == 0 or j == len(self.boardArray) - 1 or i == len(self.boardArray) - 1:
+                    self.boardArray[i][j] = 7
+
     def printBoardArray(self):
         '''prints the boardArray in an attractive way'''
         print("boardArray:")
         print('\n'.join(['\t'.join([str(cell) for cell in row]) for row in self.boardArray]))
 
-    def mousePosToColRow(self):
-        '''convert the mouse click event to a row and column'''
-
     def getCol(self):
         # Get widget width and divide it by the amount of squares on the board
         width = self.width() / Board.boardWidth
-        col = int(round(self.x_position / width))
+        col = int(round(self.x_position / width)) - 1  # Add the -1 to account for the whitespace
         return col
 
     def getRow(self):
         # Get the widget height and divide it by the amount of squares on the board
         height = self.height() / Board.boardHeight
-        row = int(round(self.y_position / height))
+        row = int(round(self.y_position / height)) - 1  # Add the -1 to account for the whitespace
         return row
+
+    def getColCoordinatesForPaint(self, col):
+        # print("Y postion: " + str(self.y_position))
+        # print("Board Size: " + str(self.width()))
+        # print("Board Square Width: " + str(self.width() / Board.boardWidth))
+        return (col + 1) * self.width() / Board.boardWidth
+
+    def getRowCoordinatesForPaint(self, row):
+        return (row + 1) * self.height() / Board.boardHeight
 
     def squareWidth(self):
         '''returns the width of one square in the board'''
@@ -95,19 +113,25 @@ class Board(QFrame):  # base the board on a QFrame widget
         '''this event is automatically called when the mouse is pressed'''
         clickLoc = "click location [" + str(event.position().x()) + "," + str(
             event.position().y()) + "]"  # the location where a mouse click was registered
-        print("mousePressEvent() - " + clickLoc)
+        # print("mousePressEvent() - " + clickLoc)
         # Set the x-position and the y-position
         self.x_position = int(event.position().x())
         self.y_position = int(event.position().y())
 
         # TODO you could call some game logic here
         self.clickLocationSignal.emit(clickLoc)
-        # Convert the X and Y locations to columns and rows
-        # self.getCol()
-        # self.getRow()
-        # Try to make the move
-        self.tryMove(self.getRow(), self.getCol())
 
+        # Check if the mouse click was within the range of the board
+        if self.checkWithinRange():
+            # Try to make the move
+            self.tryMove(self.getRow(), self.getCol())
+
+    def checkWithinRange(self):
+        width = self.width() / Board.boardWidth
+        height = self.height() / Board.boardHeight
+        if (width / 2) < self.x_position < ((width * 8) + (width / 2)) and \
+                ((height / 2) < self.y_position < (height * 8 + (height / 2))):
+            return True
 
     def resetGame(self):
         '''clears pieces from the board'''
@@ -122,7 +146,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check if there are any liberties around the piece
         print("Liberties: " + str(self.logic.checkAroundIntersection(newX, newY, self.boardArray, 0)))
         # Create method in game_logic to check the liberties, pass the turn, newX and newY
-
         # Create the piece
         new_piece = Piece(turn, newX, newY)
         print("Piece type: " + str(new_piece.getPiece()))
@@ -130,10 +153,10 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         # Add the piece to the boardArray
         self.boardArray[newX][newY] = turn
+
+        # self.getColCoordinatesForPaint(self.getCol())
         for row in range(0, len(self.boardArray)):
             print(self.boardArray[row])
-
-
 
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
@@ -144,8 +167,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Declaring and initializing the colors for the board
         color_one = QColor(214, 178, 112)
         color_two = QColor(199, 105, 41)
-        for row in range(1, Board.boardHeight-1):
-            for col in range(1, Board.boardWidth-1):
+        for row in range(1, Board.boardHeight - 1):
+            for col in range(1, Board.boardWidth - 1):
                 painter.save()
                 # Setting the value equal the transformation in the column direction
                 colTransformation = self.squareWidth() * col
@@ -198,5 +221,14 @@ class Board(QFrame):  # base the board on a QFrame widget
                 # TODO choose your colour and set the painter brush to the correct colour
                 radius = self.squareWidth() / 4
                 center = QPointF(radius, radius)
-                painter.drawEllipse(center, radius, radius)
+                # painter.drawEllipse(center, radius, radius)
+                x = self.getRowCoordinatesForPaint(row)
+                y = self.getColCoordinatesForPaint(col)
+
+                # print(str(center))
+                painter.drawEllipse(20, 20, int(radius), int(radius))
+                # print("Width: " + str(self.width()) + "X: " + str(x) + " Y: " + str(y))
+                spot = QPointF(x, y)
+                # painter.drawEllipse(center, x, y)
+                painter.drawEllipse(spot, radius, radius)
                 painter.restore()
