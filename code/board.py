@@ -123,8 +123,10 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         # Check if the mouse click was within the range of the board
         if self.checkWithinRange():
-            # Try to make the move
-            self.tryMove(self.getRow(), self.getCol())
+            # Check if a space is occupied
+            if self.boardArray[self.getRow()][self.getCol()] == 0:
+                # Try to make the move
+                self.tryMove(self.getRow(), self.getCol())
 
     def checkWithinRange(self):
         width = self.width() / Board.boardWidth
@@ -222,13 +224,17 @@ class Board(QFrame):  # base the board on a QFrame widget
                 radius = self.squareWidth() / 4
                 center = QPointF(radius, radius)
                 # painter.drawEllipse(center, radius, radius)
+
+
+                # Fiona's attempt
                 x = self.getRowCoordinatesForPaint(row)
                 y = self.getColCoordinatesForPaint(col)
-
+                width = self.width() / Board.boardWidth
+                width = int(width)
                 # print(str(center))
-                painter.drawEllipse(20, 20, int(radius), int(radius))
+                painter.drawEllipse(0, 0, int(radius), int(radius))
                 # print("Width: " + str(self.width()) + "X: " + str(x) + " Y: " + str(y))
-                spot = QPointF(x, y)
+                # spot = QPointF(x, y)
                 # painter.drawEllipse(center, x, y)
-                painter.drawEllipse(spot, radius, radius)
+                # painter.drawEllipse(spot, radius, radius)
                 painter.restore()

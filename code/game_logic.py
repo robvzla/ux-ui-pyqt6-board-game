@@ -184,7 +184,3 @@ class GameLogic:
             if checkBottomRight(array, x, y) == z:
                 count += 1
             return count
-
-
-
-
