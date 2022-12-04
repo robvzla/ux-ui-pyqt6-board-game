@@ -221,7 +221,9 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.setPen(colour)
                 painter.setBrush(colour)
                 radius = self.squareWidth() / 4
-                # Adding an offset to snap the pieces right at the intersection.
-                center = QPointF((row + 30), (col + 40))
+                # Adding an offset to X and Y position to snap the pieces right at the intersection.
+                x_offset = 30
+                y_offset = 40
+                center = QPointF((row + x_offset), (col + y_offset))
                 painter.drawEllipse(center, radius, radius)
                 painter.restore()
