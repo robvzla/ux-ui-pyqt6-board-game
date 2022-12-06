@@ -205,8 +205,8 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.save()
                 # TODO draw some the pieces as ellipses
                 # resize the piece by 2
-                painter.translate(((self.squareWidth()) * row) + self.squareWidth() / 2,
-                                  (self.squareHeight()) * col + self.squareHeight() / 2)
+                painter.translate(((self.squareWidth()) * row) + self.squareWidth() * 0.75,
+                                  (self.squareHeight()) * col + self.squareHeight() * 0.75)
 
                 # Transparent for when there is no piece on the board
                 if self.boardArray[col][row] == 0:
@@ -220,10 +220,9 @@ class Board(QFrame):  # base the board on a QFrame widget
 
                 painter.setPen(colour)
                 painter.setBrush(colour)
-                radius = self.squareWidth() / 4
-                # Adding an offset to X and Y position to snap the pieces right at the intersection.
-                x_offset = 30
-                y_offset = 40
-                center = QPointF((row + x_offset), (col + y_offset))
-                painter.drawEllipse(center, radius, radius)
+                radiusW = self.squareWidth() / 4
+                radiusH = self.squareHeight() / 4
+
+                center = QPointF(radiusW, radiusH)
+                painter.drawEllipse(center, radiusW, radiusH)
                 painter.restore()
