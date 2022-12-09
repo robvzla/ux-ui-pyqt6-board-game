@@ -205,8 +205,8 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.save()
                 # TODO draw some the pieces as ellipses
                 # resize the piece by 2
-                painter.translate(((self.squareWidth()) * row) + self.squareWidth() / 2,
-                                  (self.squareHeight()) * col + self.squareHeight() / 2)
+                painter.translate(((self.squareWidth()) * row) + self.squareWidth() * 0.75,
+                                  (self.squareHeight()) * col + self.squareHeight() * 0.75)
 
                 # Transparent for when there is no piece on the board
                 if self.boardArray[col][row] == 0:
@@ -220,21 +220,9 @@ class Board(QFrame):  # base the board on a QFrame widget
 
                 painter.setPen(colour)
                 painter.setBrush(colour)
-                # TODO choose your colour and set the painter brush to the correct colour
-                radius = self.squareWidth() / 4
-                center = QPointF(radius, radius)
-                # painter.drawEllipse(center, radius, radius)
+                radiusW = self.squareWidth() / 4
+                radiusH = self.squareHeight() / 4
 
-
-                # Fiona's attempt
-                x = self.getRowCoordinatesForPaint(row)
-                y = self.getColCoordinatesForPaint(col)
-                width = self.width() / Board.boardWidth
-                width = int(width)
-                # print(str(center))
-                painter.drawEllipse(0, 0, int(radius), int(radius))
-                # print("Width: " + str(self.width()) + "X: " + str(x) + " Y: " + str(y))
-                # spot = QPointF(x, y)
-                # painter.drawEllipse(center, x, y)
-                # painter.drawEllipse(spot, radius, radius)
+                center = QPointF(radiusW, radiusH)
+                painter.drawEllipse(center, radiusW, radiusH)
                 painter.restore()
