@@ -66,15 +66,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         row = int(round(self.y_position / height)) - 1  # Add the -1 to account for the whitespace
         return row
 
-    def getColCoordinatesForPaint(self, col):
-        # print("Y postion: " + str(self.y_position))
-        # print("Board Size: " + str(self.width()))
-        # print("Board Square Width: " + str(self.width() / Board.boardWidth))
-        return (col + 1) * self.width() / Board.boardWidth
-
-    def getRowCoordinatesForPaint(self, row):
-        return (row + 1) * self.height() / Board.boardHeight
-
     def squareWidth(self):
         '''returns the width of one square in the board'''
         return self.contentsRect().width() / self.boardWidth
@@ -179,19 +170,15 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.translate(colTransformation, rowTransformation)
                 # Changing the colors to create a checkered board
                 if row % 2 == 0:
-                    if col == 0:
+                    if col % 2 != 0:
                         brush.setColor(color_one)
-                    elif brush.color() == color_one:
+                    elif col % 2 == 0:
                         brush.setColor(color_two)
-                    else:
-                        brush.setColor(color_one)
                 else:
-                    if col == 0:
+                    if col % 2 != 0:
                         brush.setColor(color_two)
-                    elif brush.color() == color_two:
+                    elif col % 2 == 0:
                         brush.setColor(color_one)
-                    else:
-                        brush.setColor(color_two)
                 # Setting X and Y coordinates and painting a square base on the calculated
                 # width and height of squareWidth and squareHeight methods with the created brush
                 painter.fillRect(col, row, int(self.squareWidth()), int(self.squareHeight()), brush)
