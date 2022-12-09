@@ -26,7 +26,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # game is not currently started
         self.start()  # start the game which will start the timer
 
-        self.boardArray = [[0 for i in range(Board.boardHeight - 1)] for j in
+        self.boardArray = [[Piece(0, i, j) for i in range(Board.boardHeight - 1)] for j in
                            range(
                                Board.boardWidth - 1)]  # TODO - create a 2d int/Piece array to store the state of the game
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
@@ -40,14 +40,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         # These x & y positions will be passed to the Piece class constructor so a new Piece can be placed
         self.x_position = 0
         self.y_position = 0
-
-    # Create the addBorder method to just add 7's to the array around the board. Where there is a 7 it is a null spot in
-    # the array
-    def addBorderToArray(self):
-        for i in range(len(self.boardArray)):
-            for j in range(len(self.boardArray[0])):
-                if j == 0 or i == 0 or j == len(self.boardArray) - 1 or i == len(self.boardArray) - 1:
-                    self.boardArray[i][j] = 7
 
     def printBoardArray(self):
         '''prints the boardArray in an attractive way'''
@@ -115,7 +107,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check if the mouse click was within the range of the board
         if self.checkWithinRange():
             # Check if a space is occupied
-            if self.boardArray[self.getRow()][self.getCol()] == 0:
+            if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
                 # Try to make the move
                 self.tryMove(self.getRow(), self.getCol())
 
@@ -196,13 +188,13 @@ class Board(QFrame):  # base the board on a QFrame widget
                                   (self.squareHeight()) * col + self.squareHeight() * 0.75)
 
                 # Transparent for when there is no piece on the board
-                if self.boardArray[col][row] == 0:
+                if self.boardArray[col][row].getPiece() == 0:
                     colour = QColor(Qt.GlobalColor.transparent)
                 # White color for when it is white's turn
-                elif self.boardArray[col][row] == 1:
+                elif self.boardArray[col][row].getPiece() == 1:
                     colour = QColor(Qt.GlobalColor.white)
                 # Black color for when there black's turn
-                elif self.boardArray[col][row] == 2:
+                elif self.boardArray[col][row].getPiece() == 2:
                     colour = QColor(Qt.GlobalColor.black)
 
                 painter.setPen(colour)
