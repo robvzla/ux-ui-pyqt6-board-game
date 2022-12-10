@@ -1,135 +1,134 @@
 # Methods to return what is surrounding the intersection
-def checkLeft(array, x, y):
-    return array[x][y - 1]
-
-
-def checkTopLeft(array, x, y):
-    return array[x - 1][y - 1]
-
-
-def checkTop(array, x, y):
-    return array[x - 1][y]
-
-
-def checkTopRight(array, x, y):
-    return array[x - 1][y + 1]
-
-
-def checkRight(array, x, y):
-    return array[x][y + 1]
-
-
-def checkBottomRight(array, x, y):
-    return array[x + 1][y + 1]
-
-
-def checkBottom(array, x, y):
-    return array[x + 1][y]
-
-
-def checkBottomLeft(array, x, y):
-    return array[x + 1][y - 1]
-
-
-def checkTopLeftCorner(array, x, y, z):
-    count = 0
-    if checkBottom(array, x, y) == z:
-        count += 1
-    if checkBottomRight(array, x, y) == z:
-        count += 1
-    if checkRight(array, x, y) == z:
-        count += 1
-    return count
-
-
-def checkTopRightCorner(array, x, y, z):
-    count = 0
-    if checkLeft(array, x, y) == z:
-        print("Left: " + str(checkLeft(array, x, y)))
-        count += 1
-    if checkBottomLeft(array, x, y) == z:
-        count += 1
-    if checkBottom(array, x, y) == z:
-        count += 1
-    return count
-
-
-def checkTopRow(array, x, y, z):
-    count = checkTopRightCorner(array, x, y, z)
-    if checkBottomRight(array, x, y) == z:
-        count += 1
-    if checkRight(array, x, y) == z:
-        count += 1
-    return count
-
-
-def checkBottomLeftCorner(array, x, y, z):
-    count = 0
-    if y == 0:
-        if checkTop(array, x, y) == z:
-            count += 1
-        if checkTopRight(array, x, y) == z:
-            count += 1
-        if checkRight(array, x, y) == z:
-            count += 1
-        return count
-
-
-def checkBottomRightCorner(array, x, y, z):
-    count = 0
-    if checkLeft(array, x, y) == z:
-        count += 1
-    if checkTopLeft(array, x, y) == z:
-        count += 1
-    if checkTop(array, x, y) == z:
-        count += 1
-    return count
-
-
-def checkBottomRow(array, x, y, z):
-    count = checkBottomRightCorner(array, x, y, z)
-    if checkTopRight(array, x, y) == z:
-        count += 1
-    if checkRight(array, x, y) == z:
-        count += 1
-    return count
-
-
-def checkLeftColumn(array, x, y, z):
-    count = 0
-    if checkTop(array, x, y) == z:
-        count += 1
-    if checkTopRight(array, x, y) == z:
-        count += 1
-    if checkRight(array, x, y) == z:
-        count += 1
-    if checkBottomRight(array, x, y) == z:
-        count += 1
-    if checkBottom(array, x, y) == z:
-        count += 1
-    return count
-
-
-def checkRightColumn(array, x, y, z):
-    count = 0
-    if checkTop(array, x, y) == z:
-        count += 1
-    if checkTopLeft(array, x, y) == z:
-        count += 1
-    if checkLeft(array, x, y) == z:
-        count += 1
-    if checkBottomLeft(array, x, y) == z:
-        count += 1
-    if checkBottom(array, x, y) == z:
-        count += 1
-    return count
+from code.board import Board
+from code.piece import Piece
 
 
 class GameLogic:
     print("Game Logic Object Created")
 
-    # TODO add code here to manage the logic of your game
+    boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
+                  range(Board.boardWidth - 1)]
     turn = 0
+
+    def checkLeft(self, x, y):
+        return self.boardArray[x][y - 1]
+
+    def checkTop(self, x, y):
+        return self.boardArray[x - 1][y]
+
+    def checkRight(self, x, y):
+        return self.boardArray[x][y + 1]
+
+    def checkBottom(self, x, y):
+        return self.boardArray[x + 1][y]
+
+    def checkTopLeftCorner(self, x, y):
+        c = 0
+        if self.checkRight(x, y) == 0:
+            c += 1
+        if self.checkBottom(x, y) == 0:
+            c += 1
+        return c
+
+    def checkBottomLeftCorner(self, x, y):
+        c = 0
+        if self.checkRight(x, y) == 0:
+            c += 1
+        if self.checkTop(x, y) == 0:
+            c += 1
+        return c
+
+    def checkTopRightCorner(self, x, y):
+        c = 0
+        if self.checkLeft(x, y) == 0:
+            c += 1
+        if self.checkBottom(x, y) == 0:
+            c += 1
+        return c
+
+    def checkBottomRightCorner(self, x, y):
+        c = 0
+        if self.checkLeft(x, y) == 0:
+            c += 1
+        if self.checkTop(x, y) == 0:
+            c += 1
+        return c
+
+    def checkLeftColumn(self, x, y):
+        c = 0
+        if self.checkRight(x, y) == 0:
+            c += 1
+        if self.checkTop(x, y) == 0:
+            c += 1
+        if self.checkBottom(x, y) == 0:
+            c += 1
+        return c
+
+    def checkRightColumn(self, x, y):
+        c = 0
+        if self.checkLeft(x, y) == 0:
+            c += 1
+        if self.checkTop(x, y) == 0:
+            c += 1
+        if self.checkBottom(x, y) == 0:
+            c += 1
+        return c
+
+    def checkTopRow(self, x, y):
+        c = 0
+        if self.checkLeft(x, y) == 0:
+            c += 1
+        if self.checkRight(x, y) == 0:
+            c += 1
+        if self.checkBottom(x, y) == 0:
+            c += 1
+        return c
+
+    def checkBottomRow(self, x, y):
+        c = 0
+        if self.checkLeft(x, y) == 0:
+            c += 1
+        if self.checkTop(x, y) == 0:
+            c += 1
+        if self.checkRight(x, y) == 0:
+            c += 1
+        return c
+
+    def checkTopFriendEnemy(self, x, y, turn):
+        if self.boardArray[x - 1][y] != 0:  # Check the top
+            if self.boardArray[x - 1][y] == turn:
+                self.boardArray[x][y].hasTopFriend = True
+                self.boardArray[x][y].hasTopEnemy = False
+            else:
+                self.boardArray[x][y].hasTopFriend = False
+                self.boardArray[x][y].hasTopEnemy = True
+
+    def checkLeftFriendEnemy(self, x, y, turn):
+        if self.boardArray[x][y - 1] != 0:  # Check the left
+            if self.boardArray[x][y - 1] == turn:
+                self.boardArray[x][y].hasLeftFriend = True
+                self.boardArray[x][y].hasLeftEnemy = False
+            else:
+                self.boardArray[x][y].hasLeftFriend = False
+                self.boardArray[x][y].hasLeftEnemy = True
+
+    def checkRightFriendEnemy(self, x, y, turn):
+        if self.boardArray[x][y + 1] != 0:  # Check the Right
+            if self.boardArray[x][y + 1] == turn:
+                self.boardArray[x][y].hasRightFriend = True
+                self.boardArray[x][y].hasRightEnemy = False
+            else:
+                self.boardArray[x][y].hasRightFriend = False
+                self.boardArray[x][y].hasRightEnemy = True
+
+    def checkBottomFriendEnemy(self, x, y, turn):
+        if self.boardArray[x + 1][y] != 0:  # Check the Bottom
+            if self.boardArray[x + 1][y] == turn:
+                self.boardArray[x][y].hasBottomFriend = True
+                self.boardArray[x][y].hasBottomEnemy = False
+            else:
+                self.boardArray[x][y].hasBottomFriend = False
+                self.boardArray[x][y].hasBottomEnemy = True
 
     def checkTurn(self):
         if self.turn == 0:
@@ -141,46 +140,55 @@ class GameLogic:
             # If it is an odd number then it is player one's turn
             return 1
 
-    def checkAroundIntersection(self, x, y, array, z):
-        # Search the intersections surrounding the intersection in question
+    def checkLiberties(self, x, y):
+        # Search the intersections surrounding the intersection in question for friends, enemies and liberties
         # Check the top left and right corners & the top row
-        if x == 0:
-            # Check top left corner
-            if y == 0:
-                return checkTopLeftCorner(array, x, y, z)  # Working correctly
-            # Check top right corner
-            elif y == (len(array) - 1):
-                return checkTopRightCorner(array, x, y, z)  # Working correctly
-            # Check the top row
+        if x == 0:  # Always check to the left of the piece
+            if y == 0:  # Check the left corner
+                return self.checkTopLeftCorner(x, y)
+            elif y == len(self.boardArray[x]):
+                return self.checkTopRightCorner(x, y)
             else:
-                return checkTopRow(array, x, y, z)  # Working correctly
+                return self.checkTopRow(x, y)
+        elif x == len(self.boardArray):  # Check the bottom corners and row
+            if y == 0:  # Check the bottom left corner
+                return self.checkBottomLeftCorner(x, y)
+            elif y == len(self.boardArray[x]):
+                return self.checkBottomRightCorner(x, y)
+            else:
+                return self.checkBottomRow(x, y)
+        elif y == 0:  # Check all four liberties
+            return self.checkLeftColumn(x, y)
+        elif y == len(self.boardArray):
+            return self.checkRightColumn(x, y)
+        else:
+            return self.checkTop(x, y) + self.checkRight(x, y) + self.checkLeft(x, y) + self.checkBottom(x, y)
 
-        # Check the bottom corners and the bottom row
-        elif x == (len(array) - 1):
-            # Check the bottom left corner
+    def checkForFriendsOrEnemies(self, x, y, turn):
+        if 0 < x < len(self.boardArray):
+            if 0 < y < len(self.boardArray[x]):
+                self.checkTopFriendEnemy(x, y, turn)
+                self.checkLeftFriendEnemy(x, y, turn)
+                self.checkRightFriendEnemy(x, y, turn)
+                self.checkBottomFriendEnemy(x, y, turn)
+        elif x == 0:
+            self.checkBottomFriendEnemy(x, y, turn)
             if y == 0:
-                return checkBottomLeftCorner(array, x, y, z)  # Working correctly
-            # Check the bottom right corner
-            elif y == (len(array) - 1):
-                return checkBottomRightCorner(array, x, y, z)  # Working correctly
-            # Check the bottom row
-            else:
-                return checkBottomRow(array, x, y, z)  # Working correctly
-        # Check the left column
+                self.checkRightFriendEnemy(x, y, turn)
+            elif y == len(self.boardArray[x]):
+                self.checkLeftFriendEnemy(x, y, turn)
+        elif x == len(self.boardArray):
+            self.checkTopFriendEnemy(x, y, turn)
+            if y == 0:
+                self.checkRightFriendEnemy(x, y, turn)
+            elif y == len(self.boardArray[x]):
+                self.checkLeftFriendEnemy(x, y, turn)
         elif y == 0:
-            if 0 < x < (len(array) - 1):
-                return checkLeftColumn(array, x, y, z)  # Working correctly
-        # Check the right column
-        elif y == (len(array) - 1):
-            if 0 < x < (len(array) - 1):
-                return checkRightColumn(array, x, y, z)  # Working correctly
-        # Check everywhere else
-        else:  # Working correctly
-            count = checkBottomRow(array, x, y, z)
-            if checkBottomLeft(array, x, y) == z:
-                count += 1
-            if checkBottom(array, x, y) == z:
-                count += 1
-            if checkBottomRight(array, x, y) == z:
-                count += 1
-            return count
+            self.checkRightFriendEnemy(x, y, turn)
+            self.checkBottomFriendEnemy(x, y, turn)
+            self.checkLeftFriendEnemy(x, y, turn)
+        else:
+            self.checkLeftFriendEnemy(x, y, turn)
+            self.checkTopFriendEnemy(x, y, turn)
+            self.checkRightFriendEnemy(x, y, turn)
+           
