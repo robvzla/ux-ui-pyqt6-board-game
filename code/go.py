@@ -29,7 +29,6 @@ class Go(QMainWindow):
         self.scoreBoard = ScoreBoard()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
-
         self.resize(800, 800)
         self.center()
         self.setWindowTitle('Go')
@@ -107,15 +106,15 @@ class Go(QMainWindow):
         #restartAction.triggered.connect(self...)  -> call method to restart game
 
         # Redo button
-        redoAction = QAction(QIcon("./icons/back.png"), "Redo", self)  # action for play button
+        redoAction = QAction(QIcon("./icons/back.png"), "Undo", self)  # action for play button
         redoAction.setShortcut("Ctrl+B")  # add keyboard shortcut
-        redoAction.setStatusTip("Redo")  # label upon hovering
+        redoAction.setStatusTip("Undo")  # label upon hovering
         # redoAction.triggered.connect(self...)  -> call method to redo move
 
         # Do button
-        doAction = QAction(QIcon("./icons/right-arrow.png"), "Do", self)  # action for play button
+        doAction = QAction(QIcon("./icons/right-arrow.png"), "Redo", self)  # action for play button
         doAction.setShortcut("Ctrl+D")  # add keyboard shortcut
-        doAction.setStatusTip("Do")  # label upon hovering
+        doAction.setStatusTip("Redo")  # label upon hovering
         #doAction.triggered.connect(self...)  -> call method to do move
 
         """" Adding action buttons in toolbar"""
@@ -169,7 +168,7 @@ class Go(QMainWindow):
 
 
     def stop_game(self):
-        self.round_timer.stop()  # stops timer
+        self.timer.stop()  # stops timer
         self.play_button.setEnabled(True)  # enables play to be re-clicked
     def center(self):
         '''centers the window on the screen'''
@@ -182,6 +181,7 @@ class Go(QMainWindow):
         #self.move((screen.width() - size.width()) / 2,(screen.height() - size.height()) / 2)
 
     def get_game_setup(self):
+        self.board.timer.stop() # stop timer from board
 
 
         # dialog for game settings
@@ -269,7 +269,7 @@ class Go(QMainWindow):
         # upon setting selection
         #time_btn_1.click()
 
-        # *****start_game.clicked.connect(self.game_start) -> connect once method to start game
+        # *****start_game.clicked.connect(self.start) -> connect once method to start game from board
 
         game_setup_window.exec() # show dialog
 

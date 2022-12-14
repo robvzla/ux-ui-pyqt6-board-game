@@ -122,10 +122,6 @@ class ScoreBoard(QDockWidget):
         board.updateTimerSignal.connect(self.setTimeRemaining)
 
 
-    def stop_game(self):
-        self.round_timer.stop()  # stops timer
-        self.play_button.setEnabled(True)  # enables play to be re-clicked
-
     """EXTRA FEATURE updating the timer counter"""
 
 
@@ -139,12 +135,18 @@ class ScoreBoard(QDockWidget):
     def setTimeRemaining(self, timeRemainng):
         '''updates the time remaining label to show the time remaining'''
         '''updates the time remaining label to show the time remaining'''
+        update = "Time Left:" + str(timeRemainng)
+        self.label_timeRemaining.setText(update)  # update time
+        print('slot ' + update)
+
         if timeRemainng < 10: # if 10 seconds left update icon
             self.stop_watch_label.setPixmap(self.stop_watch_red) #updating icon
             self.stop_watch_label.update() #icon update
 
-        update = "Time Left:" + str(timeRemainng)
-        self.label_timeRemaining.setText(update) # update time
-        print('slot ' + update)
+        #  if timeRemainng<=0:
+         # timeRemainng.stop()
+        #self.timer_over()
+
+
         # self.redraw()
 

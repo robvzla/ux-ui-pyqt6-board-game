@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QFrame
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF
 from PyQt6.QtGui import QPainter
 from PyQt6.QtTest import QTest
+from piece import Piece
 
 class Board(QFrame):  # base the board on a QFrame widget
     updateTimerSignal = pyqtSignal(int) # signal sent when timer is updated
@@ -44,7 +45,7 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def start(self):
         '''starts game'''
-        self.isStarted = True                       # set the boolean which determines if the game has started to TRUE
+        self.isStarted = False                      # set the boolean which determines if the game has started to TRUE
         self.resetGame()                            # reset the game
         self.timer.start(self.timerSpeed, self)     # start the timer with the correct speed
         print("start () - timer is started")
