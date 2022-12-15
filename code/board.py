@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QRect, QRectF, QPoint
-from PyQt6.QtGui import QPainter, QBrush, QColor, QPen
-from PyQt6.QtTest import QTest
+from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
+from PyQt6.QtGui import QPainter, QBrush, QColor
 from piece import Piece
 from game_logic import GameLogic
 
