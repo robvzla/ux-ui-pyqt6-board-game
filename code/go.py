@@ -24,13 +24,15 @@ class Go(QMainWindow):
 
     def initUI(self):
         '''initiates application UI'''
-        # windows version
+        # Windows version
         self.board = Board(self)
         self.setCentralWidget(self.board)
         self.scoreBoard = ScoreBoard()
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
         self.resize(800, 800)
+        self.setFixedWidth(800)
+        self.setFixedHeight(800)
         self.center()
         self.setWindowTitle('Go')
         self.show()
@@ -40,7 +42,7 @@ class Go(QMainWindow):
                  Rules for 2 players game:
              """
 
-        # about the application text display displayed in Help menu about
+        # about the application text display in Help menu about
         self.about = """ About ...
                  """
 

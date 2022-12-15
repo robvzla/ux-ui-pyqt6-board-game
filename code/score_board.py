@@ -12,7 +12,9 @@ class ScoreBoard(QDockWidget):
 
     def initUI(self):
         '''initiates ScoreBoard UI'''
-        self.resize(250, 250)
+        # self.resize(250, 250)
+        self.setFixedWidth(200)
+        self.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures)
         self.center()
         self.setWindowTitle('ScoreBoard')
 
