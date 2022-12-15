@@ -108,17 +108,17 @@ class Go(QMainWindow):
         restartAction.setStatusTip("Restart")  # label upon hovering
         #restartAction.triggered.connect(self...)  -> call method to restart game
 
-        # Redo button
+        # Undo button
         redoAction = QAction(QIcon("./icons/back.png"), "Undo", self)  # action for play button
         redoAction.setShortcut("Ctrl+B")  # add keyboard shortcut
         redoAction.setStatusTip("Undo")  # label upon hovering
-        # redoAction.triggered.connect(self...)  -> call method to redo move
+        redoAction.triggered.connect(self.board.undo)
 
-        # Do button
+        # Redo button
         doAction = QAction(QIcon("./icons/right-arrow.png"), "Redo", self)  # action for play button
         doAction.setShortcut("Ctrl+D")  # add keyboard shortcut
         doAction.setStatusTip("Redo")  # label upon hovering
-        #doAction.triggered.connect(self...)  -> call method to do move
+        doAction.triggered.connect(self.board.redo)
 
         """" Adding action buttons in toolbar"""
         toolbar.addAction(exitAction)

@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QRect, QRectF
+from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QRect, QRectF, QPoint
 from PyQt6.QtGui import QPainter, QBrush, QColor, QPen
 from PyQt6.QtTest import QTest
 from piece import Piece
@@ -25,6 +25,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.timer = QBasicTimer()  # create a timer for the game
         self.isStarted = False  # game is not currently started
         self.start()  # start the game which will start the timer
+        self.points_coordinates_undo = []  # Stack that contains all the intersections used by players. Used for undo
+        self.points_coordinates_redo = []  # Stack that contains all the points that were popped in the undo method
 
         self.boardArray = [[0 for i in range(Board.boardHeight - 1)] for j in
                            range(
@@ -75,9 +77,9 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def start(self):
         '''starts game'''
-        self.isStarted = False                      # set the boolean which determines if the game has started to TRUE
-        self.resetGame()                            # reset the game
-        self.timer.start(self.timerSpeed, self)     # start the timer with the correct speed
+        self.isStarted = False  # set the boolean which determines if the game has started to TRUE
+        self.resetGame()  # reset the game
+        self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
         print("start () - timer is started")
 
     def timerEvent(self, event):
@@ -143,7 +145,10 @@ class Board(QFrame):  # base the board on a QFrame widget
         new_piece = Piece(turn, newX, newY)
         print("Piece type: " + str(new_piece.getPiece()))
         print()
-
+        # Storing indexes of pieces as points
+        point = QPoint(newX, newY)
+        # Adding points inside the stack
+        self.points_coordinates_undo.append(point)
         # Add the piece to the boardArray
         self.boardArray[newX][newY] = turn
 
@@ -152,9 +157,6 @@ class Board(QFrame):  # base the board on a QFrame widget
             print(self.boardArray[row])
 
         self.update()
-
-    # def resizeEvent(self, event):
-    #     self.paintEvent(event)
 
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
@@ -222,3 +224,32 @@ class Board(QFrame):  # base the board on a QFrame widget
                 center = QPointF(radiusW, radiusH)
                 painter.drawEllipse(center, radiusW, radiusH)
                 painter.restore()
+
+    def undo(self):
+        # Checks first if the stack is empty. If not empty, it starts popping values
+        if self.points_coordinates_undo.__len__() != 0:
+            # Pop and store the value inside the variable
+            point_value = self.points_coordinates_undo.pop()
+            # Storing removed point inside the redo stack
+            self.points_coordinates_redo.append(point_value)
+            # Get the row and col indexes
+            row_point = point_value.x()
+            col_point = point_value.y()
+            # Set the specific index to 0 (transparent)
+            self.boardArray[row_point][col_point] = 0
+            # Calling update method to re draw board and pieces
+            self.update()
+
+    def redo(self):
+        if self.points_coordinates_redo.__len__() != 0:
+            # Pop and store the value inside the variable
+            point_value = self.points_coordinates_redo.pop()
+            # Storing removed point inside the undo stack
+            self.points_coordinates_undo.append(point_value)
+            # Get the row and col indexes
+            row_point = point_value.x()
+            col_point = point_value.y()
+            # Set the specific index to 0 (transparent)
+            self.boardArray[row_point][col_point] = 1
+            # Calling update method to re draw board and pieces
+            self.update()
