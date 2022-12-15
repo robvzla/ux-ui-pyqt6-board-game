@@ -31,8 +31,6 @@ class Board(QFrame):  # base the board on a QFrame widget
                                Board.boardWidth - 1)]  # TODO - create a 2d int/Piece array to store the state of the game
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
 
-        # self.addBorderToArray()
-
         # Create an instance of the logic object here to enforce the rules of this game
         self.logic = GameLogic()
 
@@ -40,14 +38,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         # These x & y positions will be passed to the Piece class constructor so a new Piece can be placed
         self.x_position = 0
         self.y_position = 0
-
-    # Create the addBorder method to just add 7's to the array around the board. Where there is a 7 it is a null spot in
-    # the array
-    def addBorderToArray(self):
-        for i in range(len(self.boardArray)):
-            for j in range(len(self.boardArray[0])):
-                if j == 0 or i == 0 or j == len(self.boardArray) - 1 or i == len(self.boardArray) - 1:
-                    self.boardArray[i][j] = 7
 
     def printBoardArray(self):
         '''prints the boardArray in an attractive way'''
@@ -160,6 +150,9 @@ class Board(QFrame):  # base the board on a QFrame widget
         # self.getColCoordinatesForPaint(self.getCol())
         for row in range(0, len(self.boardArray)):
             print(self.boardArray[row])
+
+    # def resizeEvent(self, event):
+    #     self.paintEvent(event)
 
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
