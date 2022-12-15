@@ -85,10 +85,10 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def start(self):
         '''starts game'''
-        self.isStarted = True  # set the boolean which determines if the game has started to TRUE
-        self.resetGame()  # reset the game
-        self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
-        # print("start () - timer is started")
+        self.isStarted = False                      # set the boolean which determines if the game has started to TRUE
+        self.resetGame()                            # reset the game
+        self.timer.start(self.timerSpeed, self)     # start the timer with the correct speed
+        print("start () - timer is started")
 
     def timerEvent(self, event):
         '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
@@ -97,7 +97,8 @@ class Board(QFrame):  # base the board on a QFrame widget
             if Board.counter == 0:
                 print("Game over")
             self.counter -= 1
-            # print('timerEvent()', self.counter)
+
+            print('timerEvent()', self.counter)
             self.updateTimerSignal.emit(self.counter)
         else:
             super(Board, self).timerEvent(event)  # if we do not handle an event we should pass it to the super
