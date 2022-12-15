@@ -151,6 +151,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         for row in range(0, len(self.boardArray)):
             print(self.boardArray[row])
 
+        self.update()
+
     # def resizeEvent(self, event):
     #     self.paintEvent(event)
 
