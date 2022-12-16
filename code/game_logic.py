@@ -11,7 +11,6 @@ class GameLogic:
         self.capturedBlackPieces = 0
         self.capturedWhitePieces = 0
 
-
     def checkTurn(self):
         if self.turn == 0:
             return 1
@@ -85,136 +84,69 @@ class GameLogic:
         else:
             return self.capturedWhitePieces
 
-    def checkForGroups(self, x, y, boardArray, turn):
-        self.checkTop(x, y, boardArray, turn)
-        pass
-
-
-
-
-
-    def countLiberties(self, x, y, boardArray):  # Working correctly!
-        count = 0
-        print("Board " + str(boardArray[x][y].getPiece()))
-        try:  # Check the top
-            if boardArray[x - 1][y].getPiece() == 0:
-                if 0 <= x - 1 <= len(boardArray) - 1:
-                    count += 1
-        except IndexError:
-            print("Index top out of bounds!")
-        try:  # Check the bottom
-            if x + 1 < len(boardArray):
-                if boardArray[x + 1][y].getPiece() == 0:
-                    count += 1
-        except IndexError:
-            print("Index bottom out of bounds!")
-            print(len(boardArray))
-        try:  # Check left
-            if boardArray[x][y - 1].getPiece() == 0:
-                if 0 <= y - 1 <= len(boardArray):
-                    count += 1
-        except IndexError:
-            print("Index left out of bounds!")
-        try:  # Check right
-            if boardArray[x][y + 1].getPiece() == 0:
-                if 0 <= y + 1 <= len(boardArray):
-                    count += 1
-        except IndexError:
-            print("Index right out of bounds!")
-        return count
-
-    def capture(self, x, y, boardArray, turn):
-        if turn == 1:
+    def checkForTopGroup(self, x, y, boardArray, turn):
+        if turn == 1:  # Change the turn to look for the opposite colour
             enemy = 2
         else:
             enemy = 1
+        self.checkTop(x, y, boardArray, enemy)
 
-        # self.captureTop(x, y, boardArray, enemy)
-        #
-        # self.captureBottom(x, y, boardArray, enemy)
-        #
-        # self.captureLeft(x, y, boardArray, enemy)
+        print("Length of Group to Capture: " + str(len(self.groupToCapture)))
+        print("Group of Stones Locations: ")
+        self.printList(self.groupToCapture)  # Working correctly up to here
 
-        self.captureTopGroup(x, y, boardArray, enemy)
-        # self.checkBottom(x, y, boardArray, enemy)
+        # If there is something to capture (list > 0) then find out what liberties will have to be covered
 
-        # if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
-        #     if boardArray[x + 1][y].getPiece() == enemy:
-        #         if self.containsFriend(x + 1, y):  # If the piece is in the friends array then do nothing
-        #             pass
-        #         else:
-        #             self.addToFriends(x + 1, y, enemy)  # Add the enemy piece to the friends list
-        #             self.checkForFriends(x + 1, y, boardArray, enemy)  # Check to see if the piece has friends
-
-        if y - 1 >= 0:  # Check if there is an enemy to the left
-            if boardArray[x][y - 1].getPiece() == enemy:
-                if self.containsElement(x, y - 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
+    def checkTop(self, x, y, boardArray, turn):
+        if x - 1 >= 0:  # Check if there is a friend on top
+            print("X - 1: " + str(x - 1) + " Turn: " + str(turn))
+            if boardArray[x - 1][y].getPiece() == turn:
+                if self.containsElement(x - 1, y,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addToFriends(x, y - 1, enemy)  # Add the enemy piece to the friends list
-                    self.checkForFriends(x, y - 1, boardArray, enemy)  # Check to see if the piece has friends
+                    self.addPieceToList(x - 1, y, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x - 1, y, boardArray, turn)  # Check to see if the piece has friends
 
-        if y + 1 < len(boardArray):  # Check if there is an enemy to the bottom
-            if boardArray[x][y + 1].getPiece() == enemy:
-                if self.containsElement(x, y + 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
+    def checkBottom(self, x, y, boardArray, turn):
+        if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
+            if boardArray[x + 1][y].getPiece() == turn:
+                if self.containsElement(x + 1, y,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addToFriends(x, y + 1, enemy)  # Add the enemy piece to the friends list
-                    self.checkForFriends(x, y + 1, boardArray, enemy)  # Check to see if the piece has friends
+                    self.addPieceToList(x + 1, y, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x + 1, y, boardArray, turn)  # Check to see if the piece has friends
 
-        # self.printFriendsList()
-        # self.friendsList.clear()
-
-    # def captureTop(self, x, y, boardArray, turn):
-    #     if x - 1 >= 0:
-    #         self.checkForFriends(x - 1, y, boardArray, turn)
-    #
-    # def captureBottom(self, x, y, boardArray, turn):
-    #     if x + 1 < len(boardArray):
-    #         self.checkForFriends(x + 1, y, boardArray, turn)
-    #
-    # def captureLeft(self, x, y, boardArray, turn):
-    #     if y - 1 >= 0:
-    #         self.ch
-
-    def checkForFriends(self, x, y, boardArray, turn):
-        # if x - 1 >= 0:  # Check if there is a friend on top
-        #     if boardArray[x - 1][y].getPiece() == turn:
-        #         if self.containsFriend(x - 1, y):  # If the piece is in the friends array then do nothing
-        #             pass
-        #         else:
-        #             self.addToFriends(x - 1, y, turn)  # Add the enemy piece to the friends list
-        #             self.checkForFriends(x - 1, y, boardArray, turn)  # Check to see if the piece has friends
-
-        self.checkTop(x, y, boardArray, turn)
-
-        # if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
-        #     if boardArray[x + 1][y].getPiece() == turn:
-        #         if self.containsFriend(x + 1, y):  # If the piece is in the friends array then do nothing
-        #             pass
-        #         else:
-        #             self.addToFriends(x + 1, y, turn)  # Add the enemy piece to the friends list
-        #             self.checkForFriends(x + 1, y, boardArray, turn)  # Check to see if the piece has friends
-
+    def checkLeft(self, x, y, boardArray, turn):
         if y - 1 >= 0:  # Check there is a friend to the left
             if boardArray[x][y - 1].getPiece() == turn:
-                if self.containsElement(x, y - 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x, y - 1,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addToFriends(x, y - 1, turn)  # Add the enemy piece to the friends list
-                    self.checkForFriends(x, y - 1, boardArray, turn)  # Check to see if the piece has friends
+                    self.addPieceToList(x, y - 1, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x, y - 1, boardArray, turn)  # Check to see if the piece has friends
 
+    def checkRight(self, x, y, boardArray, turn):
         if y + 1 < len(boardArray):  # Check there is a friend to the right
             if boardArray[x][y + 1].getPiece() == turn:
-                if self.containsElement(x, y + 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x, y + 1,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addToFriends(x, y + 1, turn)  # Add the enemy piece to the friends list
-                    self.checkForFriends(x, y + 1, boardArray, turn)  # Check to see if the piece has friends
+                    self.addPieceToList(x, y + 1, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x, y + 1, boardArray, turn)  # Check to see if the piece has friends
 
-    def addToFriends(self, x, y, enemy):
+    def checkForStonesOfSameColour(self, x, y, boardArray, turn):
+        self.checkTop(x, y, boardArray, turn)
+        self.checkBottom(x, y, boardArray, turn)
+        self.checkLeft(x, y, boardArray, turn)
+        self.checkRight(x, y, boardArray, turn)
+
+    def addPieceToList(self, x, y, enemy, listName):
         result = next(
-            (piece for piece in self.groupToCapture if piece.x == x and piece.y == y),
+            (piece for piece in listName if piece.x == x and piece.y == y),
             False
         )
         if not result:  # If result is false then add the piece to the friends list
@@ -235,31 +167,94 @@ class GameLogic:
         for i in range(0, len(listName)):
             print(str(i) + ": " + str(listName[i].x) + " " + str(listName[i].y))
 
-    def checkTop(self, x, y, boardArray, turn):
-        if x - 1 >= 0:  # Check if there is a friend on top
-            if boardArray[x - 1][y].getPiece() == turn:
-                if self.containsElement(x - 1, y, self.groupToCapture):  # If the piece is in the friends array then do nothing
-                    pass
-                else:
-                    self.addToFriends(x - 1, y, turn)  # Add the enemy piece to the friends list
-                    self.checkForFriends(x - 1, y, boardArray, turn)  # Check to see if the piece has friends
 
-    def checkBottom(self, x, y, boardArray, turn):
-        if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
-            if boardArray[x + 1][y].getPiece() == turn:
-                if self.containsElement(x + 1, y, self.groupToCapture):  # If the piece is in the friends array then do nothing
-                    pass
-                else:
-                    self.addToFriends(x + 1, y, turn)  # Add the enemy piece to the friends list
-                    self.checkForFriends(x + 1, y, boardArray, turn)  # Check to see if the piece has friends
+    # def countLiberties(self, x, y, boardArray):  # Working correctly!
+    #     count = 0
+    #     # print("Board " + str(boardArray[x][y].getPiece()))
+    #     try:  # Check the top
+    #         if boardArray[x - 1][y].getPiece() == 0:
+    #             if 0 <= x - 1 <= len(boardArray) - 1:
+    #                 count += 1
+    #     except IndexError:
+    #         print("Index top out of bounds!")
+    #     try:  # Check the bottom
+    #         if x + 1 < len(boardArray):
+    #             if boardArray[x + 1][y].getPiece() == 0:
+    #                 count += 1
+    #     except IndexError:
+    #         print("Index bottom out of bounds!")
+    #         print(len(boardArray))
+    #     try:  # Check left
+    #         if boardArray[x][y - 1].getPiece() == 0:
+    #             if 0 <= y - 1 <= len(boardArray):
+    #                 count += 1
+    #     except IndexError:
+    #         print("Index left out of bounds!")
+    #     try:  # Check right
+    #         if boardArray[x][y + 1].getPiece() == 0:
+    #             if 0 <= y + 1 <= len(boardArray):
+    #                 count += 1
+    #     except IndexError:
+    #         print("Index right out of bounds!")
+    #     return count
+    #
+    # def capture(self, x, y, boardArray, turn):
+    #     if turn == 1:
+    #         enemy = 2
+    #     else:
+    #         enemy = 1
+    #
+    #     # self.captureTop(x, y, boardArray, enemy)
+    #     #
+    #     # self.captureBottom(x, y, boardArray, enemy)
+    #     #
+    #     # self.captureLeft(x, y, boardArray, enemy)
+    #
+    #     self.captureTopGroup(x, y, boardArray, enemy)
+    #     # self.checkBottom(x, y, boardArray, enemy)
+    #
+    #     # if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
+    #     #     if boardArray[x + 1][y].getPiece() == enemy:
+    #     #         if self.containsFriend(x + 1, y):  # If the piece is in the friends array then do nothing
+    #     #             pass
+    #     #         else:
+    #     #             self.addToFriends(x + 1, y, enemy)  # Add the enemy piece to the friends list
+    #     #             self.checkForFriends(x + 1, y, boardArray, enemy)  # Check to see if the piece has friends
+    #
+    #     if y - 1 >= 0:  # Check if there is an enemy to the left
+    #         if boardArray[x][y - 1].getPiece() == enemy:
+    #             if self.containsElement(x, y - 1,
+    #                                     self.groupToCapture):  # If the piece is in the friends array then do nothing
+    #                 pass
+    #             else:
+    #                 self.addPieceToList(x, y - 1, enemy)  # Add the enemy piece to the friends list
+    #                 self.checkForStonesOfSameColour(x, y - 1, boardArray,
+    #                                                 enemy)  # Check to see if the piece has friends
+    #
+    #     if y + 1 < len(boardArray):  # Check if there is an enemy to the bottom
+    #         if boardArray[x][y + 1].getPiece() == enemy:
+    #             if self.containsElement(x, y + 1,
+    #                                     self.groupToCapture):  # If the piece is in the friends array then do nothing
+    #                 pass
+    #             else:
+    #                 self.addPieceToList(x, y + 1, enemy)  # Add the enemy piece to the friends list
+    #                 self.checkForStonesOfSameColour(x, y + 1, boardArray,
+    #                                                 enemy)  # Check to see if the piece has friends
+    #
+    #     # self.printFriendsList()
+    #     # self.friendsList.clear()
 
-    def checkLeft(self, x, y, boardArray):
-        if 0 <= y - 1 < len(boardArray):
-            return boardArray[x][y - 1].getPiece()
-
-    def checkRight(self, x, y, boardArray):
-        if 0 <= y + 1 < len(boardArray):
-            return boardArray[x][y + 1].getPiece()
+    # def captureTop(self, x, y, boardArray, turn):
+    #     if x - 1 >= 0:
+    #         self.checkForFriends(x - 1, y, boardArray, turn)
+    #
+    # def captureBottom(self, x, y, boardArray, turn):
+    #     if x + 1 < len(boardArray):
+    #         self.checkForFriends(x + 1, y, boardArray, turn)
+    #
+    # def captureLeft(self, x, y, boardArray, turn):
+    #     if y - 1 >= 0:
+    #         self.ch
 
     def captureTopGroup(self, x, y, boardArray, turn):
         self.libertyList.clear()
@@ -349,11 +344,13 @@ class GameLogic:
             return False
 
     def addPiecesToCapturedList(self):
-        if self.groupToCapture[0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
+        if self.groupToCapture[
+            0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
             self.capturedWhitePieces += len(self.groupToCapture)
         elif self.groupToCapture[0].getPiece() == 2:  # It's a black piece, add to capturedBlack Pieces list
             self.capturedBlackPieces += len(self.groupToCapture)
 
     def setFriendPiecesToZero(self, boardArray):
         for i in range(0, len(self.groupToCapture)):  # Loop through friends list (the pieces that will be captured)
-            boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(0)  # Set all the pieces to 0
+            boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(
+                0)  # Set all the pieces to 0
