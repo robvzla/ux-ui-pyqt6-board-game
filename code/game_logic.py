@@ -3,10 +3,10 @@ from piece import Piece
 
 class GameLogic:
     def __init__(self):  # constructor
-        self.turn = 1
+        self.turn = 2  # Black goes first
         self.gameState = []  # Game state will contain the boardArray, capturedBlackPieces, capturedWhitePieces
         print(self.gameState)
-        self.friendsList = []
+        self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
         self.capturedWhitePieces = 0
@@ -26,7 +26,7 @@ class GameLogic:
         self.turn += 1
 
     def resetTurn(self):
-        self.turn = 1
+        self.turn = 2  # Black goes first
 
     def checkKORule(self, boardArray):  # Seems to be working correctly - requires further testing
         if len(self.gameState) == 0:  # If the gameState is empty it's the first go, KO rule doesn't apply
@@ -44,6 +44,44 @@ class GameLogic:
     def addToGameState(self, boardArray):
         array = [boardArray, self.capturedBlackPieces, self.capturedWhitePieces]
         self.gameState.append(array)
+
+    def checkForSuicide(self, x, y, boardArray, turn):  # Working correctly
+        if turn == 1:
+            enemy = 2
+        else:
+            enemy = 1
+
+        potentialLiberties = 0
+        suicideCount = 0
+
+        if x - 1 >= 0:
+            potentialLiberties += 1
+            if boardArray[x - 1][y].getPiece() == enemy:
+                suicideCount += 1
+
+        if x + 1 < len(boardArray):
+            potentialLiberties += 1
+            if boardArray[x + 1][y].getPiece() == enemy:
+                suicideCount += 1
+
+        if y - 1 >= 0:
+            potentialLiberties += 1
+            if boardArray[x][y - 1].getPiece() == enemy:
+                suicideCount += 1
+
+        if y + 1 < len(boardArray):
+            potentialLiberties += 1
+            if boardArray[x][y + 1].getPiece() == enemy:
+                suicideCount += 1
+
+        if suicideCount == potentialLiberties:
+            return True  # It's suicide
+        else:
+            return False  # It's not suicide
+
+
+
+
 
     def countLiberties(self, x, y, boardArray):  # Working correctly!
         count = 0
@@ -100,7 +138,7 @@ class GameLogic:
 
         if y - 1 >= 0:  # Check if there is an enemy to the left
             if boardArray[x][y - 1].getPiece() == enemy:
-                if self.containsElement(x, y - 1, self.friendsList):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x, y - 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
                     self.addToFriends(x, y - 1, enemy)  # Add the enemy piece to the friends list
@@ -108,7 +146,7 @@ class GameLogic:
 
         if y + 1 < len(boardArray):  # Check if there is an enemy to the bottom
             if boardArray[x][y + 1].getPiece() == enemy:
-                if self.containsElement(x, y + 1, self.friendsList):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x, y + 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
                     self.addToFriends(x, y + 1, enemy)  # Add the enemy piece to the friends list
@@ -150,7 +188,7 @@ class GameLogic:
 
         if y - 1 >= 0:  # Check there is a friend to the left
             if boardArray[x][y - 1].getPiece() == turn:
-                if self.containsElement(x, y - 1, self.friendsList):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x, y - 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
                     self.addToFriends(x, y - 1, turn)  # Add the enemy piece to the friends list
@@ -158,7 +196,7 @@ class GameLogic:
 
         if y + 1 < len(boardArray):  # Check there is a friend to the right
             if boardArray[x][y + 1].getPiece() == turn:
-                if self.containsElement(x, y + 1, self.friendsList):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x, y + 1, self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
                     self.addToFriends(x, y + 1, turn)  # Add the enemy piece to the friends list
@@ -166,11 +204,11 @@ class GameLogic:
 
     def addToFriends(self, x, y, enemy):
         result = next(
-            (piece for piece in self.friendsList if piece.x == x and piece.y == y),
+            (piece for piece in self.groupToCapture if piece.x == x and piece.y == y),
             False
         )
         if not result:  # If result is false then add the piece to the friends list
-            self.friendsList.append(Piece(enemy, x, y))
+            self.groupToCapture.append(Piece(enemy, x, y))
 
     def containsElement(self, x, y, list):
         result = next(
@@ -190,7 +228,7 @@ class GameLogic:
     def checkTop(self, x, y, boardArray, turn):
         if x - 1 >= 0:  # Check if there is a friend on top
             if boardArray[x - 1][y].getPiece() == turn:
-                if self.containsElement(x - 1, y, self.friendsList):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x - 1, y, self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
                     self.addToFriends(x - 1, y, turn)  # Add the enemy piece to the friends list
@@ -199,7 +237,7 @@ class GameLogic:
     def checkBottom(self, x, y, boardArray, turn):
         if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
             if boardArray[x + 1][y].getPiece() == turn:
-                if self.containsElement(x + 1, y, self.friendsList):  # If the piece is in the friends array then do nothing
+                if self.containsElement(x + 1, y, self.groupToCapture):  # If the piece is in the friends array then do nothing
                     pass
                 else:
                     self.addToFriends(x + 1, y, turn)  # Add the enemy piece to the friends list
@@ -216,9 +254,9 @@ class GameLogic:
     def captureTopGroup(self, x, y, boardArray, turn):
         self.libertyList.clear()
         self.checkTop(x, y, boardArray, turn)
-        self.printList(self.friendsList)
+        self.printList(self.groupToCapture)
 
-        if len(self.friendsList) > 0:  # Add the potential liberties to the libertyList
+        if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
             self.checkFriendsListForEnemies(boardArray)
 
         if len(self.libertyList) > 0:  # Check if the potential liberties
@@ -231,12 +269,12 @@ class GameLogic:
                 # set all the friends pieces to zero
                 self.setFriendPiecesToZero(boardArray)
 
-        self.friendsList.clear()
+        self.groupToCapture.clear()
 
     def checkFriendsListForEnemies(self, boardArray):
-        for i in range(0, len(self.friendsList)):
-            self.checkForGroupLiberties(self.friendsList[i].getX(), self.friendsList[i].getY(), boardArray,
-                                        self.friendsList[i].getPiece())
+        for i in range(0, len(self.groupToCapture)):
+            self.checkForGroupLiberties(self.groupToCapture[i].getX(), self.groupToCapture[i].getY(), boardArray,
+                                        self.groupToCapture[i].getPiece())
 
     def checkForGroupLiberties(self, x, y, boardArray, turn):
         if x - 1 >= 0:
@@ -276,7 +314,7 @@ class GameLogic:
                     self.libertyList.append(Piece(0, x, y + 1))
 
     def checkIsGroupCaptured(self, boardArray):
-        if self.friendsList[0].getPiece() == 1:  # If the group is white then the enemy is black
+        if self.groupToCapture[0].getPiece() == 1:  # If the group is white then the enemy is black
             enemy = 2
         else:
             enemy = 1
@@ -301,11 +339,11 @@ class GameLogic:
             return False
 
     def addPiecesToCapturedList(self):
-        if self.friendsList[0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
-            self.capturedWhitePieces += len(self.friendsList)
-        elif self.friendsList[0].getPiece() == 2:  # It's a black piece, add to capturedBlack Pieces list
-            self.capturedBlackPieces += len(self.friendsList)
+        if self.groupToCapture[0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
+            self.capturedWhitePieces += len(self.groupToCapture)
+        elif self.groupToCapture[0].getPiece() == 2:  # It's a black piece, add to capturedBlack Pieces list
+            self.capturedBlackPieces += len(self.groupToCapture)
 
     def setFriendPiecesToZero(self, boardArray):
-        for i in range(0, len(self.friendsList)):  # Loop through friends list (the pieces that will be captured)
-            boardArray[self.friendsList[i].getX()][self.friendsList[i].getY()].setStatus(0)  # Set all the pieces to 0
+        for i in range(0, len(self.groupToCapture)):  # Loop through friends list (the pieces that will be captured)
+            boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(0)  # Set all the pieces to 0
