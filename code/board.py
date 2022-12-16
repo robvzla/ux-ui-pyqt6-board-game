@@ -127,6 +127,16 @@ class Board(QFrame):  # base the board on a QFrame widget
         """tries to move a piece"""
         # Check whose turn it is
         turn = self.logic.checkTurn()
+        #  Check for the ko rule - game cannot return to the previous state
+        if self.logic.checkKORule(self.boardArray):  # If the click passes the KO rule then proceed to see if it will
+            # pass the suicide rule
+            if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
+                pass
+            else:  # If it isn't suicide then do this
+                pass
+
+
+
         # Check if there are any liberties around the piece - suicide rule
         self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
         # If there are no liberties check if the opponents piece will be taken
@@ -136,6 +146,9 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         # Change the status of the piece on the board array
         self.boardArray[newX][newY].setStatus(turn)
+
+        # Add to state
+        self.logic.addToGameState(self.boardArray)
         self.update()
 
         # Check for friends
@@ -151,7 +164,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Reset the liberties of the pieces surrounding the new piece
 
         # Check for single capture
-        self.logic.capture(newX, newY, self.boardArray, turn)
+        # self.logic.capture(newX, newY, self.boardArray, turn)
 
 
         # Increase the turn counter
