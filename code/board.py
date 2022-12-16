@@ -131,20 +131,32 @@ class Board(QFrame):  # base the board on a QFrame widget
         if self.logic.checkKORule(self.boardArray):  # If the click passes the KO rule then proceed to see if it will
             # pass the suicide rule
             if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
+                # If the move is a suicide then place the piece and check if a piece or pieces will be taken
+                self.boardArray[newX][newY].setStatus(turn)
+                # Get the current amount of pieces taken
+                amountOfPiecesAlreadyCaptured = self.logic.getPiecesCaptured(turn)
+                # Try to capture more
+                # Working on gathering the groups of stones
+
+                # If the piece or pieces are taken then it is not a suicide but a valid move
+
+                # If it's a valid move then update the paint (gui) and increase turn counter, and update the GameState
+                # If it isn't a valid move then maybe a pop up saying 'It's Suicide!'? and return without increasing the
+                # Counter? Or re-painting
                 pass
             else:  # If it isn't suicide then do this
+                # Place the stone
+                # Check to see if pieces are taken
+                # Update the game state
+                # Increase the turn counter
+                # Update the gui
                 pass
 
 
 
         # Check if there are any liberties around the piece - suicide rule
         self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
-        # If there are no liberties check if the opponents piece will be taken
 
-        print("Liberties: " + str(self.boardArray[newX][newY].getLiberties()))
-        # Check if the piece can go there (on the stack - ko rule)
-
-        # Change the status of the piece on the board array
         self.boardArray[newX][newY].setStatus(turn)
 
         # Add to state

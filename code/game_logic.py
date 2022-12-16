@@ -79,11 +79,15 @@ class GameLogic:
         else:
             return False  # It's not suicide
 
-    def getPiecesCaptured(self, turn):
+    def getPiecesCaptured(self, turn):  # Working correctly
         if turn == 1:  # If player is white then they are capturing black pieces
             return self.capturedBlackPieces
         else:
             return self.capturedWhitePieces
+
+    def checkForGroups(self, x, y, boardArray, turn):
+        self.checkTop(x, y, boardArray, turn)
+        pass
 
 
 
