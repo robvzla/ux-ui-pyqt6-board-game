@@ -19,12 +19,54 @@ class Piece(object):
         # The y is the y co-ordinate
         self.y = y
 
+        # Set the friends
+        self.hasLeftFriend = False
+        self.hasTopFriend = False
+        self.hasRightFriend = False
+        self.hasBottomFriend = False
+
+        # Set the enemies
+        self.hasLeftEnemy = False
+        self.hasTopEnemy = False
+        self.hasRightEnemy = False
+        self.hasBottomEnemy = False
+
+    def setStatus(self, turn):
+        self.Status = turn
+
     def getPiece(self):  # return PieceType
         return self.Status
 
     def getLiberties(self):  # return Liberties
-        self.libs = self.liberties
-        return self.libs
+        return self.liberties
 
-    def setLiberties(self, liberties):  # set Liberties
-        self.liberties = liberties
+    def setLiberties(self, count):  # set Liberties
+        self.liberties = count
+
+    def getX(self):
+        return self.x
+
+    def getY(self):
+        return self.y
+
+    def setLeft(self, left):
+        self.left = left
+
+    def setTop(self, status, x, y):
+        self.top = Piece(status, x, y)
+
+    def getTop(self):
+        return self.top
+
+    def setRight(self, right):
+        self.right = right
+
+    def setBottom(self, status, x, y):
+        self.bottom = Piece(status, x, y)
+
+    def getBottom(self):
+        if type(self.bottom) == Piece:
+            return self.bottom
+
+
+

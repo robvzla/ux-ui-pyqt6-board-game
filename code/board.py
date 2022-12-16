@@ -2,8 +2,9 @@ from PyQt6.QtWidgets import QFrame
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QRect, QRectF
 from PyQt6.QtGui import QPainter, QBrush, QColor, QPen
 from PyQt6.QtTest import QTest
-from piece import Piece
+
 from game_logic import GameLogic
+from piece import Piece
 
 
 class Board(QFrame):  # base the board on a QFrame widget
@@ -26,12 +27,11 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # game is not currently started
         self.start()  # start the game which will start the timer
 
-        self.boardArray = [[Piece(0, i, j) for i in range(Board.boardHeight - 1)] for j in
-                           range(
-                               Board.boardWidth - 1)]  # TODO - create a 2d int/Piece array to store the state of the game
+        self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
+                           range(Board.boardWidth - 1)]
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
-
-        # self.addBorderToArray()
+        #
+        # # self.addBorderToArray()
 
         # Create an instance of the logic object here to enforce the rules of this game
         self.logic = GameLogic()
@@ -40,6 +40,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # These x & y positions will be passed to the Piece class constructor so a new Piece can be placed
         self.x_position = 0
         self.y_position = 0
+
 
     def printBoardArray(self):
         '''prints the boardArray in an attractive way'''
@@ -124,24 +125,44 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def tryMove(self, newX, newY):
         """tries to move a piece"""
-        print("Row: " + str(newX))
-        print("Col: " + str(newY))
         # Check whose turn it is
         turn = self.logic.checkTurn()
-        # Check if there are any liberties around the piece
-        print("Liberties: " + str(self.logic.checkAroundIntersection(newX, newY, self.boardArray, 0)))
-        # Create method in game_logic to check the liberties, pass the turn, newX and newY
-        # Create the piece
-        new_piece = Piece(turn, newX, newY)
-        print("Piece type: " + str(new_piece.getPiece()))
-        print()
+        # Check if there are any liberties around the piece - suicide rule
+        self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
+        # If there are no liberties check if the opponents piece will be taken
 
-        # Add the piece to the boardArray
-        self.boardArray[newX][newY] = turn
+        print("Liberties: " + str(self.boardArray[newX][newY].getLiberties()))
+        # Check if the piece can go there (on the stack - ko rule)
 
-        # self.getColCoordinatesForPaint(self.getCol())
+        # Change the status of the piece on the board array
+        self.boardArray[newX][newY].setStatus(turn)
+        self.update()
+
+        # Check for friends
+        # t = self.logic.checkTop(newX, newY, self.boardArray)
+        # b = self.logic.checkBottom(newX, newY, self.boardArray)
+        # l = self.logic.checkLeft(newX, newY, self.boardArray)
+        # r = self.logic.checkRight(newX, newY, self.boardArray)
+        #
+        # print("T: " + str(t))
+
+        # Check for enemies
+
+        # Reset the liberties of the pieces surrounding the new piece
+
+        # Check for single capture
+        self.logic.capture(newX, newY, self.boardArray, turn)
+
+
+        # Increase the turn counter
+        turn = self.logic.increaseTurn()
+
+        # Print the board
         for row in range(0, len(self.boardArray)):
-            print(self.boardArray[row])
+            print(str(self.boardArray[row][0].getPiece()) + "  " + str(self.boardArray[row][1].getPiece()) + "  " + \
+                  str(self.boardArray[row][2].getPiece()) + "  " + str(self.boardArray[row][3].getPiece()) + "  " + \
+                  str(self.boardArray[row][4].getPiece()) + "  " + str(self.boardArray[row][5].getPiece()) + "  " + \
+                  str(self.boardArray[row][6].getPiece()))
 
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
