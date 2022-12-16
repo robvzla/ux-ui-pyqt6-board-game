@@ -96,6 +96,22 @@ class GameLogic:
         self.printList(self.groupToCapture)  # Working correctly up to here
 
         # If there is something to capture (list > 0) then find out what liberties will have to be covered
+        if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
+            self.checkFriendsListForEnemies(boardArray)
+
+        if len(self.libertyList) > 0:  # Check if the potential liberties
+            print("Liberty List: ")
+            self.printList(self.libertyList)
+        #     if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
+        #         print("")
+        #         # add all the pieces to the captured list
+        #         self.addPiecesToCapturedList()
+        #         # set all the friends pieces to zero
+        #         self.setFriendPiecesToZero(boardArray)
+        #
+        # self.groupToCapture.clear()
+
+
 
     def checkTop(self, x, y, boardArray, turn):
         if x - 1 >= 0:  # Check if there is a friend on top
@@ -167,6 +183,106 @@ class GameLogic:
         for i in range(0, len(listName)):
             print(str(i) + ": " + str(listName[i].x) + " " + str(listName[i].y))
 
+
+
+    # def captureTopGroup(self, x, y, boardArray, turn):
+    #     self.libertyList.clear()
+    #     self.checkTop(x, y, boardArray, turn)
+    #     self.printList(self.groupToCapture)
+    #
+    #     if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
+    #         self.checkFriendsListForEnemies(boardArray)
+    #
+    #     if len(self.libertyList) > 0:  # Check if the potential liberties
+    #         print("Liberty List: ")
+    #         self.printList(self.libertyList)
+    #         if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
+    #             print("")
+    #             # add all the pieces to the captured list
+    #             self.addPiecesToCapturedList()
+    #             # set all the friends pieces to zero
+    #             self.setFriendPiecesToZero(boardArray)
+    #
+    #     self.groupToCapture.clear()
+
+    def checkFriendsListForEnemies(self, boardArray):
+        for i in range(0, len(self.groupToCapture)):
+            self.checkForGroupLiberties(self.groupToCapture[i].getX(), self.groupToCapture[i].getY(), boardArray,
+                                        self.groupToCapture[i].getPiece())
+
+    def checkForGroupLiberties(self, x, y, boardArray, turn):
+        if x - 1 >= 0:
+            if boardArray[x - 1][y].getPiece() == turn:  # If the piece is not a 'friend' piece then it has to be a
+                pass  # liberty in order to capture the 'friend' group
+            else:  # Therefore add it to the liberty list if it is not already there
+                if self.containsElement(x - 1, y, self.libertyList):
+                    pass
+                else:
+                    self.libertyList.append(Piece(0, x - 1, y))
+
+        if x + 1 < len(boardArray):
+            if boardArray[x + 1][y].getPiece() == turn:
+                pass
+            else:
+                if self.containsElement(x + 1, y, self.libertyList):
+                    pass
+                else:
+                    self.libertyList.append(Piece(0, x + 1, y))
+
+        if y - 1 >= 0:
+            if boardArray[x][y - 1].getPiece() == turn:
+                pass
+            else:
+                if self.containsElement(x, y - 1, self.libertyList):
+                    pass
+                else:
+                    self.libertyList.append(Piece(0, x, y - 1))
+
+        if y + 1 < len(boardArray):
+            if boardArray[x][y + 1].getPiece() == turn:
+                pass
+            else:
+                if self.containsElement(x, y + 1, self.libertyList):
+                    pass
+                else:
+                    self.libertyList.append(Piece(0, x, y + 1))
+
+    def checkIsGroupCaptured(self, boardArray):
+        if self.groupToCapture[0].getPiece() == 1:  # If the group is white then the enemy is black
+            enemy = 2
+        else:
+            enemy = 1
+
+        print("Enemy: " + str(enemy))
+
+        count = 0
+
+        for i in range(0, len(self.libertyList)):
+            x = boardArray[self.libertyList[i].getX()][self.libertyList[i].getY()].getX()
+            y = boardArray[self.libertyList[i].getX()][self.libertyList[i].getY()].getY()
+
+            if boardArray[x][y].getPiece() == enemy:
+                count += 1
+
+        print("Count: " + str(count))
+        print("Liberty List: " + str(len(self.libertyList)))
+
+        if count == len(self.libertyList):
+            return True
+        else:
+            return False
+
+    def addPiecesToCapturedList(self):
+        if self.groupToCapture[
+            0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
+            self.capturedWhitePieces += len(self.groupToCapture)
+        elif self.groupToCapture[0].getPiece() == 2:  # It's a black piece, add to capturedBlack Pieces list
+            self.capturedBlackPieces += len(self.groupToCapture)
+
+    def setFriendPiecesToZero(self, boardArray):
+        for i in range(0, len(self.groupToCapture)):  # Loop through friends list (the pieces that will be captured)
+            boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(
+                0)  # Set all the pieces to 0
 
     # def countLiberties(self, x, y, boardArray):  # Working correctly!
     #     count = 0
@@ -256,101 +372,3 @@ class GameLogic:
     #     if y - 1 >= 0:
     #         self.ch
 
-    def captureTopGroup(self, x, y, boardArray, turn):
-        self.libertyList.clear()
-        self.checkTop(x, y, boardArray, turn)
-        self.printList(self.groupToCapture)
-
-        if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
-            self.checkFriendsListForEnemies(boardArray)
-
-        if len(self.libertyList) > 0:  # Check if the potential liberties
-            print("Liberty List: ")
-            self.printList(self.libertyList)
-            if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
-                print("")
-                # add all the pieces to the captured list
-                self.addPiecesToCapturedList()
-                # set all the friends pieces to zero
-                self.setFriendPiecesToZero(boardArray)
-
-        self.groupToCapture.clear()
-
-    def checkFriendsListForEnemies(self, boardArray):
-        for i in range(0, len(self.groupToCapture)):
-            self.checkForGroupLiberties(self.groupToCapture[i].getX(), self.groupToCapture[i].getY(), boardArray,
-                                        self.groupToCapture[i].getPiece())
-
-    def checkForGroupLiberties(self, x, y, boardArray, turn):
-        if x - 1 >= 0:
-            if boardArray[x - 1][y].getPiece() == turn:  # If the piece is not a 'friend' piece then it has to be a
-                pass  # liberty in order to capture the 'friend' group
-            else:  # Therefore add it to the liberty list if it is not already there
-                if self.containsElement(x - 1, y, self.libertyList):
-                    pass
-                else:
-                    self.libertyList.append(Piece(0, x - 1, y))
-
-        if x + 1 < len(boardArray):
-            if boardArray[x + 1][y].getPiece() == turn:
-                pass
-            else:
-                if self.containsElement(x + 1, y, self.libertyList):
-                    pass
-                else:
-                    self.libertyList.append(Piece(0, x + 1, y))
-
-        if y - 1 >= 0:
-            if boardArray[x][y - 1].getPiece() == turn:
-                pass
-            else:
-                if self.containsElement(x, y - 1, self.libertyList):
-                    pass
-                else:
-                    self.libertyList.append(Piece(0, x, y - 1))
-
-        if y + 1 < len(boardArray):
-            if boardArray[x][y + 1].getPiece() == turn:
-                pass
-            else:
-                if self.containsElement(x, y + 1, self.libertyList):
-                    pass
-                else:
-                    self.libertyList.append(Piece(0, x, y + 1))
-
-    def checkIsGroupCaptured(self, boardArray):
-        if self.groupToCapture[0].getPiece() == 1:  # If the group is white then the enemy is black
-            enemy = 2
-        else:
-            enemy = 1
-
-        print("Enemy: " + str(enemy))
-
-        count = 0
-
-        for i in range(0, len(self.libertyList)):
-            x = boardArray[self.libertyList[i].getX()][self.libertyList[i].getY()].getX()
-            y = boardArray[self.libertyList[i].getX()][self.libertyList[i].getY()].getY()
-
-            if boardArray[x][y].getPiece() == enemy:
-                count += 1
-
-        print("Count: " + str(count))
-        print("Liberty List: " + str(len(self.libertyList)))
-
-        if count == len(self.libertyList):
-            return True
-        else:
-            return False
-
-    def addPiecesToCapturedList(self):
-        if self.groupToCapture[
-            0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
-            self.capturedWhitePieces += len(self.groupToCapture)
-        elif self.groupToCapture[0].getPiece() == 2:  # It's a black piece, add to capturedBlack Pieces list
-            self.capturedBlackPieces += len(self.groupToCapture)
-
-    def setFriendPiecesToZero(self, boardArray):
-        for i in range(0, len(self.groupToCapture)):  # Loop through friends list (the pieces that will be captured)
-            boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(
-                0)  # Set all the pieces to 0
