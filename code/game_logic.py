@@ -28,20 +28,54 @@ class GameLogic:
         self.turn = 2  # Black goes first
 
     def checkKORule(self, boardArray):  # Seems to be working correctly - requires further testing
+        count = 0
+        totalSize = len(boardArray) * len(boardArray[0])
+        print("Count: " + str(count))
+        print("Total Size: " + str(totalSize))
         if len(self.gameState) == 0:  # If the gameState is empty it's the first go, KO rule doesn't apply
             return True
         elif len(self.gameState) > 0:  # Compare both arrays to each other
             # If the equivelent elements don't match set to False, break and return match
             lastIndex = len(self.gameState) - 1
-            for row in range(0, len(boardArray)):
-                for col in range(0, len(boardArray[row])):
-                    if self.gameState[lastIndex][0][row][col].getPiece() != boardArray[row][col].getPiece():
-                        return True
+            # print("KO Rule Test: " + str(self.gameState[lastIndex][0] == boardArray))
+            # return self.gameState[lastIndex][0] == boardArray
+            # Print the array
+            for el in range(0, len(self.gameState)):
+                print(self.gameState[el])
 
-        return True
+            print(len(self.gameState))
+            # Print the previous state
+            if len(self.gameState) >= 2:
+
+                print("Previous State: ")
+                for row in range(0, len(self.gameState[lastIndex][0])):
+                    print(str(self.gameState[lastIndex - 1][0][row][0]) + "  " + str(self.gameState[lastIndex -1][0][row][1]) + "  " + \
+                        str(self.gameState[lastIndex - 1][0][row][2]) + "  " + str(self.gameState[lastIndex -1][0][row][3]) + "  " + \
+                        str(self.gameState[lastIndex - 1][0][row][4]) + "  " + str(self.gameState[lastIndex -1][0][row][5]) + "  " + \
+                        str(self.gameState[lastIndex - 1][0][row][6]))
+                for row in range(0, len(boardArray)):
+                    for col in range(0, len(boardArray[row])):
+                        # print("Previous State: " + str(self.gameState[lastIndex][0][row][col]) + " New State: " + str(boardArray[row][col].getPiece()))
+                        if self.gameState[lastIndex - 1][0][row][col] == boardArray[row][col].getPiece():
+                            count += 1
+
+        print("Count: " + str(count))
+        print("Total Size: " + str(totalSize))
+        # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test and
+        if count == totalSize:
+            return False
+        else:
+            return True
 
     def addToGameState(self, boardArray):
-        array = [boardArray, self.capturedBlackPieces, self.capturedWhitePieces]
+        board = []
+        for row in range(0, len(boardArray)):
+            r = []
+            for col in range(0, len(boardArray[row])):
+                r.append(boardArray[row][col].getPiece())
+
+            board.append(r)
+        array = [board, self.capturedBlackPieces, self.capturedWhitePieces]
         self.gameState.append(array)
 
     def checkForSuicide(self, x, y, boardArray, turn):  # Working correctly
@@ -84,16 +118,24 @@ class GameLogic:
         else:
             return self.capturedWhitePieces
 
-    def checkForTopGroup(self, x, y, boardArray, turn):
+    def checkForGroup(self, x, y, boardArray, turn, direction):  # Working correctly
         if turn == 1:  # Change the turn to look for the opposite colour
             enemy = 2
         else:
             enemy = 1
-        self.checkTop(x, y, boardArray, enemy)
+
+        if direction == "top":
+            self.checkTop(x, y, boardArray, enemy)
+        elif direction == "bottom":
+            self.checkBottom(x, y, boardArray, enemy)
+        elif direction == "left":
+            self.checkLeft(x, y, boardArray, enemy)
+        elif direction == "right":
+            self.checkRight(x, y, boardArray, enemy)
 
         print("Length of Group to Capture: " + str(len(self.groupToCapture)))
         print("Group of Stones Locations: ")
-        self.printList(self.groupToCapture)  # Working correctly up to here
+        self.printList(self.groupToCapture)
 
         # If there is something to capture (list > 0) then find out what liberties will have to be covered
         if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
@@ -102,6 +144,9 @@ class GameLogic:
         if len(self.libertyList) > 0:  # Check if the potential liberties
             print("Liberty List: ")
             self.printList(self.libertyList)
+            return self.checkIsGroupCaptured(boardArray)  # Return if the group will be captured or not
+        else:
+            return
         #     if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
         #         print("")
         #         # add all the pieces to the captured list
@@ -110,8 +155,6 @@ class GameLogic:
         #         self.setFriendPiecesToZero(boardArray)
         #
         # self.groupToCapture.clear()
-
-
 
     def checkTop(self, x, y, boardArray, turn):
         if x - 1 >= 0:  # Check if there is a friend on top
@@ -183,27 +226,15 @@ class GameLogic:
         for i in range(0, len(listName)):
             print(str(i) + ": " + str(listName[i].x) + " " + str(listName[i].y))
 
+    def emptyList(self):
+        self.libertyList.clear()
+        self.groupToCapture.clear()
 
-
-    # def captureTopGroup(self, x, y, boardArray, turn):
-    #     self.libertyList.clear()
-    #     self.checkTop(x, y, boardArray, turn)
-    #     self.printList(self.groupToCapture)
-    #
-    #     if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
-    #         self.checkFriendsListForEnemies(boardArray)
-    #
-    #     if len(self.libertyList) > 0:  # Check if the potential liberties
-    #         print("Liberty List: ")
-    #         self.printList(self.libertyList)
-    #         if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
-    #             print("")
-    #             # add all the pieces to the captured list
-    #             self.addPiecesToCapturedList()
-    #             # set all the friends pieces to zero
-    #             self.setFriendPiecesToZero(boardArray)
-    #
-    #     self.groupToCapture.clear()
+    def capture(self, boardArray):
+        self.increaseCapturedStonesCounter()  # Increase the relevant captured counter
+        self.setFriendPiecesToZero(boardArray)  # Set all the pieces back to zero
+        print("Captured black pieces: " + str(self.capturedBlackPieces))
+        print("Captured white pieces: " + str(self.capturedWhitePieces))
 
     def checkFriendsListForEnemies(self, boardArray):
         for i in range(0, len(self.groupToCapture)):
@@ -272,9 +303,8 @@ class GameLogic:
         else:
             return False
 
-    def addPiecesToCapturedList(self):
-        if self.groupToCapture[
-            0].getPiece() == 1:  # Then the piece is white, so it has to be added to whiteCapturedList
+    def increaseCapturedStonesCounter(self):
+        if self.groupToCapture[0].getPiece() == 1:  # Then the piece is white, so add to whiteCapturedList
             self.capturedWhitePieces += len(self.groupToCapture)
         elif self.groupToCapture[0].getPiece() == 2:  # It's a black piece, add to capturedBlack Pieces list
             self.capturedBlackPieces += len(self.groupToCapture)
@@ -371,4 +401,3 @@ class GameLogic:
     # def captureLeft(self, x, y, boardArray, turn):
     #     if y - 1 >= 0:
     #         self.ch
-

@@ -128,19 +128,49 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check whose turn it is
         turn = self.logic.checkTurn()
         #  Check for the ko rule - game cannot return to the previous state
+        self.boardArray[newX][newY].setStatus(turn)
         if self.logic.checkKORule(self.boardArray):  # If the click passes the KO rule then proceed to see if it will
+            print("Passed the KO rule")
             # pass the suicide rule
             if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
                 # If the move is a suicide then place the piece and check if a piece or pieces will be taken
                 self.boardArray[newX][newY].setStatus(turn)
                 # Get the current amount of pieces taken
                 amountOfPiecesAlreadyCaptured = self.logic.getPiecesCaptured(turn)
-                # Try to capture more
-                # Working on gathering the groups of stones
+                # Check if the top group will be captured
+                top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
+                if top:
+                    self.logic.capture(self.boardArray)
 
-                # If the piece or pieces are taken then it is not a suicide but a valid move
+                self.logic.emptyList()
+
+                # Check if the bottom group will be captured
+                bottom = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "bottom")
+                if bottom:
+                    self.logic.capture(self.boardArray)
+
+                self.logic.emptyList()
+
+                # Check if the left group will be captured
+                left = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "left")
+                if left:
+                    self.logic.capture(self.boardArray)
+                self.logic.emptyList()
+
+                # Check if the right group will be captured
+                right = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "right")
+                if right:
+                    self.logic.capture(self.boardArray)
+                self.logic.emptyList()
 
                 # If it's a valid move then update the paint (gui) and increase turn counter, and update the GameState
+                if top or bottom or left or right:
+                    print("It was not a suicide!")
+                    # Add to game state
+                    self.logic.addToGameState(self.boardArray)
+                    self.logic.increaseTurn()
+                    # self.logic.increaseTurn()
+                    # self.update()
                 # If it isn't a valid move then maybe a pop up saying 'It's Suicide!'? and return without increasing the
                 # Counter? Or re-painting
                 pass
@@ -148,19 +178,29 @@ class Board(QFrame):  # base the board on a QFrame widget
                 # Place the stone
                 # Check to see if pieces are taken
                 # Update the game state
+                print("Adding to game state in the else statement!")
+                self.logic.addToGameState(self.boardArray)
+                self.logic.increaseTurn()
                 # Increase the turn counter
                 # Update the gui
-                pass
+
+            # Add the game state
+
+        else:
+            # If the move doesn't pass the KO rule then do not set the piece
+            print("Doesn't pass KO rule: ")
+            self.boardArray[newX][newY].setStatus(0)
+
 
 
 
         # Check if there are any liberties around the piece - suicide rule
-        self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
+       #  self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
 
-        self.boardArray[newX][newY].setStatus(turn)
+        # self.boardArray[newX][newY].setStatus(turn)
 
         # Add to state
-        self.logic.addToGameState(self.boardArray)
+        # self.logic.addToGameState(self.boardArray)
         self.update()
 
         # Check for friends
@@ -180,9 +220,10 @@ class Board(QFrame):  # base the board on a QFrame widget
 
 
         # Increase the turn counter
-        turn = self.logic.increaseTurn()
+        # turn = self.logic.increaseTurn()
 
         # Print the board
+        print("Current State")
         for row in range(0, len(self.boardArray)):
             print(str(self.boardArray[row][0].getPiece()) + "  " + str(self.boardArray[row][1].getPiece()) + "  " + \
                   str(self.boardArray[row][2].getPiece()) + "  " + str(self.boardArray[row][3].getPiece()) + "  " + \
