@@ -1,8 +1,8 @@
 from PyQt6.QtWidgets import QFrame
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
 from PyQt6.QtGui import QPainter, QBrush, QColor
-from piece import Piece
 from game_logic import GameLogic
+from piece import Piece
 
 
 class Board(QFrame):  # base the board on a QFrame widget
@@ -10,8 +10,8 @@ class Board(QFrame):  # base the board on a QFrame widget
     clickLocationSignal = pyqtSignal(str)  # signal sent when there is a new click location
 
     # TODO set the board width and height to be square
-    boardWidth = 9  # board is 0 squares wide # TODO this needs updating
-    boardHeight = 9  #
+    boardWidth = 8  # board is 0 squares wide # TODO this needs updating
+    boardHeight = 8  #
     timerSpeed = 1000  # the timer updates every 1 millisecond
     counter = 10  # the number the counter will count down from
 
@@ -26,10 +26,11 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.start()  # start the game which will start the timer
         self.points_coordinates_undo = []  # Stack that contains all the intersections used by players. Used for undo
         self.points_coordinates_redo = []  # Stack that contains all the points that were popped in the undo method
+        self.points_status_undo = []
+        self.points_status_redo = []
 
-        self.boardArray = [[0 for i in range(Board.boardHeight - 1)] for j in
-                           range(
-                               Board.boardWidth - 1)]  # TODO - create a 2d int/Piece array to store the state of the game
+        self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
+                           range(Board.boardWidth - 1)]
         # self.printBoardArray()  # TODO - uncomment this method after creating the array above
 
         # Create an instance of the logic object here to enforce the rules of this game
@@ -116,7 +117,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check if the mouse click was within the range of the board
         if self.checkWithinRange():
             # Check if a space is occupied
-            if self.boardArray[self.getRow()][self.getCol()] == 0:
+            if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
                 # Try to make the move
                 self.tryMove(self.getRow(), self.getCol())
 
@@ -133,28 +134,120 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def tryMove(self, newX, newY):
         """tries to move a piece"""
-        print("Row: " + str(newX))
-        print("Col: " + str(newY))
         # Check whose turn it is
         turn = self.logic.checkTurn()
-        # Check if there are any liberties around the piece
-        print("Liberties: " + str(self.logic.checkAroundIntersection(newX, newY, self.boardArray, 0)))
         # Create method in game_logic to check the liberties, pass the turn, newX and newY
         # Create the piece
         new_piece = Piece(turn, newX, newY)
-        print("Piece type: " + str(new_piece.getPiece()))
-        print()
+
+        #  Check for the ko rule - game cannot return to the previous state
+        self.boardArray[newX][newY].setStatus(turn)
+        if self.logic.checkKORule(self.boardArray):  # If the click passes the KO rule then proceed to see if it will
+            print("Passed the KO rule")
+            # pass the suicide rule
+            if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
+                # If the move is a suicide then place the piece and check if a piece or pieces will be taken
+                self.boardArray[newX][newY].setStatus(turn)
+                # Get the current amount of pieces taken
+                amountOfPiecesAlreadyCaptured = self.logic.getPiecesCaptured(turn)
+                # Check if the top group will be captured
+                top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
+                if top:
+                    self.logic.capture(self.boardArray)
+
+                self.logic.emptyList()
+
+                # Check if the bottom group will be captured
+                bottom = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "bottom")
+                if bottom:
+                    self.logic.capture(self.boardArray)
+
+                self.logic.emptyList()
+
+                # Check if the left group will be captured
+                left = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "left")
+                if left:
+                    self.logic.capture(self.boardArray)
+                self.logic.emptyList()
+
+                # Check if the right group will be captured
+                right = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "right")
+                if right:
+                    self.logic.capture(self.boardArray)
+                self.logic.emptyList()
+
+                # If it's a valid move then update the paint (gui) and increase turn counter, and update the GameState
+                if top or bottom or left or right:
+                    print("It was not a suicide!")
+                    # Add to game state
+                    self.logic.addToGameState(self.boardArray)
+                    self.logic.increaseTurn()
+                    # self.logic.increaseTurn()
+                    # self.update()
+                # If it isn't a valid move then maybe a pop-up saying 'It's Suicide!'? and return without increasing the
+                # Counter? Or re-painting
+                pass
+            else:  # If it isn't suicide then do this
+                # Place the stone
+                # Check to see if pieces are taken
+                # Update the game state
+                print("Adding to game state in the else statement!")
+                self.logic.addToGameState(self.boardArray)
+                self.logic.increaseTurn()
+                # Increase the turn counter
+                # Update the gui
+
+            # Add the game state
+
+        else:
+            # If the move doesn't pass the KO rule then do not set the piece
+            print("Doesn't pass KO rule: ")
+            self.boardArray[newX][newY].setStatus(0)
+
+
+
+
+        # Check if there are any liberties around the piece - suicide rule
+       #  self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
+
+        # self.boardArray[newX][newY].setStatus(turn)
+
+        # Add to state
+        # self.logic.addToGameState(self.boardArray)
+        self.update()
+
+        # Check for friends
+        # t = self.logic.checkTop(newX, newY, self.boardArray)
+        # b = self.logic.checkBottom(newX, newY, self.boardArray)
+        # l = self.logic.checkLeft(newX, newY, self.boardArray)
+        # r = self.logic.checkRight(newX, newY, self.boardArray)
+        #
+        # print("T: " + str(t))
+
+        # Check for enemies
+
+        # Reset the liberties of the pieces surrounding the new piece
+
+        # Check for single capture
+        # self.logic.capture(newX, newY, self.boardArray, turn)
+
+
+        # Increase the turn counter
+        # turn = self.logic.increaseTurn()
+
+        # Print the board
+        print("Current State")
+        for row in range(0, len(self.boardArray)):
+            print(str(self.boardArray[row][0].getPiece()) + "  " + str(self.boardArray[row][1].getPiece()) + "  " + \
+                  str(self.boardArray[row][2].getPiece()) + "  " + str(self.boardArray[row][3].getPiece()) + "  " + \
+                  str(self.boardArray[row][4].getPiece()) + "  " + str(self.boardArray[row][5].getPiece()) + "  " + \
+                  str(self.boardArray[row][6].getPiece()))
+
         # Storing indexes of pieces as points
         point = QPoint(newX, newY)
         # Adding points inside the stack
         self.points_coordinates_undo.append(point)
-        # Add the piece to the boardArray
-        self.boardArray[newX][newY] = turn
-
-        # self.getColCoordinatesForPaint(self.getCol())
-        for row in range(0, len(self.boardArray)):
-            print(self.boardArray[row])
-
+        self.points_status_undo.append(self.boardArray[newX][newY].getPiece())
         self.update()
 
     def drawBoardSquares(self, painter):
@@ -176,19 +269,15 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.translate(colTransformation, rowTransformation)
                 # Changing the colors to create a checkered board
                 if row % 2 == 0:
-                    if col == 0:
+                    if col % 2 != 0:
                         brush.setColor(color_one)
-                    elif brush.color() == color_one:
+                    elif col % 2 == 0:
                         brush.setColor(color_two)
-                    else:
-                        brush.setColor(color_one)
                 else:
-                    if col == 0:
+                    if col % 2 != 0:
                         brush.setColor(color_two)
-                    elif brush.color() == color_two:
+                    elif col % 2 == 0:
                         brush.setColor(color_one)
-                    else:
-                        brush.setColor(color_two)
                 # Setting X and Y coordinates and painting a square base on the calculated
                 # width and height of squareWidth and squareHeight methods with the created brush
                 painter.fillRect(col, row, int(self.squareWidth()), int(self.squareHeight()), brush)
@@ -206,13 +295,13 @@ class Board(QFrame):  # base the board on a QFrame widget
                                   (self.squareHeight()) * col + self.squareHeight() * 0.75)
 
                 # Transparent for when there is no piece on the board
-                if self.boardArray[col][row] == 0:
+                if self.boardArray[col][row].getPiece() == 0:
                     colour = QColor(Qt.GlobalColor.transparent)
                 # White color for when it is white's turn
-                elif self.boardArray[col][row] == 1:
+                elif self.boardArray[col][row].getPiece() == 1:
                     colour = QColor(Qt.GlobalColor.white)
                 # Black color for when there black's turn
-                elif self.boardArray[col][row] == 2:
+                elif self.boardArray[col][row].getPiece() == 2:
                     colour = QColor(Qt.GlobalColor.black)
 
                 painter.setPen(colour)
@@ -225,22 +314,27 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.restore()
 
     def undo(self):
+        print("Undo")
         # Checks first if the stack is empty. If not empty, it starts popping values
-        if self.points_coordinates_undo.__len__() != 0:
+        if self.points_coordinates_undo.__len__() != 0 and self.points_status_undo.__len__() != 0:
+            point_status = self.points_status_undo.pop()
             # Pop and store the value inside the variable
             point_value = self.points_coordinates_undo.pop()
+            print("Status = " + str(point_status))
             # Storing removed point inside the redo stack
             self.points_coordinates_redo.append(point_value)
             # Get the row and col indexes
             row_point = point_value.x()
             col_point = point_value.y()
             # Set the specific index to 0 (transparent)
-            self.boardArray[row_point][col_point] = 0
+            self.boardArray[row_point][col_point].setStatus(0)
+            self.points_status_redo.append(point_status)
             # Calling update method to re draw board and pieces
             self.update()
 
     def redo(self):
-        if self.points_coordinates_redo.__len__() != 0:
+        if self.points_coordinates_redo.__len__() != 0 and self.points_status_redo.__len__() != 0:
+            point_status = self.points_status_redo.pop()
             # Pop and store the value inside the variable
             point_value = self.points_coordinates_redo.pop()
             # Storing removed point inside the undo stack
@@ -249,6 +343,6 @@ class Board(QFrame):  # base the board on a QFrame widget
             row_point = point_value.x()
             col_point = point_value.y()
             # Set the specific index to 0 (transparent)
-            self.boardArray[row_point][col_point] = 1
+            self.boardArray[row_point][col_point].setStatus(point_status)
             # Calling update method to re draw board and pieces
             self.update()

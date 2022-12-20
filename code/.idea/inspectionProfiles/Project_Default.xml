@@ -1,0 +1,58 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CssUnknownProperty" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myCustomPropertiesEnabled" value="true" />
+      <option name="myIgnoreVendorSpecificProperties" value="false" />
+      <option name="myCustomPropertiesList">
+        <value>
+          <list size="1">
+            <item index="0" class="java.lang.String" itemvalue="icon-size" />
+          </list>
+        </value>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="HtmlUnknownTag" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="myValues">
+        <value>
+          <list size="16">
+            <item index="0" class="java.lang.String" itemvalue="nobr" />
+            <item index="1" class="java.lang.String" itemvalue="noembed" />
+            <item index="2" class="java.lang.String" itemvalue="comment" />
+            <item index="3" class="java.lang.String" itemvalue="noscript" />
+            <item index="4" class="java.lang.String" itemvalue="embed" />
+            <item index="5" class="java.lang.String" itemvalue="script" />
+            <item index="6" class="java.lang.String" itemvalue="qlabel" />
+            <item index="7" class="java.lang.String" itemvalue="qdialog" />
+            <item index="8" class="java.lang.String" itemvalue="qcalendarwidget" />
+            <item index="9" class="java.lang.String" itemvalue="qwidget" />
+            <item index="10" class="java.lang.String" itemvalue="qtoolbutton" />
+            <item index="11" class="java.lang.String" itemvalue="qmenu" />
+            <item index="12" class="java.lang.String" itemvalue="qabstractitemview" />
+            <item index="13" class="java.lang.String" itemvalue="qspinbox" />
+            <item index="14" class="java.lang.String" itemvalue="qcombobox" />
+            <item index="15" class="java.lang.String" itemvalue="font-family" />
+          </list>
+        </value>
+      </option>
+      <option name="myCustomValuesEnabled" value="true" />
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N806" />
+          <option value="N802" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyUnresolvedReferencesInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredIdentifiers">
+        <list>
+          <option value="tuple.red" />
+          <option value="tuple.green" />
+          <option value="str.text" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
