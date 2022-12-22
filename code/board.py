@@ -119,7 +119,14 @@ class Board(QFrame):  # base the board on a QFrame widget
             # Check if a space is occupied
             if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
                 # Try to make the move
-                self.tryMove(self.getRow(), self.getCol())
+                if self.tryMove(self.getRow(), self.getCol()):  # If the move returns ture the it passed both the
+                    # Suicide test and the KO test
+                    self.logic.increaseTurn()
+                    self.logic.addToGameState(self.boardArray)
+                else:
+                    # If the move is false then revert the board to the previous state
+                    self.logic.rewriteBoard(self.boardArray)
+                    # Maybe put a pop up here to say invalid move?
 
     def checkWithinRange(self):
         width = self.width() / Board.boardWidth
@@ -136,119 +143,26 @@ class Board(QFrame):  # base the board on a QFrame widget
         """tries to move a piece"""
         # Check whose turn it is
         turn = self.logic.checkTurn()
-        # Create method in game_logic to check the liberties, pass the turn, newX and newY
-        # Create the piece
-        new_piece = Piece(turn, newX, newY)
+        # Get the current state of the board to have a reference if we have to reset it due to not passing the KO rule
+        self.logic.setCurrentState(self.boardArray)
 
-        #  Check for the ko rule - game cannot return to the previous state
+        # Place the stone
         self.boardArray[newX][newY].setStatus(turn)
-        if self.logic.checkKORule(self.boardArray):  # If the click passes the KO rule then proceed to see if it will
-            print("Passed the KO rule")
-            # pass the suicide rule
-            if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
-                # If the move is a suicide then place the piece and check if a piece or pieces will be taken
-                self.boardArray[newX][newY].setStatus(turn)
-                # Get the current amount of pieces taken
-                amountOfPiecesAlreadyCaptured = self.logic.getPiecesCaptured(turn)
-                # Check if the top group will be captured
-                top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
-                if top:
-                    self.logic.capture(self.boardArray)
 
-                self.logic.emptyList()
+        # Check the suicide rule
+        if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
+            # Check if a piece or pieces will be taken
+            self.checkAllDirectionsForCapture(newX, newY, self.boardArray, turn)
+        else:  # If it isn't suicide then do this
+            # Place the stone
+            # Check to see if pieces are taken
+            self.checkAllDirectionsForCapture(newX, newY, self.boardArray, turn)
 
-                # Check if the bottom group will be captured
-                bottom = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "bottom")
-                if bottom:
-                    self.logic.capture(self.boardArray)
+        # Now check to see if the new state of the board is equal to the previous (KO rule)
+        validMove = self.logic.checkKORule(self.boardArray)
 
-                self.logic.emptyList()
-
-                # Check if the left group will be captured
-                left = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "left")
-                if left:
-                    self.logic.capture(self.boardArray)
-                self.logic.emptyList()
-
-                # Check if the right group will be captured
-                right = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "right")
-                if right:
-                    self.logic.capture(self.boardArray)
-                self.logic.emptyList()
-
-                # If it's a valid move then update the paint (gui) and increase turn counter, and update the GameState
-                if top or bottom or left or right:
-                    print("It was not a suicide!")
-                    # Add to game state
-                    self.logic.addToGameState(self.boardArray)
-                    self.logic.increaseTurn()
-                    # self.logic.increaseTurn()
-                    # self.update()
-                # If it isn't a valid move then maybe a pop-up saying 'It's Suicide!'? and return without increasing the
-                # Counter? Or re-painting
-                pass
-            else:  # If it isn't suicide then do this
-                # Place the stone
-                # Check to see if pieces are taken
-                # Update the game state
-                print("Adding to game state in the else statement!")
-                self.logic.addToGameState(self.boardArray)
-                self.logic.increaseTurn()
-                # Increase the turn counter
-                # Update the gui
-
-            # Add the game state
-
-        else:
-            # If the move doesn't pass the KO rule then do not set the piece
-            print("Doesn't pass KO rule: ")
-            self.boardArray[newX][newY].setStatus(0)
-
-
-
-
-        # Check if there are any liberties around the piece - suicide rule
-       #  self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
-
-        # self.boardArray[newX][newY].setStatus(turn)
-
-        # Add to state
-        # self.logic.addToGameState(self.boardArray)
         self.update()
-
-        # Check for friends
-        # t = self.logic.checkTop(newX, newY, self.boardArray)
-        # b = self.logic.checkBottom(newX, newY, self.boardArray)
-        # l = self.logic.checkLeft(newX, newY, self.boardArray)
-        # r = self.logic.checkRight(newX, newY, self.boardArray)
-        #
-        # print("T: " + str(t))
-
-        # Check for enemies
-
-        # Reset the liberties of the pieces surrounding the new piece
-
-        # Check for single capture
-        # self.logic.capture(newX, newY, self.boardArray, turn)
-
-
-        # Increase the turn counter
-        # turn = self.logic.increaseTurn()
-
-        # Print the board
-        print("Current State")
-        for row in range(0, len(self.boardArray)):
-            print(str(self.boardArray[row][0].getPiece()) + "  " + str(self.boardArray[row][1].getPiece()) + "  " + \
-                  str(self.boardArray[row][2].getPiece()) + "  " + str(self.boardArray[row][3].getPiece()) + "  " + \
-                  str(self.boardArray[row][4].getPiece()) + "  " + str(self.boardArray[row][5].getPiece()) + "  " + \
-                  str(self.boardArray[row][6].getPiece()))
-
-        # Storing indexes of pieces as points
-        point = QPoint(newX, newY)
-        # Adding points inside the stack
-        self.points_coordinates_undo.append(point)
-        self.points_status_undo.append(self.boardArray[newX][newY].getPiece())
-        self.update()
+        return validMove
 
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
@@ -346,3 +260,38 @@ class Board(QFrame):  # base the board on a QFrame widget
             self.boardArray[row_point][col_point].setStatus(point_status)
             # Calling update method to re draw board and pieces
             self.update()
+
+    def checkAllDirectionsForCapture(self, newX, newY, board, turn):
+        # Check if the top group will be captured
+        top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
+        if top:
+            self.logic.capture(self.boardArray)
+
+        self.logic.emptyList()
+
+        # Check if the bottom group will be captured
+        bottom = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "bottom")
+        if bottom:
+            self.logic.capture(self.boardArray)
+
+        self.logic.emptyList()
+
+        # Check if the left group will be captured
+        left = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "left")
+        if left:
+            self.logic.capture(self.boardArray)
+        self.logic.emptyList()
+
+        # Check if the right group will be captured
+        right = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "right")
+        if right:
+            self.logic.capture(self.boardArray)
+        self.logic.emptyList()
+
+        # If it's a valid move then update the paint (gui) and increase turn counter, and update the GameState
+        if top or bottom or left or right:
+            return True
+        # If it isn't a valid move then maybe a pop up saying 'It's Suicide!'? and return without increasing the
+        # Counter? Or re-painting
+        else:
+            return False

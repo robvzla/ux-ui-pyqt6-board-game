@@ -5,7 +5,8 @@ class GameLogic:
     def __init__(self):  # constructor
         self.turn = 2  # Black goes first
         self.gameState = []  # Game state will contain the boardArray, capturedBlackPieces, capturedWhitePieces
-        print(self.gameState)
+        self.currentState = []
+        self.redoList = []
         self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
@@ -27,47 +28,66 @@ class GameLogic:
     def resetTurn(self):
         self.turn = 2  # Black goes first
 
-    def checkKORule(self, boardArray):  # Seems to be working correctly - requires further testing
+    def checkKORule(self, boardArray):  # Return true if the check passes - if true the current game state is not the \
+        # same as a previous one
         count = 0
         totalSize = len(boardArray) * len(boardArray[0])
         print("Count: " + str(count))
         print("Total Size: " + str(totalSize))
-        if len(self.gameState) == 0:  # If the gameState is empty it's the first go, KO rule doesn't apply
-            return True
-        elif len(self.gameState) > 0:  # Compare both arrays to each other
+        if len(self.gameState) < 3:  # If the gameState is empty it's the first go
+            return True  # Or if the gameState is of length 1 or 2 then return True
+        elif len(self.gameState) >= 3:  # Compare both arrays to each other
+            print("Now testing against the second last state.")
             # If the equivelent elements don't match set to False, break and return match
-            lastIndex = len(self.gameState) - 1
-            # print("KO Rule Test: " + str(self.gameState[lastIndex][0] == boardArray))
-            # return self.gameState[lastIndex][0] == boardArray
-            # Print the array
-            for el in range(0, len(self.gameState)):
-                print(self.gameState[el])
+            indexToCompareTo = len(self.gameState) - 2
 
-            print(len(self.gameState))
-            # Print the previous state
-            if len(self.gameState) >= 2:
+            print("Previous State: ")
+            for row in range(0, len(self.gameState[indexToCompareTo][0])):
+                print(str(self.gameState[indexToCompareTo][0][row][0]) + "  " + str(
+                    self.gameState[indexToCompareTo][0][row][1]) + "  " + \
+                      str(self.gameState[indexToCompareTo][0][row][2]) + "  " + str(
+                    self.gameState[indexToCompareTo][0][row][3]) + "  " + \
+                      str(self.gameState[indexToCompareTo][0][row][4]) + "  " + str(
+                    self.gameState[indexToCompareTo][0][row][5]) + "  " + \
+                      str(self.gameState[indexToCompareTo][0][row][6]))
 
-                print("Previous State: ")
-                for row in range(0, len(self.gameState[lastIndex][0])):
-                    print(str(self.gameState[lastIndex - 1][0][row][0]) + "  " + str(self.gameState[lastIndex -1][0][row][1]) + "  " + \
-                        str(self.gameState[lastIndex - 1][0][row][2]) + "  " + str(self.gameState[lastIndex -1][0][row][3]) + "  " + \
-                        str(self.gameState[lastIndex - 1][0][row][4]) + "  " + str(self.gameState[lastIndex -1][0][row][5]) + "  " + \
-                        str(self.gameState[lastIndex - 1][0][row][6]))
-                for row in range(0, len(boardArray)):
-                    for col in range(0, len(boardArray[row])):
-                        # print("Previous State: " + str(self.gameState[lastIndex][0][row][col]) + " New State: " + str(boardArray[row][col].getPiece()))
-                        if self.gameState[lastIndex - 1][0][row][col] == boardArray[row][col].getPiece():
-                            count += 1
+            print("Current State")
+            for row in range(0, len(boardArray)):
+                print(str(boardArray[row][0].getPiece()) + "  " + str(boardArray[row][1].getPiece()) + "  " + \
+                      str(boardArray[row][2].getPiece()) + "  " + str(boardArray[row][3].getPiece()) + "  " + \
+                      str(boardArray[row][4].getPiece()) + "  " + str(boardArray[row][5].getPiece()) + "  " + \
+                      str(boardArray[row][6].getPiece()))
+
+            for row in range(0, len(boardArray)):
+                for col in range(0, len(boardArray[row])):
+                    # print("Previous State: " + str(self.gameState[indexToCompareTo][0][row][col]) + " New State: " + str(boardArray[row][col].getPiece()))
+                    if self.gameState[indexToCompareTo][0][row][col] == boardArray[row][col].getPiece():
+                        count += 1
 
         print("Count: " + str(count))
         print("Total Size: " + str(totalSize))
-        # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test and
+        # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test an
         if count == totalSize:
-            return False
+            return False  # Failed the KO test
         else:
-            return True
+            return True  # Passed the KO test
 
     def addToGameState(self, boardArray):
+        board = self.createBoard(boardArray)
+        array = [board, self.capturedBlackPieces, self.capturedWhitePieces]
+        self.gameState.append(array)
+
+    def setCurrentState(self, boardArray):
+        board = self.createBoard(boardArray)
+        self.currentState = [board, self.capturedBlackPieces, self.capturedWhitePieces]
+
+    def rewriteBoard(self, boardArray):
+        for row in range(len(self.currentState[0])):
+            for col in range(len(self.currentState[0][row])):
+                boardArray[row][col].setStatus(self.currentState[0][row][col])
+
+        print("Board was re-written!")
+    def createBoard(self, boardArray):
         board = []
         for row in range(0, len(boardArray)):
             r = []
@@ -75,9 +95,8 @@ class GameLogic:
                 r.append(boardArray[row][col].getPiece())
 
             board.append(r)
-        array = [board, self.capturedBlackPieces, self.capturedWhitePieces]
-        self.gameState.append(array)
 
+        return board
     def checkForSuicide(self, x, y, boardArray, turn):  # Working correctly
         if turn == 1:
             enemy = 2
@@ -133,8 +152,8 @@ class GameLogic:
         elif direction == "right":
             self.checkRight(x, y, boardArray, enemy)
 
-        print("Length of Group to Capture: " + str(len(self.groupToCapture)))
-        print("Group of Stones Locations: ")
+        # print("Length of Group to Capture: " + str(len(self.groupToCapture)))
+        # print("Group of Stones Locations: ")
         self.printList(self.groupToCapture)
 
         # If there is something to capture (list > 0) then find out what liberties will have to be covered
@@ -142,23 +161,15 @@ class GameLogic:
             self.checkFriendsListForEnemies(boardArray)
 
         if len(self.libertyList) > 0:  # Check if the potential liberties
-            print("Liberty List: ")
-            self.printList(self.libertyList)
+            # print("Liberty List: ")
+            # self.printList(self.libertyList)
             return self.checkIsGroupCaptured(boardArray)  # Return if the group will be captured or not
         else:
             return
-        #     if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
-        #         print("")
-        #         # add all the pieces to the captured list
-        #         self.addPiecesToCapturedList()
-        #         # set all the friends pieces to zero
-        #         self.setFriendPiecesToZero(boardArray)
-        #
-        # self.groupToCapture.clear()
 
     def checkTop(self, x, y, boardArray, turn):
         if x - 1 >= 0:  # Check if there is a friend on top
-            print("X - 1: " + str(x - 1) + " Turn: " + str(turn))
+            # print("X - 1: " + str(x - 1) + " Turn: " + str(turn))
             if boardArray[x - 1][y].getPiece() == turn:
                 if self.containsElement(x - 1, y,
                                         self.groupToCapture):  # If the piece is in the friends array then do nothing
@@ -233,8 +244,8 @@ class GameLogic:
     def capture(self, boardArray):
         self.increaseCapturedStonesCounter()  # Increase the relevant captured counter
         self.setFriendPiecesToZero(boardArray)  # Set all the pieces back to zero
-        print("Captured black pieces: " + str(self.capturedBlackPieces))
-        print("Captured white pieces: " + str(self.capturedWhitePieces))
+        # print("Captured black pieces: " + str(self.capturedBlackPieces))
+        # print("Captured white pieces: " + str(self.capturedWhitePieces))
 
     def checkFriendsListForEnemies(self, boardArray):
         for i in range(0, len(self.groupToCapture)):
@@ -284,7 +295,7 @@ class GameLogic:
         else:
             enemy = 1
 
-        print("Enemy: " + str(enemy))
+        # print("Enemy: " + str(enemy))
 
         count = 0
 
@@ -295,8 +306,8 @@ class GameLogic:
             if boardArray[x][y].getPiece() == enemy:
                 count += 1
 
-        print("Count: " + str(count))
-        print("Liberty List: " + str(len(self.libertyList)))
+        # print("Count: " + str(count))
+        # print("Liberty List: " + str(len(self.libertyList)))
 
         if count == len(self.libertyList):
             return True
