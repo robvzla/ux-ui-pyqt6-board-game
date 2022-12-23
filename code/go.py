@@ -93,14 +93,14 @@ class Go(QMainWindow):
         playAction = QAction(QIcon("./icons/play.png"), "Start", self)  # action for play button
         playAction.setShortcut("Ctrl+S")  # add keyboard shortcut
         playAction.setStatusTip("Play")  # label upon hovering
-        playAction.triggered.connect(self.get_game_setup) # call method to get user settings
+        playAction.triggered.connect(self.get_game_setup)  # call method to get user settings
 
         # Skip turn button
         skipTurnAction = QAction(QIcon("./icons/skip.png"), "Skip Turn",
                                  self)  # create a clear action with a png as an icon
         skipTurnAction.setShortcut("Ctrl+S")  # connect this clear action to a keyboard shortcut
         skipTurnAction.setStatusTip("Skip")  # label upon hovering
-        # skipTurnAction.triggered.connect(self...)  ->  call method for next or skip
+        skipTurnAction.triggered.connect(lambda: self.board.logic.setPlayerPassed(self.board.logic.checkTurn(), True))  # ->  call method for next or skip
 
         # Restart button
         restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
