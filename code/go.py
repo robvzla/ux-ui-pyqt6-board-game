@@ -37,6 +37,9 @@ class Go(QMainWindow):
         self.setWindowTitle('Go')
         self.show()
 
+        # Set the skip button in the scoreBoard to work with the board
+        self.scoreBoard.skip_button.clicked.connect(lambda: self.board.logic.setPlayerPassed(self.board.logic.checkTurn(), True))
+
         # rules of the game used in info menu
         self.rules = """
                  Rules for 2 players game:
