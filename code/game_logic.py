@@ -338,15 +338,28 @@ class GameLogic:
             boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(
                 0)  # Set all the pieces to 0
 
-    def setPlayerPassed(self, turn, value):
+    def setPlayerPassedTrue(self, turn):
         if turn == 1:  # If white is playing set their passed turn variable to False
-            self.whitePassed = value
+            self.whitePassed = True
             print("White Passed: " + str(self.whitePassed))
         else:
-            self.blackPassed = value
+            self.blackPassed = True
             print("Black Passed: " + str(self.blackPassed))
 
+        self.increaseTurn()
+        test = self.checkIfBothPlayersPassed()
+        if test:
+            print("Both players have passed!")
+
+
         # print(str(turn) + str(value))
+    def setPlayerPassedFalse(self, turn):
+        if turn == 1:  # If white is playing set their passed turn variable to False
+            self.whitePassed = False
+            print("White Passed: " + str(self.whitePassed))
+        else:
+            self.blackPassed = False
+            print("Black Passed: " + str(self.blackPassed))
 
     def checkIfBothPlayersPassed(self):
         if self.blackPassed and self.whitePassed:

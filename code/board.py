@@ -149,7 +149,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         turn = self.logic.checkTurn()
 
         # Set the Player's Passed boolean to False as they are currently trying to make a move
-        self.logic.setPlayerPassed(turn, False)
+        self.logic.setPlayerPassedFalse(turn)
         # Get the current state of the board to have a reference if we have to reset it due to not passing the KO rule
         self.logic.setCurrentState(self.boardArray)
 
