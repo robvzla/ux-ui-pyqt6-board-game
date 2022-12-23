@@ -120,7 +120,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
                 # Check that both players have not passed their turns, their booleans will both be true if they have
                 if self.logic.checkIfBothPlayersPassed():
-                    self.logic.endGame(self.boardArray)
+                    print("Both players have passed")
                 else:
                     # Try to make the move
                     if self.tryMove(self.getRow(), self.getCol()):  # If the move returns ture the it passed both the

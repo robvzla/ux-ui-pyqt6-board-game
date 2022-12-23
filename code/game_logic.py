@@ -22,7 +22,7 @@ class GameLogic:
 
     def checkTurn(self):
         if self.turn == 0:
-            return 1  # Self.turn will always be initially set to two 
+            return 1  # Self.turn will always be initially set to two
         elif self.turn % 2 == 0:
             # If self.turn is an even number then it is player two's turn
             return 2
