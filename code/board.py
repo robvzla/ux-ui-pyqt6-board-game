@@ -120,7 +120,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
                 # Check that both players have not passed their turns, their booleans will both be true if they have
                 if self.logic.checkIfBothPlayersPassed():
-                    self.logic.endGame(self.boardArray)
+                    print("Both players have passed")
                 else:
                     # Try to make the move
                     move = self.tryMove(self.getRow(), self.getCol())
@@ -154,7 +154,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         print("Turn: " + str(turn))
 
         # Set the Player's Passed boolean to False as they are currently trying to make a move
-        self.logic.setPlayerPassed(turn, False)
+        self.logic.setPlayerPassedFalse(turn)
         # Get the current state of the board to have a reference if we have to reset it due to not passing the KO rule
         self.logic.setCurrentState(self.boardArray)
 

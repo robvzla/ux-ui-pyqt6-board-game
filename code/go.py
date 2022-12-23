@@ -6,7 +6,6 @@ from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar,
 from PyQt6.QtCore import Qt, QSize, QRegularExpression
 from board import Board
 from score_board import ScoreBoard
-from game_logic import GameLogic
 
 
 class Go(QMainWindow):
@@ -54,6 +53,8 @@ class Go(QMainWindow):
         self.setWindowIcon(  # adding icos to window
             QIcon("./icons/games-icon-icon.png"))  # documentation: https://doc.qt.io/qt-6/qwidget.html#windowIcon-prop
 
+        self.scoreBoard.skip_button.clicked.connect(lambda: self.board.logic.setPlayerPassedTrue(
+            self.board.logic.checkTurn()))
         # Set up menus
         mainMenu = self.menuBar()  # create a menu bar
         mainMenu.setNativeMenuBar(False)
@@ -103,7 +104,7 @@ class Go(QMainWindow):
                                  self)  # create a clear action with a png as an icon
         skipTurnAction.setShortcut("Ctrl+S")  # connect this clear action to a keyboard shortcut
         skipTurnAction.setStatusTip("Skip")  # label upon hovering
-        # skipTurnAction.triggered.connect(lambda: self.board.logic.setPlayerPassed(self.board.logic.checkTurn(), True))  # ->  call method for next or skip
+        skipTurnAction.triggered.connect(lambda: self.board.logic.setPlayerPassedTrue(self.board.logic.checkTurn()))
 
         # Restart button
         restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
