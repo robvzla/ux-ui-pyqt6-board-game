@@ -3,6 +3,10 @@ from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QWidget, QLabel, \
     QPushButton  # TODO import additional Widget classes as desired
 from PyQt6.QtCore import pyqtSlot, Qt, QTimer
 
+from board import Board
+from game_logic import GameLogic
+
+
 class ScoreBoard(QDockWidget):
     '''# base the score_board on a QDockWidget'''
 
@@ -61,7 +65,7 @@ class ScoreBoard(QDockWidget):
 
         """add skip button"""
         self.skip_button = QPushButton(QIcon("./icons/skip.png"), "Skip", self)
-        # !!self.skip_button.clicked.connect(self....)  # calls skip turn method upon clicking
+        # self.skip_button.clicked.connect(GameLogic.setPlayerPassed(Board.logic.checkTurn(), "true"))  # calls skip turn method upon clicking
 
         """"add end button"""
         self.play_button = QPushButton(QIcon("./icons/close.png"), "Stop")
@@ -126,14 +130,14 @@ class ScoreBoard(QDockWidget):
     def setClickLocation(self, clickLoc):
         '''updates the label to show the click location'''
         self.label_clickLocation.setText("Click Location:" + clickLoc)
-        print('slot ' + clickLoc)
+        # print('slot ' + clickLoc)
 
     @pyqtSlot(int)
     def setTimeRemaining(self, timeRemainng):
         '''updates the time remaining label to show the time remaining'''
         update = "Time Left:" + str(timeRemainng)
         self.label_timeRemaining.setText(update)  # update time
-        print('slot ' + update)
+        # print('slot ' + update)
 
         if timeRemainng < 10: # if 10 seconds left update icon
             self.stop_watch_label.setPixmap(self.stop_watch_red) #updating icon

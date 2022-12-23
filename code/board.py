@@ -80,7 +80,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # set the boolean which determines if the game has started to TRUE
         self.resetGame()  # reset the game
         self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
-        print("start () - timer is started")
+        # print("start () - timer is started")  # Commenting out to test other methods
 
     def timerEvent(self, event):
         '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
@@ -90,7 +90,7 @@ class Board(QFrame):  # base the board on a QFrame widget
                 print("Game over")
             self.counter -= 1
 
-            print('timerEvent()', self.counter)
+            # print('timerEvent()', self.counter)
             self.updateTimerSignal.emit(self.counter)
         else:
             super(Board, self).timerEvent(event)  # if we do not handle an event we should pass it to the super
@@ -118,15 +118,19 @@ class Board(QFrame):  # base the board on a QFrame widget
         if self.checkWithinRange():
             # Check if a space is occupied
             if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
-                # Try to make the move
-                if self.tryMove(self.getRow(), self.getCol()):  # If the move returns ture the it passed both the
-                    # Suicide test and the KO test
-                    self.logic.increaseTurn()
-                    self.logic.addToGameState(self.boardArray)
+                # Check that both players have not passed their turns, their booleans will both be true if they have
+                if self.logic.checkIfBothPlayersPassed():
+                    self.logic.endGame(self.boardArray)
                 else:
-                    # If the move is false then revert the board to the previous state
-                    self.logic.rewriteBoard(self.boardArray)
-                    # Maybe put a pop up here to say invalid move?
+                    # Try to make the move
+                    if self.tryMove(self.getRow(), self.getCol()):  # If the move returns ture the it passed both the
+                        # Suicide test and the KO test
+                        self.logic.increaseTurn()
+                        self.logic.addToGameState(self.boardArray)
+                    else:
+                        # If the move is false then revert the board to the previous state
+                        self.logic.rewriteBoard(self.boardArray)
+                        # Maybe put a pop up here to say invalid move?
 
     def checkWithinRange(self):
         width = self.width() / Board.boardWidth
@@ -143,6 +147,9 @@ class Board(QFrame):  # base the board on a QFrame widget
         """tries to move a piece"""
         # Check whose turn it is
         turn = self.logic.checkTurn()
+
+        # Set the Player's Passed boolean to False as they are currently trying to make a move
+        self.logic.setPlayerPassed(turn, False)
         # Get the current state of the board to have a reference if we have to reset it due to not passing the KO rule
         self.logic.setCurrentState(self.boardArray)
 
@@ -152,11 +159,11 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check the suicide rule
         if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
             # Check if a piece or pieces will be taken
-            self.checkAllDirectionsForCapture(newX, newY, self.boardArray, turn)
+            self.checkAllDirectionsForCapture(newX, newY, turn)
         else:  # If it isn't suicide then do this
             # Place the stone
             # Check to see if pieces are taken
-            self.checkAllDirectionsForCapture(newX, newY, self.boardArray, turn)
+            self.checkAllDirectionsForCapture(newX, newY, turn)
 
         # Now check to see if the new state of the board is equal to the previous (KO rule)
         validMove = self.logic.checkKORule(self.boardArray)
@@ -261,7 +268,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             # Calling update method to re draw board and pieces
             self.update()
 
-    def checkAllDirectionsForCapture(self, newX, newY, board, turn):
+    def checkAllDirectionsForCapture(self, newX, newY, turn):
         # Check if the top group will be captured
         top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
         if top:
