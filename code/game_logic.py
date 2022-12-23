@@ -17,8 +17,6 @@ class GameLogic:
         self.totalWhitePiecesAtEnd = []
         self.territory = []
 
-    def test(self):
-        print("Connected to GAME LOGIC!")
 
     def checkTurn(self):
         if self.turn == 0:
@@ -32,6 +30,7 @@ class GameLogic:
 
     def increaseTurn(self):
         self.turn += 1
+        print("Turn increased in game_logic")
 
     def resetTurn(self):
         self.turn = 2  # Black goes first
@@ -346,7 +345,8 @@ class GameLogic:
             self.blackPassed = value
             print("Black Passed: " + str(self.blackPassed))
 
-        # print(str(turn) + str(value))
+        # If both players pass then end the game
+        self.increaseTurn()
 
     def checkIfBothPlayersPassed(self):
         if self.blackPassed and self.whitePassed:

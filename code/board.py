@@ -123,9 +123,13 @@ class Board(QFrame):  # base the board on a QFrame widget
                     self.logic.endGame(self.boardArray)
                 else:
                     # Try to make the move
-                    if self.tryMove(self.getRow(), self.getCol()):  # If the move returns ture the it passed both the
+                    move = self.tryMove(self.getRow(), self.getCol())
+                    print("Move: " + str(move))
+                    if move:  # If the move returns ture the it passed both the
                         # Suicide test and the KO test
                         self.logic.increaseTurn()
+                        print("Turn increased in board")
+                        print("New turn value: " + str(self.logic.checkTurn()))
                         self.logic.addToGameState(self.boardArray)
                     else:
                         # If the move is false then revert the board to the previous state
@@ -147,6 +151,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         """tries to move a piece"""
         # Check whose turn it is
         turn = self.logic.checkTurn()
+        print("Turn: " + str(turn))
 
         # Set the Player's Passed boolean to False as they are currently trying to make a move
         self.logic.setPlayerPassed(turn, False)
