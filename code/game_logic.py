@@ -5,8 +5,8 @@ class GameLogic:
     def __init__(self):  # constructor
         self.turn = 2  # Black goes first
         self.gameState = []  # Game state will contain the boardArray, capturedBlackPieces, capturedWhitePieces
-        self.currentState = []
-        self.redoList = []
+        #self.currentState = []
+        # self.redoList = []
         self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
@@ -32,50 +32,198 @@ class GameLogic:
         # same as a previous one
         count = 0
         totalSize = len(boardArray) * len(boardArray[0])
-        print("Count: " + str(count))
-        print("Total Size: " + str(totalSize))
-        if len(self.gameState) < 3:  # If the gameState is empty it's the first go
-            return True  # Or if the gameState is of length 1 or 2 then return True
-        elif len(self.gameState) >= 3:  # Compare both arrays to each other
-            print("Now testing against the second last state.")
+
+        if len(self.gameState) == 0:
+            return True
+
+        elif len(self.gameState) > 0:  # Compare both arrays to each other
             # If the equivelent elements don't match set to False, break and return match
-            indexToCompareTo = len(self.gameState) - 2
+            lastIndex = len(self.gameState) - 2
 
-            print("Previous State: ")
-            for row in range(0, len(self.gameState[indexToCompareTo][0])):
-                print(str(self.gameState[indexToCompareTo][0][row][0]) + "  " + str(
-                    self.gameState[indexToCompareTo][0][row][1]) + "  " + \
-                      str(self.gameState[indexToCompareTo][0][row][2]) + "  " + str(
-                    self.gameState[indexToCompareTo][0][row][3]) + "  " + \
-                      str(self.gameState[indexToCompareTo][0][row][4]) + "  " + str(
-                    self.gameState[indexToCompareTo][0][row][5]) + "  " + \
-                      str(self.gameState[indexToCompareTo][0][row][6]))
+            if len(self.gameState) >= 2:
+                for row in range(0, len(boardArray)):
+                    for col in range(0, len(boardArray[row])):
+                        if self.gameState[lastIndex - 1][0][row][col] == boardArray[row][col].getPiece():
+                            count += 1
 
-            print("Current State")
-            for row in range(0, len(boardArray)):
-                print(str(boardArray[row][0].getPiece()) + "  " + str(boardArray[row][1].getPiece()) + "  " + \
-                      str(boardArray[row][2].getPiece()) + "  " + str(boardArray[row][3].getPiece()) + "  " + \
-                      str(boardArray[row][4].getPiece()) + "  " + str(boardArray[row][5].getPiece()) + "  " + \
-                      str(boardArray[row][6].getPiece()))
-
-            for row in range(0, len(boardArray)):
-                for col in range(0, len(boardArray[row])):
-                    # print("Previous State: " + str(self.gameState[indexToCompareTo][0][row][col]) + " New State: " + str(boardArray[row][col].getPiece()))
-                    if self.gameState[indexToCompareTo][0][row][col] == boardArray[row][col].getPiece():
-                        count += 1
-
-        print("Count: " + str(count))
-        print("Total Size: " + str(totalSize))
-        # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test an
+            # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test and
         if count == totalSize:
-            return False  # Failed the KO test
+            return False
         else:
-            return True  # Passed the KO test
+            return True
 
     def addToGameState(self, boardArray):
-        board = self.createBoard(boardArray)
+        board = []
+        for row in range(0, len(boardArray)):
+            r = []
+            for col in range(0, len(boardArray[row])):
+                r.append(boardArray[row][col].getPiece())
+
+            board.append(r)
         array = [board, self.capturedBlackPieces, self.capturedWhitePieces]
         self.gameState.append(array)
+
+    def checkForSuicide(self, x, y, boardArray, turn):  # Working correctly
+        if turn == 1:
+            enemy = 2
+        else:
+            enemy = 1
+
+        potentialLiberties = 0
+        suicideCount = 0
+
+        if x - 1 >= 0:
+            potentialLiberties += 1
+            if boardArray[x - 1][y].getPiece() == enemy:
+                suicideCount += 1
+
+        if x + 1 < len(boardArray):
+            potentialLiberties += 1
+            if boardArray[x + 1][y].getPiece() == enemy:
+                suicideCount += 1
+
+        if y - 1 >= 0:
+            potentialLiberties += 1
+            if boardArray[x][y - 1].getPiece() == enemy:
+                suicideCount += 1
+
+        if y + 1 < len(boardArray):
+            potentialLiberties += 1
+            if boardArray[x][y + 1].getPiece() == enemy:
+                suicideCount += 1
+
+        if suicideCount == potentialLiberties:
+            return True  # It's suicide
+        else:
+            return False  # It's not suicide
+
+    def getPiecesCaptured(self, turn):  # Working correctly
+        if turn == 1:  # If player is white then they are capturing black pieces
+            return self.capturedBlackPieces
+        else:
+            return self.capturedWhitePieces
+
+    def checkForGroup(self, x, y, boardArray, turn, direction):  # Working correctly
+        if turn == 1:  # Change the turn to look for the opposite colour
+            enemy = 2
+        else:
+            enemy = 1
+
+        if direction == "top":
+            self.checkTop(x, y, boardArray, enemy)
+        elif direction == "bottom":
+            self.checkBottom(x, y, boardArray, enemy)
+        elif direction == "left":
+            self.checkLeft(x, y, boardArray, enemy)
+        elif direction == "right":
+            self.checkRight(x, y, boardArray, enemy)
+
+        # print("\n\nLength of Group to Capture: " + str(len(self.groupToCapture)))
+        # print("Group of Stones Locations: ")
+        # self.printList(self.groupToCapture)
+
+        # If there is something to capture (list > 0) then find out what liberties will have to be covered
+        if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
+            self.checkFriendsListForEnemies(boardArray)
+
+        if len(self.libertyList) > 0:  # Check if the potential liberties
+            # print("Liberty List: ")
+            # self.printList(self.libertyList)
+            return self.checkIsGroupCaptured(boardArray)  # Return if the group will be captured or not
+        else:
+            return
+        #     if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
+        #         print("")
+        #         # add all the pieces to the captured list
+        #         self.addPiecesToCapturedList()
+        #         # set all the friends pieces to zero
+        #         self.setFriendPiecesToZero(boardArray)
+        #
+        # self.groupToCapture.clear()
+
+    def checkTop(self, x, y, boardArray, turn):
+        if x - 1 >= 0:  # Check if there is a friend on top
+            if boardArray[x - 1][y].getPiece() == turn:
+                if self.containsElement(x - 1, y,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
+                    pass
+                else:
+                    self.addPieceToList(x - 1, y, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x - 1, y, boardArray, turn)  # Check to see if the piece has friends
+
+    def checkBottom(self, x, y, boardArray, turn):
+        if x + 1 < len(boardArray):  # Check if there is a friend to the bottom
+            if boardArray[x + 1][y].getPiece() == turn:
+                if self.containsElement(x + 1, y,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
+                    pass
+                else:
+                    self.addPieceToList(x + 1, y, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x + 1, y, boardArray, turn)  # Check to see if the piece has friends
+
+    def checkLeft(self, x, y, boardArray, turn):
+        if y - 1 >= 0:  # Check there is a friend to the left
+            if boardArray[x][y - 1].getPiece() == turn:
+                if self.containsElement(x, y - 1,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
+                    pass
+                else:
+                    self.addPieceToList(x, y - 1, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x, y - 1, boardArray, turn)  # Check to see if the piece has friends
+
+    def checkRight(self, x, y, boardArray, turn):
+        if y + 1 < len(boardArray):  # Check there is a friend to the right
+            if boardArray[x][y + 1].getPiece() == turn:
+                if self.containsElement(x, y + 1,
+                                        self.groupToCapture):  # If the piece is in the friends array then do nothing
+                    pass
+                else:
+                    self.addPieceToList(x, y + 1, turn, self.groupToCapture)  # Add the enemy piece to the friends list
+                    self.checkForStonesOfSameColour(x, y + 1, boardArray, turn)  # Check to see if the piece has friends
+
+    def checkForStonesOfSameColour(self, x, y, boardArray, turn):
+        self.checkTop(x, y, boardArray, turn)
+        self.checkBottom(x, y, boardArray, turn)
+        self.checkLeft(x, y, boardArray, turn)
+        self.checkRight(x, y, boardArray, turn)
+
+    def addPieceToList(self, x, y, enemy, listName):
+        result = next(
+            (piece for piece in listName if piece.x == x and piece.y == y),
+            False
+        )
+        if not result:  # If result is false then add the piece to the friends list
+            self.groupToCapture.append(Piece(enemy, x, y))
+
+    def containsElement(self, x, y, list):
+        result = next(
+            (piece for piece in list if piece.x == x and piece.y == y),
+            False
+        )
+
+        if not result:
+            return False
+        else:
+            return True
+
+    def printList(self, listName):
+        for i in range(0, len(listName)):
+            print(str(i) + ": " + str(listName[i].x) + " " + str(listName[i].y))
+
+    def emptyList(self):
+        self.libertyList.clear()
+        self.groupToCapture.clear()
+
+    def capture(self, boardArray):
+        self.increaseCapturedStonesCounter()  # Increase the relevant captured counter
+        self.setFriendPiecesToZero(boardArray)  # Set all the pieces back to zero
+        # print("Captured black pieces: " + str(self.capturedBlackPieces))
+        # print("Captured white pieces: " + str(self.capturedWhitePieces))
+
+    def checkFriendsListForEnemies(self, boardArray):
+        for i in range(0, len(self.groupToCapture)):
+            self.checkForGroupLiberties(self.groupToCapture[i].getX(), self.groupToCapture[i].getY(), boardArray,
+                                        self.groupToCapture[i].getPiece())
 
     def setCurrentState(self, boardArray):
         board = self.createBoard(boardArray)
@@ -325,36 +473,44 @@ class GameLogic:
             boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(
                 0)  # Set all the pieces to 0
 
-    # def countLiberties(self, x, y, boardArray):  # Working correctly!
-    #     count = 0
-    #     # print("Board " + str(boardArray[x][y].getPiece()))
-    #     try:  # Check the top
-    #         if boardArray[x - 1][y].getPiece() == 0:
-    #             if 0 <= x - 1 <= len(boardArray) - 1:
-    #                 count += 1
-    #     except IndexError:
-    #         print("Index top out of bounds!")
-    #     try:  # Check the bottom
-    #         if x + 1 < len(boardArray):
-    #             if boardArray[x + 1][y].getPiece() == 0:
-    #                 count += 1
-    #     except IndexError:
-    #         print("Index bottom out of bounds!")
-    #         print(len(boardArray))
-    #     try:  # Check left
-    #         if boardArray[x][y - 1].getPiece() == 0:
-    #             if 0 <= y - 1 <= len(boardArray):
-    #                 count += 1
-    #     except IndexError:
-    #         print("Index left out of bounds!")
-    #     try:  # Check right
-    #         if boardArray[x][y + 1].getPiece() == 0:
-    #             if 0 <= y + 1 <= len(boardArray):
-    #                 count += 1
-    #     except IndexError:
-    #         print("Index right out of bounds!")
-    #     return count
-    #
+    def countEmptySpaces(self, boardArray):
+        x = 0
+        for i in boardArray:
+            for j in i:
+                if j.getPiece() == 0:
+                    x += 1
+        return x
+
+    def countLiberties(self, x, y, boardArray):  # Working correctly!
+        count = 0
+         # print("Board " + str(boardArray[x][y].getPiece()))
+        try:  # Check the top
+             if boardArray[x - 1][y].getPiece() == 0:
+                 if 0 <= x - 1 <= len(boardArray) - 1:
+                     count += 1
+        except IndexError:
+             pass  # print("Index top out of bounds!")
+        try:  # Check the bottom
+             if x + 1 < len(boardArray):
+                 if boardArray[x + 1][y].getPiece() == 0:
+                     count += 1
+        except IndexError:
+             print("Index bottom out of bounds!")
+             print(len(boardArray))
+        try:  # Check left
+             if boardArray[x][y - 1].getPiece() == 0:
+                 if 0 <= y - 1 <= len(boardArray):
+                     count += 1
+        except IndexError:
+             print("Index left out of bounds!")
+        try:  # Check right
+             if boardArray[x][y + 1].getPiece() == 0:
+                 if 0 <= y + 1 <= len(boardArray):
+                     count += 1
+        except IndexError:
+             print("Index right out of bounds!")
+        return count
+
     # def capture(self, x, y, boardArray, turn):
     #     if turn == 1:
     #         enemy = 2

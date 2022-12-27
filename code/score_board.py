@@ -1,6 +1,6 @@
 from PyQt6.QtGui import QIcon, QPixmap, QFont
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QWidget, QLabel, \
-    QPushButton, QGridLayout, QDialog  
+    QPushButton, QGridLayout, QDialog
 from PyQt6.QtCore import pyqtSlot, Qt
 
 class ScoreBoard(QDockWidget):
