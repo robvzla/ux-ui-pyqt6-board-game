@@ -1,12 +1,9 @@
-import random
-
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QRegularExpressionValidator
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QApplication, QGridLayout, QPushButton, \
     QRadioButton, QButtonGroup, QLineEdit
 from PyQt6.QtCore import Qt, QSize, QRegularExpression
 from board import Board
 from score_board import ScoreBoard
-from game_logic import GameLogic
 
 
 class Go(QMainWindow):
@@ -14,7 +11,6 @@ class Go(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
-
 
     def getBoard(self):
         return self.board
@@ -194,7 +190,7 @@ class Go(QMainWindow):
 
 
     def stop_game(self):
-        self.timer.stop()  # stops timer
+        self.board.timer.stop()  # stops timer
         if self.board.play:
             self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
                                         self.board.logic.getPiecesCaptured(2), "Game Pause")

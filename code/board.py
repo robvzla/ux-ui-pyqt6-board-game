@@ -36,7 +36,6 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
                            range(Board.boardWidth - 1)]
-        # self.printBoardArray()  # TODO - uncomment this method after creating the array above
 
         # Create an instance of the logic object here to enforce the rules of this game
         self.logic = GameLogic()
@@ -102,7 +101,6 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def timerEvent(self, event):
         '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
-        # TODO adapt this code to handle your timers
         if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
             if Board.counter == 0:
                 # print("Game over")
@@ -129,7 +127,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.x_position = int(event.position().x())
         self.y_position = int(event.position().y())
 
-        # TODO you could call some game logic here
+
         self.clickLocationSignal.emit(clickLoc)
 
         # Check if the mouse click was within the range of the board
@@ -293,7 +291,7 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def SuicideMoveNotification(self, text):
         game_setup_window = QDialog(self)
-        layout = QGridLayout()  # layoug of dialog
+        layout = QGridLayout()  # layout of dialog
 
         game_setup_window.setWindowTitle("SUICIDE MOVE")
         game_setup_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
