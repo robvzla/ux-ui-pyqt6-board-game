@@ -22,6 +22,17 @@ class Go(QMainWindow):
     def getScoreBoard(self):
         return self.scoreBoard
 
+    def SkipTurn(self):
+        self.scoreBoard.alternateNames()
+        self.board.logic.increaseTurn()
+        self.board.counter = self.time_per_round + 1
+        if self.board.skipValidityCheck():
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
+                                        self.board.logic.getPiecesCaptured(2), "Game Results")
+            self.board.resetGame()
+            self.board.play = False
+            self.get_game_setup("Replay")
+
     def initUI(self):
         '''initiates application UI'''
         # Windows version
@@ -31,8 +42,6 @@ class Go(QMainWindow):
         self.addDockWidget(Qt.DockWidgetArea.RightDockWidgetArea, self.scoreBoard)
         self.scoreBoard.make_connection(self.board)
         self.resize(800, 800)
-        # self.setFixedWidth(800)
-        # self.setFixedHeight(800)
         self.center()
         self.setWindowTitle('Go')
         self.show()
@@ -70,6 +79,11 @@ class Go(QMainWindow):
         fileMenu.addAction(exitAction)  # add this action to the file menu
         exitAction.triggered.connect(
             QApplication.instance().quit)  # when the menu option is selected or the shortcut is used the clear slot is triggered
+        # open
+        openAction = QAction(QIcon("./icons/open.png"), "Open", self)  # create a clear action with a png as an icon
+        openAction.setShortcut('Ctrl+O')  # connect this clear action to a keyboard shortcut
+        openAction.setStatusTip("Save")
+        fileMenu.addAction(openAction)  # add this action to the file menu
 
         # show rules item
         rulesAction = QAction(QIcon("./icons/go.png"), "Rules", self)  # create a clear action with a png as an icon
@@ -100,13 +114,13 @@ class Go(QMainWindow):
                                  self)  # create a clear action with a png as an icon
         skipTurnAction.setShortcut("Ctrl+S")  # connect this clear action to a keyboard shortcut
         skipTurnAction.setStatusTip("Skip")  # label upon hovering
-        # skipTurnAction.triggered.connect(self...)  ->  call method for next or skip
+        skipTurnAction.triggered.connect(lambda: self.SkipTurn())  # ->  call method for next or skip
 
         # Restart button
         restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
         restartAction.setShortcut("Ctrl+R")  # add keyboard shortcut
         restartAction.setStatusTip("Restart")  # label upon hovering
-        #restartAction.triggered.connect(self...)  -> call method to restart game
+        restartAction.triggered.connect(lambda: self.resume_game(1))  # -> call method to restart game
 
         # Undo button
         redoAction = QAction(QIcon("./icons/back.png"), "Undo", self)  # action for play button
@@ -120,6 +134,9 @@ class Go(QMainWindow):
         doAction.setStatusTip("Redo")  # label upon hovering
         doAction.triggered.connect(self.board.redo)
 
+        self.scoreBoard.getPlayButton().clicked.connect(
+            lambda: [self.resume_game(2)])  # upon clicking triggers the game stop
+
         """" Adding action buttons in toolbar"""
         toolbar.addAction(exitAction)
         toolbar.addAction(restartAction)
@@ -130,8 +147,14 @@ class Go(QMainWindow):
         toolbar.addAction(redoAction)
         toolbar.addAction(doAction)
         toolbar.addAction(rulesAction)
+        self.board.play = False
+        self.get_game_setup("Play")
 
+    def ContinueGame(self):
 
+        if not self.board.play:
+            self.get_game_setup("Continue")
+        pass
 
     """method for dialog window showing the game rules placed in Help"""
     def show_rules(self):
@@ -172,7 +195,22 @@ class Go(QMainWindow):
 
     def stop_game(self):
         self.timer.stop()  # stops timer
-        self.play_button.setEnabled(True)  # enables play to be re-clicked
+        if self.board.play:
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
+                                        self.board.logic.getPiecesCaptured(2), "Game Pause")
+            self.board.play = False
+
+    def resume_game(self, x):
+        self.board.play = False
+        if x == 1:
+            self.board.resetGame()
+            self.get_game_setup("Replay")
+        else:
+            self.board.timer.stop()
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
+                                        self.board.logic.getPiecesCaptured(2), "Game Results")
+            self.board.resetGame()
+
     def center(self):
         '''centers the window on the screen'''
         gr = self.frameGeometry()
@@ -180,20 +218,28 @@ class Go(QMainWindow):
 
         gr.moveCenter(screen)
         self.move(gr.topLeft())
-        #size = self.geometry()
-        #self.move((screen.width() - size.width()) / 2,(screen.height() - size.height()) / 2)
 
-    def get_game_setup(self):
+    def start(self):
+        self.board.start()
+
+    def saveSettings(self):
+        self.scoreBoard.setPlayers(self.player1.text(), self.player2.text())
+        if self.board.logic.gameState == []:
+            self.scoreBoard.alternateNames()
+        self.board.setScoreBoard(self.scoreBoard)
+        self.board.play = True
+
+    def get_game_setup(self,x):
         self.board.timer.stop() # stop timer from board
-
+        self.board.play = False
 
         # dialog for game settings
         game_setup_window = QDialog(self)
-        layout = QGridLayout() #layoug of dialog
+        layout = QGridLayout() #layout of dialog
 
         game_setup_window.setWindowTitle("Game Settings")
-        game_setup_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
-        game_setup_window.setMinimumSize(int(self.width() / 2), int(self.height() / 4))
+        game_setup_window.setMaximumSize(int(self.width() / 1.5), int(self.height() / 4))
+        game_setup_window.setMinimumSize(int(self.width() / 1.5), int(self.height() / 4))
         game_setup_window.setStyleSheet(
             """background-image: url("icons/binding_dark.png"); color:#f6fff8; font-size: 18px """)
         # Play button to start game
@@ -209,7 +255,7 @@ class Go(QMainWindow):
         time_btn_4 = QRadioButton("90 sec", self)
         time_btn_4.clicked.connect(lambda: self.set_round_time(120))
 
-        start_game = QPushButton(QIcon("./icons/play.png"), "Play", self)
+        start_game = QPushButton(QIcon("./icons/play.png"), str(x), self)
 
         # stylesheet for button
         start_game.setAutoFillBackground(True)
@@ -243,11 +289,16 @@ class Go(QMainWindow):
         self.player2 = QLineEdit(placeholderText="Enter name", clearButtonEnabled=True)
         self.player1.setValidator(validator) # validate input
         self.player2.setValidator(validator) #validate input
-        self.player1.setStyleSheet("color: #14213d")
-        self.player2.setStyleSheet("color: #14213d")
+        self.player1.setStyleSheet("color: #14213d ;font-size: 14px;")
+        self.player2.setStyleSheet("color: #14213d; font-size: 14px;")
 
-        self.player1.setFixedWidth(150)
-        self.player2.setFixedWidth(150)
+        self.player1.setFixedWidth(200)
+        self.player1.setFixedHeight(30)
+        self.player2.setFixedWidth(200)
+        self.player2.setFixedHeight(30)
+
+        self.player1.setText(self.scoreBoard.player1)
+        self.player2.setText(self.scoreBoard.player2)
 
         # adding buttons to dialog
         group_1 = QButtonGroup()
@@ -270,9 +321,9 @@ class Go(QMainWindow):
         # set layout of dialog
         game_setup_window.setLayout(layout)
         # upon setting selection
-        #time_btn_1.click()
+        time_btn_1.click()
 
-        # *****start_game.clicked.connect(self.start) -> connect once method to start game from board
+        start_game.clicked.connect(lambda:[self.start(),self.saveSettings(),game_setup_window.close()])# -> connect once method to start game from board
 
         game_setup_window.exec() # show dialog
 
@@ -280,6 +331,8 @@ class Go(QMainWindow):
 
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
+        self.board.counter = time_per_round + 1
+        self.board.setTimeInterval(time_per_round)
     def onChanged(self, text):
         self.player1.setText(text)
         self.lbl.adjustSize()
