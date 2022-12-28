@@ -3,6 +3,8 @@ from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
 from PyQt6.QtGui import QPainter, QBrush, QColor
 from game_logic import GameLogic
 from piece import Piece
+from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QWidget, QLabel, \
+    QPushButton,QDialog,QGridLayout
 
 
 class Board(QFrame):  # base the board on a QFrame widget
@@ -28,6 +30,10 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.points_coordinates_redo = []  # Stack that contains all the points that were popped in the undo method
         self.points_status_undo = []
         self.points_status_redo = []
+        self.skipValidity = []
+        self.scoreBoard = ""
+        self.timerInterval = 30
+        self.play = False
 
         self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
                            range(Board.boardWidth - 1)]
@@ -40,6 +46,19 @@ class Board(QFrame):  # base the board on a QFrame widget
         # These x & y positions will be passed to the Piece class constructor so a new Piece can be placed
         self.x_position = 0
         self.y_position = 0
+
+    def setScoreBoard(self, sb):
+        self.scoreBoard = sb
+
+    def setTimeInterval(self, t):
+        self.timerInterval = t
+
+    def skipValidityCheck(self):
+        self.skipValidity.append(self.logic.checkTurn())
+        if len(self.skipValidity) == 2:
+            return True
+        else:
+            return False
 
     def printBoardArray(self):
         '''prints the boardArray in an attractive way'''
@@ -78,7 +97,7 @@ class Board(QFrame):  # base the board on a QFrame widget
     def start(self):
         '''starts game'''
         self.isStarted = False  # set the boolean which determines if the game has started to TRUE
-        self.resetGame()  # reset the game
+        # self.resetGame()  # reset the game
         self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
         print("start () - timer is started")
 
@@ -87,10 +106,10 @@ class Board(QFrame):  # base the board on a QFrame widget
         # TODO adapt this code to handle your timers
         if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
             if Board.counter == 0:
-                print("Game over")
+                # print("Game over")
+                pass
             self.counter -= 1
 
-            print('timerEvent()', self.counter)
             self.updateTimerSignal.emit(self.counter)
         else:
             super(Board, self).timerEvent(event)  # if we do not handle an event we should pass it to the super
@@ -117,16 +136,9 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check if the mouse click was within the range of the board
         if self.checkWithinRange():
             # Check if a space is occupied
-            if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
+            if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0 and self.play:
                 # Try to make the move
-                if self.tryMove(self.getRow(), self.getCol()):  # If the move returns ture the it passed both the
-                    # Suicide test and the KO test
-                    self.logic.increaseTurn()
-                    self.logic.addToGameState(self.boardArray)
-                else:
-                    # If the move is false then revert the board to the previous state
-                    self.logic.rewriteBoard(self.boardArray)
-                    # Maybe put a pop up here to say invalid move?
+                self.tryMove(self.getRow(), self.getCol())
 
     def checkWithinRange(self):
         width = self.width() / Board.boardWidth
@@ -137,19 +149,28 @@ class Board(QFrame):  # base the board on a QFrame widget
 
     def resetGame(self):
         '''clears pieces from the board'''
-        # TODO write code to reset game
+        self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in range(Board.boardWidth - 1)]
+        self.logic.capturedWhitePieces = 0
+        self.logic.capturedBlackPieces = 0
+        self.logic.resetTurn()
+        self.update()
+
+    def resetCounter(self):
+        self.counter = self.timerInterval + 1
+        self.scoreBoard.resetPixel()
 
     def tryMove(self, newX, newY):
         """tries to move a piece"""
         # Check whose turn it is
         turn = self.logic.checkTurn()
-        # Get the current state of the board to have a reference if we have to reset it due to not passing the KO rule
-        self.logic.setCurrentState(self.boardArray)
-
-        # Place the stone
+        # Create method in game_logic to check the liberties, pass the turn, newX and newY
+        # Create the piece
+        new_piece = Piece(turn, newX, newY)
+        self.skipValidity.clear()
+        #  Check for the ko rule - game cannot return to the previous state
         self.boardArray[newX][newY].setStatus(turn)
-
-        # Check the suicide rule
+        self.logic.addToGameState(self.boardArray)
+        
         if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
             # Check if a piece or pieces will be taken
             self.checkAllDirectionsForCapture(newX, newY, self.boardArray, turn)
