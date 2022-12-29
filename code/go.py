@@ -93,41 +93,48 @@ class Go(QMainWindow):
         helpMenu.addAction(aboutAction)  # add this action to the file menu
         aboutAction.triggered.connect(self.show_about)  # call method for showing dialog
 
-        # Stop button
-        stopAction = QAction(QIcon("./icons/pause.png"), "Pause", self)  # stop button action
-        stopAction.setShortcut('Ctrl+0')  # setting shortcut
-        stopAction.setStatusTip("Stop")  # label upon hovering
-        stopAction.triggered.connect(self.stop_game)  # call method
-
         # Play button
         playAction = QAction(QIcon("./icons/play.png"), "Start", self)  # action for play button
         playAction.setShortcut("Ctrl+S")  # add keyboard shortcut
         playAction.setStatusTip("Play")  # label upon hovering
-        playAction.triggered.connect(self.get_game_setup) # call method to get user settings
+        fileMenu.addAction(playAction)  # add this action to the file menu
+        playAction.triggered.connect(self.get_game_setup)  # call method to get user settings
+
+        # Stop button
+        stopAction = QAction(QIcon("./icons/pause.png"), "Pause", self)  # stop button action
+        stopAction.setShortcut('Ctrl+0')  # setting shortcut
+        stopAction.setStatusTip("Pause")  # label upon hovering
+        fileMenu.addAction(stopAction)  # add this action to the file menu
+        stopAction.triggered.connect(self.stop_game)  # call method
+
 
         # Skip turn button
         skipTurnAction = QAction(QIcon("./icons/skip.png"), "Skip Turn",
                                  self)  # create a clear action with a png as an icon
         skipTurnAction.setShortcut("Ctrl+S")  # connect this clear action to a keyboard shortcut
         skipTurnAction.setStatusTip("Skip")  # label upon hovering
+        fileMenu.addAction(skipTurnAction)  # add this action to the file menu
         skipTurnAction.triggered.connect(lambda: self.SkipTurn())  # ->  call method for next or skip
 
         # Restart button
         restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
         restartAction.setShortcut("Ctrl+R")  # add keyboard shortcut
         restartAction.setStatusTip("Restart")  # label upon hovering
+        fileMenu.addAction(restartAction)  # add this action to the file menu
         restartAction.triggered.connect(lambda: self.resume_game(1))  # -> call method to restart game
 
         # Undo button
         redoAction = QAction(QIcon("./icons/back.png"), "Undo", self)  # action for play button
         redoAction.setShortcut("Ctrl+B")  # add keyboard shortcut
         redoAction.setStatusTip("Undo")  # label upon hovering
+        fileMenu.addAction(redoAction)  # add this action to the file menu
         redoAction.triggered.connect(self.board.undo)
 
         # Redo button
         doAction = QAction(QIcon("./icons/right-arrow.png"), "Redo", self)  # action for play button
         doAction.setShortcut("Ctrl+D")  # add keyboard shortcut
         doAction.setStatusTip("Redo")  # label upon hovering
+        fileMenu.addAction(doAction)  # add this action to the file menu
         doAction.triggered.connect(self.board.redo)
 
         self.scoreBoard.getPlayButton().clicked.connect(
