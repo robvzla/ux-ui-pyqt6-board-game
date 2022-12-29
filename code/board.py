@@ -10,9 +10,8 @@ class Board(QFrame):  # base the board on a QFrame widget
     updateTimerSignal = pyqtSignal(int)  # signal sent when timer is updated
     clickLocationSignal = pyqtSignal(str)  # signal sent when there is a new click location
 
-    # TODO set the board width and height to be square
-    boardWidth = 8  # board is 0 squares wide # TODO this needs updating
-    boardHeight = 8  #
+    boardWidth = 8  # board is 8 squares wide
+    boardHeight = 8
     timerSpeed = 1000  # the timer updates every 1 millisecond
     counter = 10  # the number the counter will count down from
 
@@ -31,7 +30,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.points_status_redo = []
         self.skipValidity = []
         self.scoreBoard = ""
-        self.timerInterval = 30
+        self.timerInterval = 30 #default timer
         self.play = False
 
         self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
@@ -213,7 +212,7 @@ class Board(QFrame):  # base the board on a QFrame widget
                     # print("\n\n\nIts Suicide move....\n\n\n")
                     self.boardArray[newX][newY].setStatus(0)
                     self.logic.increaseTurn()
-                    self.SuicideMoveNotification("Playing Suicide Move")
+                    self.SuicideMoveNotification("\tPlaying Suicide Move")
                     if turn == 2:
                         self.logic.capturedBlackPieces += 1
                     elif turn == 1:
@@ -236,7 +235,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             # print("Doesn't pass KO rule: ")
             self.boardArray[newX][newY].setStatus(0)
             self.logic.increaseTurn()
-            self.SuicideMoveNotification("KO rule Failed")
+            self.SuicideMoveNotification("\tKO Rule Failed")
 
         # Check if there are any liberties around the piece - suicide rule
         # self.boardArray[newX][newY].setLiberties(self.logic.countLiberties(newX, newY, self.boardArray))
@@ -288,7 +287,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             self.timer.stop()
             self.scoreBoard.showResults(self.width(), self.height(), self.logic.getPiecesCaptured(1),
                                                 self.logic.getPiecesCaptured(2), "Game Results")
-
+    """notifications for suicide pop dialog"""
     def SuicideMoveNotification(self, text):
         game_setup_window = QDialog(self)
         layout = QGridLayout()  # layout of dialog
@@ -296,11 +295,11 @@ class Board(QFrame):  # base the board on a QFrame widget
         game_setup_window.setWindowTitle("SUICIDE MOVE")
         game_setup_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
         game_setup_window.setMinimumSize(int(self.width() / 2), int(self.height() / 4))
-        game_setup_window.setStyleSheet("background-color:#000000;color:#ffffff")
+        game_setup_window.setStyleSheet("""background-image: url("icons/circles.png");""")
 
         win = QLabel()
-        win.setStyleSheet("background-color:#000000;color:#d90429;text-align:center")
-        win.setFont(QFont('Baskerville', 16))
+        win.setStyleSheet("color:#d90429;text-align:center")
+        win.setFont(QFont('Baskerville', 18))
         win.setText(text)
         layout.addWidget(win, 2, 0)
 
@@ -349,7 +348,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         for row in range(0, len(self.boardArray)):
             for col in range(0, len(self.boardArray[0])):
                 painter.save()
-                # TODO draw some the pieces as ellipses
                 # resize the piece by 2
                 painter.translate(((self.squareWidth()) * row) + self.squareWidth() * 0.75,
                                   (self.squareHeight()) * col + self.squareHeight() * 0.75)

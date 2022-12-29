@@ -234,8 +234,8 @@ class Go(QMainWindow):
         layout = QGridLayout() #layout of dialog
 
         game_setup_window.setWindowTitle("Game Settings")
-        game_setup_window.setMaximumSize(int(self.width() / 1.5), int(self.height() / 4))
-        game_setup_window.setMinimumSize(int(self.width() / 1.5), int(self.height() / 4))
+        game_setup_window.setMaximumSize(int(self.width() / 1.9), int(self.height() / 4))
+        game_setup_window.setMinimumSize(int(self.width() / 1.9), int(self.height() / 4))
         game_setup_window.setStyleSheet(
             """background-image: url("icons/binding_dark.png"); color:#f6fff8; font-size: 18px """)
         # Play button to start game
@@ -244,11 +244,11 @@ class Go(QMainWindow):
         time_label = QLabel("Time Limit:")
         time_btn_1 = QRadioButton("30 sec", self)
         time_btn_1.clicked.connect(lambda: self.set_round_time(30))
-        time_btn_2 = QRadioButton("45 sec", self)
-        time_btn_2.clicked.connect(lambda: self.set_round_time(60))
-        time_btn_3 = QRadioButton("60 sec", self)
+        time_btn_2 = QRadioButton("50 sec", self)
+        time_btn_2.clicked.connect(lambda: self.set_round_time(50))
+        time_btn_3 = QRadioButton("90 sec", self)
         time_btn_3.clicked.connect(lambda: self.set_round_time(90))
-        time_btn_4 = QRadioButton("90 sec", self)
+        time_btn_4 = QRadioButton("120 sec", self)
         time_btn_4.clicked.connect(lambda: self.set_round_time(120))
 
         start_game = QPushButton(QIcon("./icons/play.png"), str(x), self)
@@ -288,9 +288,9 @@ class Go(QMainWindow):
         self.player1.setStyleSheet("color: #14213d ;font-size: 14px;")
         self.player2.setStyleSheet("color: #14213d; font-size: 14px;")
 
-        self.player1.setFixedWidth(200)
+        self.player1.setFixedWidth(190)
         self.player1.setFixedHeight(30)
-        self.player2.setFixedWidth(200)
+        self.player2.setFixedWidth(190)
         self.player2.setFixedHeight(30)
 
         self.player1.setText(self.scoreBoard.player1)
@@ -309,10 +309,10 @@ class Go(QMainWindow):
         layout.addWidget(time_btn_2, 1, 1)
         layout.addWidget(time_btn_3, 1, 2)
         layout.addWidget(time_btn_4, 1, 3)
-        layout.addWidget(name1, 2, 0)
-        layout.addWidget(name2, 3, 0)
-        layout.addWidget(self.player1, 2, 2)
-        layout.addWidget(self.player2, 3, 2)
+        layout.addWidget(name1, 3, 0, Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(name2, 4, 0, Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(self.player1, 3, 1)
+        layout.addWidget(self.player2, 4, 1)
         layout.addWidget(start_game, 6, 3, Qt.AlignmentFlag.AlignRight)
         # set layout of dialog
         game_setup_window.setLayout(layout)
@@ -322,8 +322,6 @@ class Go(QMainWindow):
         start_game.clicked.connect(lambda:[self.start(),self.saveSettings(),game_setup_window.close()])# -> connect once method to start game from board
 
         game_setup_window.exec() # show dialog
-
-    """Set timer per round EXTRA FEATURE"""
 
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round

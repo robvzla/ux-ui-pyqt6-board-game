@@ -24,7 +24,7 @@ class ScoreBoard(QDockWidget):
         # create a widget to hold other widgets
         self.mainWidget = QWidget()  # main scoreboard widgets
         self.mainLayout = QVBoxLayout()  # layout style initialized
-        self.mainWidget.setMaximumSize(200, 1000)  # setting max size for side widget
+        self.mainWidget.setMaximumSize(250, 1000)  # setting max size for side widget
         self.setWidget(self.mainWidget)
         self.show()
 
@@ -220,9 +220,9 @@ class ScoreBoard(QDockWidget):
         name2.setStyleSheet("font-weight: bold")
         # passing message through window title depending on the state of the game
         game_setup_window.setWindowTitle(message)
-        game_setup_window.setMaximumSize(int(w / 1.9), int(h / 3))
-        game_setup_window.setMinimumSize(int(w / 1.9), int(h / 3))
-        game_setup_window.setStyleSheet("""background-image: url("icons/binding_dark.png"); color:#ffffff;width:500px;height:500px""")
+        game_setup_window.setMaximumWidth(600)
+        game_setup_window.setMaximumHeight(500)
+        game_setup_window.setStyleSheet("""background-image: url("icons/binding_dark.png"); color:#ffffff;width:400px;height:300px""")
 
 
 
@@ -231,7 +231,7 @@ class ScoreBoard(QDockWidget):
         else:
             winner = "Player 1!"
 
-        win = QLabel("\n\t\tWinner is " + winner + " \n")
+        win = QLabel("\n\t Winner is " + winner + "\n")
         win.setStyleSheet("color:#2b9348;text-align:center;")
         win.setFont(QFont('Baskerville', 18))
 

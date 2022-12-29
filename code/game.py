@@ -1,7 +1,7 @@
 import shelve
 from piece import *
 
-"""method creating a shelve object storing currenct state of game"""
+"""method creating a shelve object storing current state of game"""
 def saveGameDetails(gameState, p1, p2, turn, timeCircle, key):
     #creates a dictionary with the keys of "game", "Player1", "Player2", and turn.
     s = shelve.open('test_shelf.db')
