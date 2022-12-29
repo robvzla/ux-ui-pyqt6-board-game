@@ -175,8 +175,10 @@ class Go(QMainWindow):
         layout = QVBoxLayout()
         layout.addWidget(label1)
         layout.addWidget(label)
-        rules_window.setLayout(layout)
-        rules_window.exec()
+        wid = QWidget()
+        wid.setLayout(layout)
+        rules_window.setLayout(wid)
+        rules_window.show()
 
 
     """method for dialog window showing information About placed in Help"""
