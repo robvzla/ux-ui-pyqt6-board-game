@@ -30,6 +30,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.points_status_redo = []
         self.skipValidity = []
         self.scoreBoard = ""
+        self.collectedBlack = 0.3
         self.timerInterval = 30 #default timer
         self.play = False
 
@@ -94,7 +95,6 @@ class Board(QFrame):  # base the board on a QFrame widget
     def start(self):
         '''starts game'''
         self.isStarted = False  # set the boolean which determines if the game has started to TRUE
-        # self.resetGame()  # reset the game
         self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
         print("start () - timer is started")
 
@@ -337,6 +337,9 @@ class Board(QFrame):  # base the board on a QFrame widget
                         brush.setColor(color_two)
                     elif col % 2 == 0:
                         brush.setColor(color_one)
+                if row == 0 or row == Board.boardHeight-1:
+                    brush.setColor(Qt.GlobalColor.transparent)
+
                 # Setting X and Y coordinates and painting a square base on the calculated
                 # width and height of squareWidth and squareHeight methods with the created brush
                 painter.fillRect(col, row, int(self.squareWidth()), int(self.squareHeight()), brush)
@@ -370,6 +373,50 @@ class Board(QFrame):  # base the board on a QFrame widget
                 center = QPointF(radiusW, radiusH)
                 painter.drawEllipse(center, radiusW, radiusH)
                 painter.restore()
+
+        self.collect(painter)
+
+    """function for collected stones and places them in first and last row"""
+    def collect(self,painter):
+        collectedBlack = 0.55
+        # iterating through all the pieces captured
+        for i in range(self.logic.getPiecesCaptured(1)):
+            # check if the pieces are captured 10 times or less then saves the painting
+            if i <= 10:
+                painter.save()
+                # it translates (moves) itself over to where its squareWidth() * collectedBlack*i + self.squareWidth() would be located on 
+                # screen and draws an ellipse with radiusW = self.squareWidth() / 4 and radiusH = self .squareHeight().
+                painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth() ,
+                                    (self.squareHeight()) * -0.3 + self.squareHeight() * 0.7)
+                #create a black rectangle that is 4 units wide and 7 units high.
+                colour = QColor(Qt.GlobalColor.black)
+                # then after drawing each ellipse, they are restored back into their original position before being drawn again for piece 2's capture process
+                painter.setPen(colour)
+                painter.setBrush(colour)
+                radiusW = self.squareWidth() / 4
+                radiusH = self.squareHeight() / 4
+
+                center = QPointF(radiusW, radiusH)
+                painter.drawEllipse(center, radiusW, radiusH)
+                painter.restore()
+         #repeat this process, but with white rectangles instead of black ones
+        for i in range(self.logic.getPiecesCaptured(2)):
+            if i <= 10:
+                painter.save()
+                painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth() ,
+                                    (self.squareHeight()) * 7 + self.squareHeight() *0.2)
+                
+                colour = QColor(Qt.GlobalColor.white)
+
+                painter.setPen(colour)
+                painter.setBrush(colour)
+                radiusW = self.squareWidth() / 4
+                radiusH = self.squareHeight() / 4
+
+                center = QPointF(radiusW, radiusH)
+                painter.drawEllipse(center, radiusW, radiusH)
+                painter.restore()
+
 
     def undo(self):
         print("Undo")
