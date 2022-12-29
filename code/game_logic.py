@@ -97,13 +97,13 @@ class GameLogic:
         else:
             return False  # It's not suicide
 
-    def getPiecesCaptured(self, turn):  # Working correctly
+    def getPiecesCaptured(self, turn): 
         if turn == 1:  # If player is white then they are capturing black pieces
             return self.capturedBlackPieces
         else:
             return self.capturedWhitePieces
 
-    def checkForGroup(self, x, y, boardArray, turn, direction):  # Working correctly
+    def checkForGroup(self, x, y, boardArray, turn, direction):
         if turn == 1:  # Change the turn to look for the opposite colour
             enemy = 2
         else:
@@ -245,7 +245,7 @@ class GameLogic:
             board.append(r)
 
         return board
-    def checkForSuicide(self, x, y, boardArray, turn):  # Working correctly
+    def checkForSuicide(self, x, y, boardArray, turn):  
         if turn == 1:
             enemy = 2
         else:
@@ -279,13 +279,13 @@ class GameLogic:
         else:
             return False  # It's not suicide
 
-    def getPiecesCaptured(self, turn):  # Working correctly
+    def getPiecesCaptured(self, turn): 
         if turn == 1:  # If player is white then they are capturing black pieces
             return self.capturedBlackPieces
         else:
             return self.capturedWhitePieces
 
-    def checkForGroup(self, x, y, boardArray, turn, direction):  # Working correctly
+    def checkForGroup(self, x, y, boardArray, turn, direction):  
         if turn == 1:  # Change the turn to look for the opposite colour
             enemy = 2
         else:
@@ -302,7 +302,7 @@ class GameLogic:
 
         # print("Length of Group to Capture: " + str(len(self.groupToCapture)))
         # print("Group of Stones Locations: ")
-        self.printList(self.groupToCapture)
+        #self.printList(self.groupToCapture)
 
         # If there is something to capture (list > 0) then find out what liberties will have to be covered
         if len(self.groupToCapture) > 0:  # Add the potential liberties to the libertyList
@@ -314,6 +314,14 @@ class GameLogic:
             return self.checkIsGroupCaptured(boardArray)  # Return if the group will be captured or not
         else:
             return
+        #     if self.checkIsGroupCaptured(boardArray):  # If the group is surrounded by enemies
+        #         print("")
+        #         # add all the pieces to the captured list
+        #         self.addPiecesToCapturedList()
+        #         # set all the friends pieces to zero
+        #         self.setFriendPiecesToZero(boardArray)
+        #
+        # self.groupToCapture.clear()
 
     def checkTop(self, x, y, boardArray, turn):
         if x - 1 >= 0:  # Check if there is a friend on top
@@ -481,7 +489,7 @@ class GameLogic:
                     x += 1
         return x
 
-    def countLiberties(self, x, y, boardArray):  # Working correctly!
+    def countLiberties(self, x, y, boardArray): 
         count = 0
          # print("Board " + str(boardArray[x][y].getPiece()))
         try:  # Check the top
