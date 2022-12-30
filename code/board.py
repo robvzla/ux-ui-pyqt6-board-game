@@ -137,11 +137,14 @@ class Board(QFrame):  # base the board on a QFrame widget
                         # Maybe put a pop up here to say invalid move?
 
     def checkWithinRange(self):
-        width = self.width() / Board.boardWidth
-        height = self.height() / Board.boardHeight
-        if (width / 2) < self.x_position < ((width * 8) + (width / 2)) and \
-                ((height / 2) < self.y_position < (height * 8 + (height / 2))):
+        width = self.width() / Board.boardWidth  # This is the width of a square
+        height = self.height() / Board.boardHeight  # Height of a square
+        if (width / 2) < self.x_position < ((width * 8) - (width / 2)) and \
+                ((height / 2) < self.y_position < ((height * 8) - (height / 2))):
+            print("In range")
             return True
+        else:
+            return False
 
     def resetGame(self):
         '''clears pieces from the board'''
