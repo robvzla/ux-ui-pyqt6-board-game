@@ -13,8 +13,8 @@ class GameLogic:
         self.capturedWhitePieces = 0
         self.blackPassed = False
         self.whitePassed = False
-        self.totalBlackPiecesAtEnd = []
-        self.totalWhitePiecesAtEnd = []
+        self.totalBlackPiecesAtEnd = 0
+        self.totalWhitePiecesAtEnd = 0
         self.territory = []
 
 
@@ -337,21 +337,21 @@ class GameLogic:
             boardArray[self.groupToCapture[i].getX()][self.groupToCapture[i].getY()].setStatus(
                 0)  # Set all the pieces to 0
 
-    def setPlayerPassedTrue(self, turn, boardArray):
-        if turn == 1:  # If white is playing set their passed turn variable to False
+    def setPlayerPassedTrue(self):
+        if self.checkTurn() == 1:  # If white is playing set their passed turn variable to False
             self.whitePassed = True
             # print("White Passed: " + str(self.whitePassed))
         else:
             self.blackPassed = True
             # print("Black Passed: " + str(self.blackPassed))
 
-        # If both players pass then end the game
+        # # If both players pass then end the game
         self.increaseTurn()
-
-        test = self.checkIfBothPlayersPassed()
-        if test:
-            # print("Both players have passed!")
-            self.endGame(boardArray)
+        #
+        # test = self.checkIfBothPlayersPassed()
+        # if test:
+        #     # print("Both players have passed!")
+        #     self.endGame(boardArray)
 
 
         # print(str(turn) + str(value))
@@ -374,7 +374,6 @@ class GameLogic:
     def endGame(self, boardArray):
         # Go through the whole board to find the territories
         # Search for black territories first
-        print("End Game method called ")
         self.searchForTerritories(boardArray, 2)
         self.searchForTerritories(boardArray, 1)
 
@@ -384,6 +383,19 @@ class GameLogic:
                   str(boardArray[row][2].getPiece()) + "  " + str(boardArray[row][3].getPiece()) + "  " + \
                   str(boardArray[row][4].getPiece()) + "  " + str(boardArray[row][5].getPiece()) + "  " + \
                   str(boardArray[row][6].getPiece()))
+
+        for row in range(0, len(boardArray)):
+            for col in range(0, len(boardArray[row])):
+                if boardArray[row][col].getPiece() == 1:
+                    self.totalWhitePiecesAtEnd += 1
+                elif boardArray[row][col].getPiece() == 2:
+                    self.totalBlackPiecesAtEnd += 1
+
+        self.totalWhitePiecesAtEnd = self.totalWhitePiecesAtEnd + self.capturedBlackPieces
+        self.totalBlackPiecesAtEnd = self.totalBlackPiecesAtEnd + self.capturedWhitePieces
+
+        print("White: " + str(self.totalWhitePiecesAtEnd))
+        print("Black: " + str(self.totalBlackPiecesAtEnd))
 
 
 
@@ -411,6 +423,12 @@ class GameLogic:
         # print("Check for territories method called: ")
         if direction == "top":
             self.checkForTopTerritories(row, col, boardArray)
+        elif direction == "bottom":
+            self.checkForBottomTerritories(row, col, boardArray)
+        elif direction == "left":
+            self.checkForLeftTerritories(row, col, boardArray)
+        elif direction == "right":
+            self.checkForRightTerritories(row, col, boardArray)
 
     def checkForMoreTerritories(self, row, col, boardArray):
         self.checkForTopTerritories(row, col, boardArray)

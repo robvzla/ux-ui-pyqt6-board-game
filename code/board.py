@@ -109,23 +109,19 @@ class Board(QFrame):  # base the board on a QFrame widget
         if self.checkWithinRange():
             # Check if a space is occupied
             if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
-                # Check that both players have not passed their turns, their booleans will both be true if they have
-                if self.logic.checkIfBothPlayersPassed():
-                    print("Both players have passed")
+                # Try to make the move
+                move = self.tryMove(self.getRow(), self.getCol())
+                # print("Move: " + str(move))
+                if move:  # If the move returns ture the it passed both the
+                    # Suicide test and the KO test
+                    self.logic.increaseTurn()
+                    # print("Turn increased in board")
+                    # print("New turn value: " + str(self.logic.checkTurn()))
+                    self.logic.addToGameState(self.boardArray)
                 else:
-                    # Try to make the move
-                    move = self.tryMove(self.getRow(), self.getCol())
-                    print("Move: " + str(move))
-                    if move:  # If the move returns ture the it passed both the
-                        # Suicide test and the KO test
-                        self.logic.increaseTurn()
-                        print("Turn increased in board")
-                        print("New turn value: " + str(self.logic.checkTurn()))
-                        self.logic.addToGameState(self.boardArray)
-                    else:
-                        # If the move is false then revert the board to the previous state
-                        self.logic.rewriteBoard(self.boardArray)
-                        # Maybe put a pop up here to say invalid move?
+                    # If the move is false then revert the board to the previous state
+                    self.logic.rewriteBoard(self.boardArray)
+                    # Maybe put a pop up here to say invalid move?
 
     def checkWithinRange(self):
         width = self.width() / Board.boardWidth  # This is the width of a square
@@ -301,3 +297,14 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Counter? Or re-painting
         else:
             return False
+
+    # def endGame(self):
+    #     self.logic.endGame(self.boardArray)
+    #     self.update()
+
+    def skipTurn(self):
+        self.logic.setPlayerPassedTrue()
+        print(self.logic.checkTurn())
+        if self.logic.checkIfBothPlayersPassed():
+            self.logic.endGame(self.boardArray)
+            self.update()
