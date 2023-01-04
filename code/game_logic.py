@@ -46,12 +46,12 @@ class GameLogic:
         # same as a previous one
         count = 0
         totalSize = len(boardArray) * len(boardArray[0])
-        print("Count: " + str(count))
-        print("Total Size: " + str(totalSize))
+        # print("Count: " + str(count))
+        # print("Total Size: " + str(totalSize))
         if len(self.gameState) < 3:  # If the gameState is empty it's the first go
             return True  # Or if the gameState is of length 1 or 2 then return True
         elif len(self.gameState) >= 3:  # Compare both arrays to each other
-            print("Now testing against the second last state.")
+            # print("Now testing against the second last state.")
             # If the equivelent elements don't match set to False, break and return match
             indexToCompareTo = len(self.gameState) - 2
 
@@ -78,8 +78,8 @@ class GameLogic:
                     if self.gameState[indexToCompareTo][0][row][col] == boardArray[row][col].getPiece():
                         count += 1
 
-        print("Count: " + str(count))
-        print("Total Size: " + str(totalSize))
+        # print("Count: " + str(count))
+        # print("Total Size: " + str(totalSize))
         # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test an
         if count == totalSize:
             return False  # Failed the KO test
@@ -100,7 +100,7 @@ class GameLogic:
             for col in range(len(self.currentState[0][row])):
                 boardArray[row][col].setStatus(self.currentState[0][row][col])
 
-        print("Board was re-written!")
+        # print("Board was re-written!")
 
     def createBoard(self, boardArray):
         board = []
@@ -340,17 +340,17 @@ class GameLogic:
     def setPlayerPassedTrue(self, turn, boardArray):
         if turn == 1:  # If white is playing set their passed turn variable to False
             self.whitePassed = True
-            print("White Passed: " + str(self.whitePassed))
+            # print("White Passed: " + str(self.whitePassed))
         else:
             self.blackPassed = True
-            print("Black Passed: " + str(self.blackPassed))
+            # print("Black Passed: " + str(self.blackPassed))
 
         # If both players pass then end the game
         self.increaseTurn()
 
         test = self.checkIfBothPlayersPassed()
         if test:
-            print("Both players have passed!")
+            # print("Both players have passed!")
             self.endGame(boardArray)
 
 
@@ -358,10 +358,10 @@ class GameLogic:
     def setPlayerPassedFalse(self, turn):
         if turn == 1:  # If white is playing set their passed turn variable to False
             self.whitePassed = False
-            print("White Passed: " + str(self.whitePassed))
+            # print("White Passed: " + str(self.whitePassed))
         else:
             self.blackPassed = False
-            print("Black Passed: " + str(self.blackPassed))
+            # print("Black Passed: " + str(self.blackPassed))
 
     def checkIfBothPlayersPassed(self):
         if self.blackPassed and self.whitePassed:
@@ -376,31 +376,39 @@ class GameLogic:
         # Search for black territories first
         print("End Game method called ")
         self.searchForTerritories(boardArray, 2)
+        self.searchForTerritories(boardArray, 1)
+
+        print("Game End State")
+        for row in range(0, len(boardArray)):
+            print(str(boardArray[row][0].getPiece()) + "  " + str(boardArray[row][1].getPiece()) + "  " + \
+                  str(boardArray[row][2].getPiece()) + "  " + str(boardArray[row][3].getPiece()) + "  " + \
+                  str(boardArray[row][4].getPiece()) + "  " + str(boardArray[row][5].getPiece()) + "  " + \
+                  str(boardArray[row][6].getPiece()))
 
 
 
     def searchForTerritories(self, boardArray, colour):
-        for row in range(len(boardArray)):
-            for col in range(len(boardArray[row])):
+        for row in range(0, len(boardArray)):
+            for col in range(0, len(boardArray[row])):
                 # Check for a group of empty intersections to the top
                 # This method uses recursion, so a group to the top will be found
                 self.checkForTerritories(row, col, boardArray, "top")
                 # Check to see if the territory list is empty, if it is there is no group to the top
-                if len(self.territory) > 0:  # If there is a group, check to get it's liberties
-                    self.checkTerritoryListForLiberties(boardArray)
-                    if len(self.libertyList) > 0:
-                        # If there are liberties then check if the territory is 'captured'
-                        if self.checkIsTerritoryCaptured(boardArray, colour):
-                            # If the territory is captured, set all the pieces in the territory list to the colour that captured them
-                            self.captureTerritory(boardArray, colour)
-
-
-                # If they are then it is a territory
+                # If there is a group, check to get it's liberties
                 # Change the colour of the stones that have been 'captured' (the territory) to the colour that they are
                 # Surrounded by and then continue on and check the bottom, left and right
+                self.compareLists(boardArray, colour)
+                self.checkForTerritories(row, col, boardArray, "bottom")
+                self.compareLists(boardArray, colour)
+                self.checkForTerritories(row, col, boardArray, "left")
+                self.compareLists(boardArray, colour)
+                self.checkForTerritories(row, col, boardArray, "right")
+                self.compareLists(boardArray, colour)
+
+
 
     def checkForTerritories(self, row, col, boardArray, direction):
-        print("Check for territories method called: ")
+        # print("Check for territories method called: ")
         if direction == "top":
             self.checkForTopTerritories(row, col, boardArray)
 
@@ -412,12 +420,15 @@ class GameLogic:
 
     def checkForTopTerritories(self, row, col, boardArray):
         if row - 1 >= 0:  # Check if there is an empty stone on top
+            # print("Row Given: " + str(row) + " Row Above: " + str(row - 1))
             if boardArray[row - 1][
                 col].getPiece() == 0:  # If it is a territory then check if it is in the territories list
+                # print("It's empty!")
                 if self.containsElement(row - 1, col, self.territory):  # If the piece is in the list then do nothing
+                    # print("Intersection is in the territories list!")
                     pass
                 else:
-                    self.addPieceToList(row - 1, row, 0, self.territory)  # Add the enemy piece to the friends list
+                    self.territory.append(Piece(0, row - 1, col))  # Add the enemy piece to the friends list
                     self.checkForMoreTerritories(row - 1, col, boardArray)  # Check to see if there are more territories
 
     def checkForBottomTerritories(self, row, col, boardArray):
@@ -427,7 +438,7 @@ class GameLogic:
                                         self.territory):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addPieceToList(row + 1, col, 0, self.territory)  # Add the enemy piece to the friends list
+                    self.territory.append(Piece(0, row + 1, col))  # Add the enemy piece to the friends list
                     self.checkForMoreTerritories(row + 1, col, boardArray)  # Check to see if the piece has friends
 
     def checkForLeftTerritories(self, row, col, boardArray):
@@ -437,7 +448,7 @@ class GameLogic:
                                         self.territory):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addPieceToList(row, col - 1, 0, self.territory)  # Add the enemy piece to the friends list
+                    self.territory.append(Piece(0, row, col - 1))  # Add the enemy piece to the friends list
                     self.checkForMoreTerritories(row, col - 1, boardArray)  # Check to see if the piece has friends
 
     def checkForRightTerritories(self, row, col, boardArray):
@@ -447,7 +458,7 @@ class GameLogic:
                                         self.territory):  # If the piece is in the friends array then do nothing
                     pass
                 else:
-                    self.addPieceToList(row, col + 1, 0, self.territory)  # Add the enemy piece to the friends list
+                    self.territory.append(Piece(0, row, col + 1))  # Add the enemy piece to the friends list
                     self.checkForMoreTerritories(row, col + 1, boardArray)  # Check to see if the piece has friends
 
     def checkTerritoryListForLiberties(self, boardArray):
@@ -502,5 +513,21 @@ class GameLogic:
             return False
 
     def captureTerritory(self, boardArray, colour):
-        for i in range(len(self.libertyList)):
-            boardArray[self.libertyList[i].getX()][self.libertyList[i].getY()].setStatus(colour)
+        for i in range(len(self.territory)):
+            boardArray[self.territory[i].getX()][self.territory[i].getY()].setStatus(colour)
+
+    def compareLists(self, boardArray, colour):
+        if len(self.territory) > 0:
+            self.checkTerritoryListForLiberties(boardArray)
+            # print("Length of liberty list: " + str(len(self.libertyList)))
+            # print("Liberty list: " + str(self.libertyList))
+            if len(self.libertyList) > 0:
+                # If there are liberties then check if the territory is 'captured'
+                if self.checkIsTerritoryCaptured(boardArray, colour):
+                    # print("Territory is set to be captured.")
+                    # If the territory is captured, set all the pieces in the territory list to the colour that captured them
+                    self.captureTerritory(boardArray, colour)
+
+        self.territory.clear()
+        self.libertyList.clear()
+
