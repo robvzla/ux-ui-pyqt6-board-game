@@ -5,8 +5,8 @@ class GameLogic:
     def __init__(self):  # constructor
         self.turn = 2  # Black goes first
         self.gameState = []  # Game state will contain the boardArray, capturedBlackPieces, capturedWhitePieces
-        #self.currentState = []
-        # self.redoList = []
+        self.currentState = []
+        self.redoList = []
         self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
@@ -576,3 +576,5 @@ class GameLogic:
     # def captureLeft(self, x, y, boardArray, turn):
     #     if y - 1 >= 0:
     #         self.ch
+
+
