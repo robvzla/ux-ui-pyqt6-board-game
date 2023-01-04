@@ -58,15 +58,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         row = int(round(self.y_position / height)) - 1  # Add the -1 to account for the whitespace
         return row
 
-    def getColCoordinatesForPaint(self, col):
-        # print("Y position: " + str(self.y_position))
-        # print("Board Size: " + str(self.width()))
-        # print("Board Square Width: " + str(self.width() / Board.boardWidth))
-        return (col + 1) * self.width() / Board.boardWidth
-
-    def getRowCoordinatesForPaint(self, row):
-        return (row + 1) * self.height() / Board.boardHeight
-
     def squareWidth(self):
         '''returns the width of one square in the board'''
         return self.contentsRect().width() / self.boardWidth
