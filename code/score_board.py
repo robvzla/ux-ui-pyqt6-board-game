@@ -1,8 +1,8 @@
 from PyQt6.QtGui import QIcon, QPixmap, QFont
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QWidget, QLabel, \
-    QPushButton, QDialog, QGridLayout  # TODO import additional Widget classes as desired
+    QPushButton, QDialog, QGridLayout
 from PyQt6.QtCore import pyqtSlot, Qt, QTimer
-from board import Board
+
 
 
 class ScoreBoard(QDockWidget):
@@ -15,7 +15,7 @@ class ScoreBoard(QDockWidget):
     def initUI(self):
         '''initiates ScoreBoard UI'''
         self.resize(250, 250)
-        self.setFixedWidth(220)
+        self.setFixedWidth(250)
         self.setAllowedAreas(Qt.DockWidgetArea.RightDockWidgetArea)
         self.center()
         self.setWindowTitle('ScoreBoard')
@@ -28,9 +28,10 @@ class ScoreBoard(QDockWidget):
         self.setWidget(self.mainWidget)
         self.show()
 
+
         # styling and background for dock
         self.mainWidget.setAutoFillBackground(True)
-        self.mainWidget.setStyleSheet("""background-image: url("icons/score.png");""")
+        self.mainWidget.setStyleSheet("""background-image: url("icons/beige-tiles.png");""")
 
         # used for font across widget
         self.timer_font = QFont('Baskerville', 16)  # font for timer
@@ -39,23 +40,24 @@ class ScoreBoard(QDockWidget):
         # create two labels which will be updated by signals
         self.scoreBlack = 0
         self.scoreWhite = 0
-        self.label_clickLocation = QLabel("Click Location: ")
+        # label for territory occupied
+        self.territory = QLabel("Territory : " + "Territory : "  + "\n " )
+        self.territory.setStyleSheet("color:#003049; font-weight: bold")
+        self.territory.setFont(QFont('Baskerville', 16))
+        #self.label_clickLocation = QLabel()
+        # label for stones collected by players
         self.label_collected = QLabel(
             "    Black : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
         self.label_collected.setFont(QFont('Baskerville', 16))
-        self.label_collected.setStyleSheet("color:#003049; font-weight: bold")
-
-
+        self.label_collected.setStyleSheet("font-weight: bold;  color:#003049;")
         # current turn labels
         self.turn_label = QLabel("Current Turn:")
         self.turn_label.setFont(self.current_font)
         self.turn_label.setStyleSheet("color:#2b9348; font-weight: bold")
         self.curent_player = QLabel("")  # ****player 1 label empty string call flag color
         self.curent_player.setFont(QFont('Baskerville', 16))
-
-        self.curent_turn = QLabel("|||||||||||||||||||||||||||||||||||||")
-        self.curent_turn.setFont(QFont('Baskerville', 25))
-        self.curent_turn.setStyleSheet("background-color:#000000; font-weight:bold")
+        self.curent_turn = QLabel()
+        self.curent_turn.setStyleSheet("""background-image: url("icons/black.png");""")
 
         #  Clock icons and labels
         self.stop_watch = QPixmap('./icons/stopwatch.png')  # icons for timer blue
@@ -67,8 +69,6 @@ class ScoreBoard(QDockWidget):
         self.label_timeRemaining = QLabel("Time: ")  # value label
         self.label_timeRemaining.setFont(self.timer_font)  # set font
         self.label_timeRemaining.setAlignment(Qt.AlignmentFlag.AlignCenter)  # allin value
-
-        #  EXTRA FEATURES
 
         """add skip button"""
         self.skip_button = QPushButton(QIcon("./icons/skip.png"), "Skip", self)
@@ -82,16 +82,17 @@ class ScoreBoard(QDockWidget):
         # adding labels to right dock widget
         self.mainWidget.setLayout(self.mainLayout)  # layout of dock
         self.mainLayout.addWidget(self.label_collected)  # location label to widget
-        self.mainLayout.addWidget(self.label_clickLocation)  # location label to widget
+        self.mainLayout.addWidget(self.territory) # label for displaying territory
+        #self.mainLayout.addWidget(self.label_clickLocation)  # location label to widget
         self.mainLayout.addWidget(self.stop_watch_label)  # add icon label  to widget
         self.mainLayout.addWidget(self.label_timeRemaining)  # time value label to widget
-        self.mainLayout.addWidget(self.turn_label)
-        self.mainLayout.addWidget(self.curent_player)
-        self.mainLayout.addWidget(self.curent_turn)
-        self.mainLayout.addWidget(self.skip_button)
-        self.mainLayout.addWidget(self.play_button)
+        self.mainLayout.addWidget(self.turn_label) #turn text
+        self.mainLayout.addWidget(self.curent_player) #players turn
+        self.mainLayout.addWidget(self.curent_turn) #color turn
+        self.mainLayout.addWidget(self.skip_button) #skip button
+        self.mainLayout.addWidget(self.play_button) #stop
 
-        # styling for play button
+        # styling for stop button
         self.play_button.setStyleSheet(""" 
                       QPushButton {
                           font-weight:1000;
@@ -148,7 +149,7 @@ class ScoreBoard(QDockWidget):
     @pyqtSlot(str)  # checks to make sure that the following slot is receiving an argument of the type 'int'
     def setClickLocation(self, clickLoc):
         '''updates the label to show the click location'''
-        self.label_clickLocation.setText(clickLoc)
+        #self.label_clickLocation.setText(clickLoc)
         # print('slot ' + clickLoc)
 
     """EXTRA FEATURE updating the timer counter"""
@@ -169,41 +170,42 @@ class ScoreBoard(QDockWidget):
             self.stop_watch_label.setPixmap(self.stop_watch)
             self.gameBoard.logic.increaseTurn()
 
-    """reset the stimer label icon"""
+    """reset the timer label icon"""
     def resetPixel(self):
         self.stop_watch_label.setPixmap(self.stop_watch)
 
-    """adding player for display"""
+    """adding player names to variables for display"""
     def setPlayers(self, p1, p2):
         self.player1 = p1
         self.player2 = p2
 
-
     """update the text for players 1 or 2"""
     def updateCurrentPlayer(self, n):
         self.curent_player.setText(n);
-        self.curent_player.setStyleSheet("font-family: Baskerville; font-size:22; font-weight:bold; color: #292f36")
+        #self.curent_player.setStyleSheet("font-family: Baskerville; font-size:22; font-weight:bold; color: #292f36")
         self.update()
 
     def alternateNames(self):
-        if self.curent_player.text() == "BLACK: player " + self.player1:
-            self.updateCurrentPlayer("WHITE: player " + self.player2)
-            self.curent_turn.setStyleSheet("background-color:#ffffff;color:#ffffff")
+        if self.curent_player.text() == "black: player " + self.player1:
+            self.updateCurrentPlayer("white: player " + self.player2)
+            self.curent_turn.setStyleSheet("""background-image: url("icons/white.png");""")
         else:
-            self.updateCurrentPlayer("BLACK: player " + self.player1)
-            self.curent_turn.setStyleSheet("background-color:#000000;color:#000000")
+            self.updateCurrentPlayer("black: player " + self.player1)
+            self.curent_turn.setStyleSheet("""background-image: url("icons/black.png");""")
+        self.update()
 
     def updateScores(self, s1, s2):
         self.scoreBlack = s1
         self.scoreWhite = s2
         # displaying the stones captured
         self.label_collected.setText(
-            "Captured Stones\n\n    Black : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
-        self.label_collected.setStyleSheet("font-weight: bold;")
+            "\tCaptured Stones\n\nBlack : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
+        self.label_collected.setStyleSheet("font-weight: bold;  color:#003049;")
 
-    """dialog for results output """
+
+    """dialog for results output"""
     def showResults(self, w, h, s1, s2, message):
-        # dialog for game settings
+        # dialog for game settings and display results
         game_setup_window = QDialog(self)
         layout = QGridLayout()  # layout of dialog
         trophy = QPixmap('./icons/trophy.png')
@@ -211,8 +213,8 @@ class ScoreBoard(QDockWidget):
         winnerIcon.setPixmap(trophy)
 
         # players names labels
-        name1 = QLabel("Player 1 :  " + str(self.player1).capitalize() + "\t\tCaptured:     " + str(s2))
-        name2 = QLabel("Player 2 :  " + str(self.player2).capitalize() + "\t\tCaptured:     " + str(s1))
+        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\t\tCaptured:     " + str(s2))
+        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\t\tCaptured:     " + str(s1))
 
         name1.setFont(QFont('Baskerville', 16))
         name1.setStyleSheet("font-weight: bold")
@@ -224,18 +226,21 @@ class ScoreBoard(QDockWidget):
         game_setup_window.setMaximumHeight(500)
         game_setup_window.setStyleSheet("""background-image: url("icons/binding_dark.png"); color:#ffffff;width:400px;height:300px""")
 
-
-
+        name1.setStyleSheet("background-color:#000000;color:#ffffff")
+        name2.setStyleSheet("background-color:#000000;color:#ffffff")
+        # determine winner
         if s1 > s2:
             winner = "Player 2!"
         else:
             winner = "Player 1!"
-
-        win = QLabel("\n\t Winner is " + winner + "\n")
+        #display results
+        win = QLabel("\n\tWinner is " + winner + "\n")
         win.setStyleSheet("color:#2b9348;text-align:center;")
         win.setFont(QFont('Baskerville', 18))
+        #button closes the window
+        start_game = QPushButton(QIcon("./icons/ok.png"), str("Ok"), self)
+        start_game.clicked.connect(game_setup_window.close)
 
-        start_game = QPushButton(QIcon("./icons/ok.png"), str("SAVE"), self)
         # stylesheet for button
         start_game.setAutoFillBackground(True)
         start_game.setStyleSheet(""" 
@@ -246,7 +251,7 @@ class ScoreBoard(QDockWidget):
                         background-color:#000000;
                         font-size: 14px;
                         height: 50px;
-                        width: 80px;
+                        width: 110px;
                         border-color: #f6fff8;
 
                     }
@@ -255,18 +260,18 @@ class ScoreBoard(QDockWidget):
                     }
                 """)
 
-        # positioning of the buttons
+        # positioning of the buttons and display data if winner
         if s1 != 0 or s2 != 0:
             layout.addWidget(winnerIcon, 1, 0, Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(win, 3, 0)
             layout.addWidget(name1, 4, 0)
             layout.addWidget(name2, 5, 0)
-        else:
+        else: #else if nobody scored display minimal data
             win.setText("Nobody Scored!")
             layout.addWidget(win, 2, 0)
             layout.addWidget(name1, 3, 0)
             layout.addWidget(name2, 4, 0)
-
+        # upon pausing connect display data
         if message == "Game Pause":
             layout.addWidget(start_game, 7, 0, Qt.AlignmentFlag.AlignRight)
             start_game.clicked.connect(lambda: [print(self.gameBoard.boardArray)])
@@ -274,6 +279,8 @@ class ScoreBoard(QDockWidget):
         # set layout of dialog
         game_setup_window.setLayout(layout)
         # upon setting selection
-
         game_setup_window.exec()  # show dialog
 
+    """closes window when triggered"""
+    def close_clicked(self):
+        self.close()

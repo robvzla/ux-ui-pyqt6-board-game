@@ -1,5 +1,5 @@
 import shelve
-from piece import *
+
 
 """method creating a shelve object storing current state of game"""
 def saveGameDetails(gameState, p1, p2, turn, timeCircle, key):
