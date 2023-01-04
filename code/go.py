@@ -1,12 +1,9 @@
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QRegularExpressionValidator
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QGridLayout, QPushButton, \
-    QRadioButton, QButtonGroup, QLineEdit, QFileDialog
+    QRadioButton, QButtonGroup, QLineEdit, QFileDialog, QApplication, QWidget
 from PyQt6.QtCore import Qt, QSize, QRegularExpression
-# from PyQt6.QtQml import QQmlApplicationEngine
 from board import Board
 from score_board import ScoreBoard
-from go_rules import *
-import sys
 
 
 class Go(QMainWindow):
@@ -19,13 +16,6 @@ class Go(QMainWindow):
         self.initUI()
         self.w = None
 
-    def get_go_rules(self):
-        app = QApplication(sys.argv)
-        engine = QQmlApplicationEngine()
-        window = QWidget()
-        engine.rootContext().setContextProperty('window', window)
-        engine.load('media.qml')
-        sys.exit(app.exec())
 
     def getBoard(self):
         return self.board
@@ -33,15 +23,23 @@ class Go(QMainWindow):
     def getScoreBoard(self):
         return self.scoreBoard
 
+    """function for player to skip its turn"""
     def SkipTurn(self):
+        # changing names accordingly
         self.scoreBoard.alternateNames()
+        # changed the turn
         self.board.logic.increaseTurn()
+        # increase round count
         self.board.counter = self.time_per_round + 1
+        # verify is both players skipped, trigger results to terminate game
         if self.board.skipValidityCheck():
             self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
                                         self.board.logic.getPiecesCaptured(2), "Game Results")
+            # board gets reset and labels to zero
             self.board.resetGame()
+            # continue play disabled unless manually enabled
             self.board.play = False
+            # upon play button, game setup window and replay option
             self.get_game_setup("Replay")
 
     def initUI(self):
@@ -59,7 +57,7 @@ class Go(QMainWindow):
         self.setAutoFillBackground(True)
         self.setStyleSheet("""background-image: url("icons/mooning.png");""")
 
-        # rules of the game used in info menu
+        # rules of the game used in Info menu window
         self.rules = """
         Rules for 2 players game:
      1. The board is empty at the onset of the game (unless players agree to place a handicap).
@@ -75,7 +73,7 @@ class Go(QMainWindow):
      9. The player with more territory wins.
     """
 
-        # about the application text display in Help menu about
+        # dialog with about the game text display, found in Help menu About
         self.about = """\tgo, (Japanese), also called i-go, Chinese (Pinyin) weiqi or (Wade-Giles romanization) wei-ch’i,
         Korean baduk or pa-tok, board game for two players.Of East Asian origin, it is popular in China, Korea, and
         especially Japan, the country with which it is most closely identified.
@@ -90,7 +88,7 @@ class Go(QMainWindow):
                  """
 
         # Window version app icon
-        self.setWindowIcon(  # adding icos to window
+        self.setWindowIcon(  # adding icons to window
             QIcon("./icons/games-icon-icon.png"))  # documentation: https://doc.qt.io/qt-6/qwidget.html#windowIcon-prop
 
         # Set up menus
@@ -132,13 +130,6 @@ class Go(QMainWindow):
         rulesAction.setShortcut('Ctrl+i')  # connect this clear action to a keyboard shortcut
         helpMenu.addAction(rulesAction)  # add this action to the file menu
         rulesAction.triggered.connect(self.show_rules)  # call method for showing dialog
-
-        # show video rules item
-        videoAction = QAction(QIcon("./icons/multimedia.png"), "Video",
-                              self)  # create a clear action with a png as an icon
-        videoAction.setShortcut('Ctrl+m')  # connect this clear action to a keyboard shortcut
-        helpMenu.addAction(videoAction)  # add this action to the file menu
-        videoAction.triggered.connect(self.toggle_window)  # call method for showing dialog
 
         # show about item
         aboutAction = QAction(QIcon("./icons/information.png"), "About",
@@ -188,10 +179,10 @@ class Go(QMainWindow):
         doAction.setShortcut("Ctrl+d")  # add keyboard shortcut
         doAction.setStatusTip("Redo")  # label upon hovering
         fileMenu.addAction(doAction)  # add this action to the file menu
-        doAction.triggered.connect(self.board.redo)
+        doAction.triggered.connect(self.board.redo) # connect to redo method
 
         self.scoreBoard.getPlayButton().clicked.connect(
-            lambda: [self.resume_game(2)])  # upon clicking triggers the game stop
+            lambda: [self.resume_game(2)])  # upon clicking triggers game play
 
         """" Adding action buttons in toolbar"""
         toolbar.addAction(exitAction)
@@ -205,20 +196,19 @@ class Go(QMainWindow):
         toolbar.addSeparator()  # add a separator between icons
         toolbar.addAction(redoAction)
         toolbar.addAction(doAction)
-
+        # play disabled
         self.board.play = False
+        # window with game setup pop up
         self.get_game_setup("Play")
 
     """EXTRA FEATURE
      function for continue game after interrupt """
-
     def ContinueGame(self):
         if not self.board.play:
             self.get_game_setup("Resume")
         pass
 
-    """method for dialog window showing the game rules placed in Help"""
-
+    """method for non modal window showing the game rules placed in Help"""
     def show_rules(self):
         rules_window = QMainWindow(self)
         rules_window.setWindowTitle("Game rules")
@@ -240,7 +230,6 @@ class Go(QMainWindow):
         rules_window.show()
 
     """method for dialog window showing information About placed in Help"""
-
     def show_about(self):
         about_window = QDialog(self)
         about_window.setWindowTitle("About")
@@ -248,7 +237,6 @@ class Go(QMainWindow):
         about_window.setMaximumHeight(300)
         about_window.setStyleSheet(
             """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
-
         label = QLabel(self.about)
         layout = QVBoxLayout()
         layout.addWidget(label)
@@ -256,18 +244,17 @@ class Go(QMainWindow):
 
         about_window.exec()
 
-    # function for game stop 
+    """method for stopping the game"""
     def stop_game(self):
         self.board.timer.stop()  # stops timer
         if self.board.play:
-            # upon stoping the game game state is retrieved
+            # upon stopping the game state is retrieved all player data
             self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
                                         self.board.logic.getPiecesCaptured(2), "Game Pause")
             # if game is stopped the play is disabled 
             self.board.play = False
 
     """Extra feature - function for opening the saved file"""
-
     def Open(self):
         fname = QFileDialog.getOpenFileName(
             self,
@@ -279,36 +266,30 @@ class Go(QMainWindow):
         print(fname)
         self.board.timer.stop()  # stops timer
         if self.board.play:
-            # upon stoping the game game state is retrieved
+            # upon stopping the game state is retrieved
             self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
                                         self.board.logic.getPiecesCaptured(2), "Game Pause")
             # if game is stopped the play is disabled 
             self.board.play = False
 
-    # toggle the window between showing and hiding.
-    def toggle_window(self):
-        self.w = show()
-        self.w.show()
-
     """EXTRA FEATURE"""
-
-    # function for resuming for reply game after restart
+    """ function for resuming for reply game after restart"""
     def resume_game(self, x):
-
         self.board.play = False
         if x == 1:
-            # option to replay the game 
+            # option to replay the game and reset all data
             self.board.resetGame()
+            # display new game setup
             self.get_game_setup("Replay")
         else:
-            # else game is terminated and retrieves the results
+            # else game is terminated stop timer and retrieves the results
             self.board.timer.stop()
             self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
                                         self.board.logic.getPiecesCaptured(2), "Game Results")
+            # reset board
             self.board.resetGame()
 
     '''centers the window on the screen'''
-
     def center(self):
         gr = self.frameGeometry()
         screen = self.screen().availableGeometry().center()
@@ -316,12 +297,12 @@ class Go(QMainWindow):
         gr.moveCenter(screen)
         self.move(gr.topLeft())
 
+    """function calls start() method in board"""
     def start(self):
         self.board.start()
 
     """EXTRA FEATURE, ABILITY TO SAVE GAME """
     """function for saving the game state"""
-
     def saveSettings(self):
         self.scoreBoard.setPlayers(self.player1.text(), self.player2.text())
         # populate array with data
@@ -334,7 +315,6 @@ class Go(QMainWindow):
 
     """EXTRA FEATURE"""
     """saving data as..."""
-
     def save_as(self):
         response = QFileDialog.getSaveFileName(
             parent=self,
@@ -343,17 +323,16 @@ class Go(QMainWindow):
 
         )
 
-    """game setup window"""
-
+    """function for game settings window"""
     def get_game_setup(self, x):
         self.board.timer.stop()  # stop timer from board
-        self.board.play = False
+        self.board.play = False # game play diabled
 
         # dialog for game settings
         game_setup_window = QDialog(self)
         # layout of dialog
         layout = QGridLayout()
-
+        # window features and layout
         game_setup_window.setWindowTitle("Game Settings")
         game_setup_window.setMaximumSize(int(self.width() / 1.9), int(self.height() / 4))
         game_setup_window.setMinimumSize(int(self.width() / 1.9), int(self.height() / 4))
@@ -394,7 +373,7 @@ class Go(QMainWindow):
                   """)
         # regex expression for name input
         rx = QRegularExpression("[a-zA-Z]{20}")
-        # valitor for ascii input
+        # validator for ASCII input
         validator = QRegularExpressionValidator(rx)
 
         # players names labels
@@ -407,12 +386,12 @@ class Go(QMainWindow):
         self.player2.setValidator(validator)  # validate input
         self.player1.setStyleSheet("color: #023047 ;font-size: 14px;")
         self.player2.setStyleSheet("color: #023047; font-size: 14px;")
-
+        # sizing for user input text box
         self.player1.setFixedWidth(190)
         self.player1.setFixedHeight(30)
         self.player2.setFixedWidth(190)
         self.player2.setFixedHeight(30)
-
+        # add the input strings to score_board player labels
         self.player1.setText(self.scoreBoard.player1)
         self.player2.setText(self.scoreBoard.player2)
 
@@ -438,7 +417,7 @@ class Go(QMainWindow):
         game_setup_window.setLayout(layout)
         # upon setting selection
         time_btn_1.click()
-
+        # upon play triggered connect start game and close window
         start_game.clicked.connect(lambda: [self.start(), self.saveSettings(),
                                             game_setup_window.close()])  # -> connect once method to start game from board
 
@@ -446,14 +425,12 @@ class Go(QMainWindow):
 
     """EXTRA FEATURE"""
     """function sets the selected round time"""
-
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
         self.board.counter = time_per_round + 1
         self.board.setTimeInterval(time_per_round)
 
     """function changed the text according to the state"""
-
     def onChanged(self, text):
         self.player1.setText(text)
         self.lbl.adjustSize()

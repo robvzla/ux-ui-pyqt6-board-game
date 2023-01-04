@@ -30,7 +30,6 @@ class ScoreBoard(QDockWidget):
         self.setWidget(self.mainWidget)
         self.show()
 
-
         # styling and background for dock
         self.mainWidget.setAutoFillBackground(True)
         self.mainWidget.setStyleSheet("""background-image: url("icons/beige-tiles.png");""")
@@ -56,8 +55,10 @@ class ScoreBoard(QDockWidget):
         self.turn_label = QLabel("Current Turn:")
         self.turn_label.setFont(self.current_font)
         self.turn_label.setStyleSheet("color:#2b9348; font-weight: bold")
-        self.curent_player = QLabel("")  # ****player 1 label empty string call flag color
+        # display player's name by turn
+        self.curent_player = QLabel("")  #player 1 label empty string call flag color
         self.curent_player.setFont(QFont('Baskerville', 16))
+        # user turn by color, adding image white or black to label
         self.curent_turn = QLabel()
         self.curent_turn.setStyleSheet("""background-image: url("icons/black.png");""")
 
@@ -67,18 +68,18 @@ class ScoreBoard(QDockWidget):
         self.stop_watch_label = QLabel()
         self.stop_watch_label.setPixmap(self.stop_watch)  # adding icon for timer
         self.stop_watch_label.setAlignment(Qt.AlignmentFlag.AlignCenter)  # icon alignment
-
+        # label display value left of seconds
         self.label_timeRemaining = QLabel("Time: ")  # value label
         self.label_timeRemaining.setFont(self.timer_font)  # set font
-        self.label_timeRemaining.setAlignment(Qt.AlignmentFlag.AlignCenter)  # allin value
+        self.label_timeRemaining.setAlignment(Qt.AlignmentFlag.AlignCenter)  # align value
 
         """add skip button"""
         self.skip_button = QPushButton(QIcon("./icons/skip.png"), "Skip", self)
         self.skip_button.clicked.connect(self.skipTurn)  # calls skip turn method upon clicking
 
-        """"add end button"""
+        """"add STOP button;ignore play"""
         self.play_button = QPushButton(QIcon("./icons/close.png"), "Stop")
-        self.play_button.setShortcut('Ctrl+S')
+        self.play_button.setShortcut('Ctrl+s')
         self.play_button.setFocusPolicy(Qt.FocusPolicy.NoFocus)
 
         # adding labels to right dock widget
@@ -124,19 +125,26 @@ class ScoreBoard(QDockWidget):
                       }
                   """)
 
+    """function for Play button"""
     def getPlayButton(self):
         return self.play_button
 
     def center(self):
         '''centers the window on the screen, you do not need to implement this method'''
 
+    """function for skip turn of player"""
     def skipTurn(self):
+        # change names of player depending on turn
         self.alternateNames()
+        # add turn to logic
         self.gameBoard.logic.increaseTurn()
+        # reset round timer
         self.gameBoard.resetCounter()
+        # verify skipping turn, if both player consecutively then terminate game and display data,score,etc.
         if self.gameBoard.skipValidityCheck():
             self.showResults(self.gameBoard.width(), self.gameBoard.height(), self.gameBoard.logic.getPiecesCaptured(1),
                              self.gameBoard.logic.getPiecesCaptured(2), "Game Results")
+            # reset board labels and settings
             self.gameBoard.resetGame()
 
     def make_connection(self, board):
@@ -167,9 +175,13 @@ class ScoreBoard(QDockWidget):
             self.stop_watch_label.update()  # icon update
         """if counter is 0, calls names if any, resets watch label, and turn"""
         if timeRemainng == 0:
+            # change the player name
             self.alternateNames()
+            #reset timer
             self.gameBoard.resetCounter()
+            # reset pixmap watch
             self.stop_watch_label.setPixmap(self.stop_watch)
+            # add turn to logic
             self.gameBoard.logic.increaseTurn()
 
     """reset the timer label icon"""
@@ -187,16 +199,22 @@ class ScoreBoard(QDockWidget):
         #self.curent_player.setStyleSheet("font-family: Baskerville; font-size:22; font-weight:bold; color: #292f36")
         self.update()
 
+    """function for player name alternate between turns"""
     def alternateNames(self):
+        # if the player is black add name string inserted, if any, else remains blank
         if self.curent_player.text() == "black: player " + self.player1:
+            # add the string name is any to white player
             self.updateCurrentPlayer("white: player " + self.player2)
+            # color turn added for white
             self.curent_turn.setStyleSheet("""background-image: url("icons/white.png");""")
-        else:
+        else: # color turn added for black
             self.updateCurrentPlayer("black: player " + self.player1)
             self.curent_turn.setStyleSheet("""background-image: url("icons/black.png");""")
         self.update()
 
+    """function updated the score of both players"""
     def updateScores(self, s1, s2):
+        # assign variables
         self.scoreBlack = s1
         self.scoreWhite = s2
         # displaying the stones captured
@@ -210,14 +228,14 @@ class ScoreBoard(QDockWidget):
         # dialog for game settings and display results
         game_setup_window = QDialog(self)
         layout = QGridLayout()  # layout of dialog
-        trophy = QPixmap('./icons/trophy.png')
+        trophy = QPixmap('./icons/trophy.png') # pixmap added at the top of dialog
         winnerIcon = QLabel()
         winnerIcon.setPixmap(trophy)
 
         # players names labels
         name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\t\tCaptured:     " + str(s2))
         name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\t\tCaptured:     " + str(s1))
-
+        # style for player names display
         name1.setFont(QFont('Baskerville', 16))
         name1.setStyleSheet("font-weight: bold")
         name2.setFont(QFont('Baskerville', 16))
@@ -227,7 +245,7 @@ class ScoreBoard(QDockWidget):
         game_setup_window.setMaximumWidth(600)
         game_setup_window.setMaximumHeight(500)
         game_setup_window.setStyleSheet("""background-image: url("icons/binding_dark.png"); color:#ffffff;width:400px;height:300px""")
-
+        # styling for text
         name1.setStyleSheet("background-color:#000000;color:#ffffff")
         name2.setStyleSheet("background-color:#000000;color:#ffffff")
         # determine winner
