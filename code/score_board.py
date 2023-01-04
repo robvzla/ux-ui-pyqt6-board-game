@@ -1,7 +1,7 @@
 from PyQt6.QtGui import QIcon, QPixmap, QFont
 from PyQt6.QtWidgets import QDockWidget, QVBoxLayout, QWidget, QLabel, \
     QPushButton, QDialog, QGridLayout
-from PyQt6.QtCore import pyqtSlot, Qt, QTimer
+from PyQt6.QtCore import pyqtSlot, Qt
 
 
 
@@ -10,6 +10,8 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
+        self.player2 = None
+        self.player1 = None
         self.initUI()
 
     def initUI(self):
@@ -44,7 +46,7 @@ class ScoreBoard(QDockWidget):
         self.territory = QLabel("Territory : " + "Territory : "  + "\n " )
         self.territory.setStyleSheet("color:#003049; font-weight: bold")
         self.territory.setFont(QFont('Baskerville', 16))
-        #self.label_clickLocation = QLabel()
+        # self.label_clickLocation = QLabel()
         # label for stones collected by players
         self.label_collected = QLabel(
             "    Black : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
@@ -181,7 +183,7 @@ class ScoreBoard(QDockWidget):
 
     """update the text for players 1 or 2"""
     def updateCurrentPlayer(self, n):
-        self.curent_player.setText(n);
+        self.curent_player.setText(n)
         #self.curent_player.setStyleSheet("font-family: Baskerville; font-size:22; font-weight:bold; color: #292f36")
         self.update()
 

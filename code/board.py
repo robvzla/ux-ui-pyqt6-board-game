@@ -130,7 +130,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.x_position = int(event.position().x())
         self.y_position = int(event.position().y())
 
-
         self.clickLocationSignal.emit(clickLoc)
 
         # Check if the mouse click was within the range of the board
@@ -171,10 +170,10 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.boardArray[newX][newY].setStatus(turn)
         self.logic.addToGameState(self.boardArray)
         if self.logic.checkKORule(self.boardArray):  # If the click passes the KO rule then proceed to see if it will
-                #print("Passed the KO rule")
+            # print("Passed the KO rule")
             # pass the suicide rule
             if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
-                    # Check if a piece or pieces will be taken
+                # Check if a piece or pieces will be taken
                 # If the move is a suicide then place the piece and check if a piece or pieces will be taken
 
                 self.boardArray[newX][newY].setStatus(turn)
@@ -302,7 +301,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         game_setup_window.setStyleSheet("""background-image: url("icons/circles.png");""")
 
         win = QLabel()
-        win.setStyleSheet("color:#d90429;text-align:center;justify-content: center;")
+        win.setStyleSheet("color:#d90429;text-align:center;")
         win.setFont(QFont('Baskerville', 18))
         win.setText(text)
         layout.addWidget(win, 2 ,0)
@@ -392,9 +391,10 @@ class Board(QFrame):  # base the board on a QFrame widget
                 # screen and draws an ellipse with radiusW = self.squareWidth() / 4 and radiusH = self .squareHeight().
                 painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth() ,
                                     (self.squareHeight()) * -0.3 + self.squareHeight() * 0.7)
-                #create a black rectangle that is 4 units wide and 7 units high.
+                # create a black rectangle that is 4 units wide and 7 units high.
                 colour = QColor(Qt.GlobalColor.black)
-                # then after drawing each ellipse, they are restored back into their original position before being drawn again for piece 2's capture process
+                # then after drawing each ellipse, they are restored back into their original position
+                # before being drawn again for piece 2's capture process
                 painter.setPen(colour)
                 painter.setBrush(colour)
                 radiusW = self.squareWidth() / 4
@@ -403,12 +403,12 @@ class Board(QFrame):  # base the board on a QFrame widget
                 center = QPointF(radiusW, radiusH)
                 painter.drawEllipse(center, radiusW, radiusH)
                 painter.restore()
-         #repeat this process, but with white rectangles instead of black ones
+        # repeat this process, but with white rectangles instead of black ones
         for i in range(self.logic.getPiecesCaptured(2)):
             if i <= 10:
                 painter.save()
-                painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth() ,
-                                    (self.squareHeight()) * 7 + self.squareHeight() *0.2)
+                painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth(),
+                                  (self.squareHeight()) * 7 + self.squareHeight() * 0.2)
                 
                 colour = QColor(Qt.GlobalColor.white)
 
@@ -459,4 +459,3 @@ class Board(QFrame):  # base the board on a QFrame widget
             # self.score_widget.updateScores(self, p1, p2)
             # Calling update method to re draw board and pieces
             self.update()
-

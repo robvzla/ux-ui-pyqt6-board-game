@@ -22,7 +22,7 @@ def saveGameDetails(gameState, p1, p2, turn, timeCircle, key):
 """method opens the saved file """
 def getGameDetails(key, board, scoreBoard):
     s = shelve.open('test_shelf.db')
-    #finding a key in the dictionary that corresponds; If there is no such key, then it will create one and save it into the database
+    # finding a key in the dictionary that corresponds; If there is no such key, then it will create one and save it into the database
     try:
         dictionary = s[key]
     finally:
@@ -35,6 +35,6 @@ def getGameDetails(key, board, scoreBoard):
     board.logic.turn = dictionary["turn"]
     board.logic.gameState = dictionary["game"]
     board.resetCounter()
-    # reseting timer and play button is turned on and finally update function updates the screen accordingly
+    # resetting timer and play button is turned on and finally update function updates the screen accordingly
     board.play = True
     board.update()

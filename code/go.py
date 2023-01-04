@@ -1,25 +1,29 @@
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QRegularExpressionValidator
-from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QApplication, QGridLayout, QPushButton, \
-    QRadioButton, QButtonGroup, QLineEdit, QWidget , QFileDialog
+from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QGridLayout, QPushButton, \
+    QRadioButton, QButtonGroup, QLineEdit, QFileDialog
 from PyQt6.QtCore import Qt, QSize, QRegularExpression
-from PyQt6.QtQml import QQmlApplicationEngine
+# from PyQt6.QtQml import QQmlApplicationEngine
 from board import Board
 from score_board import ScoreBoard
-from game_logic import GameLogic
-from go_rules import*
+from go_rules import *
 import sys
+
 
 class Go(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.lbl = None
+        self.player2 = None
+        self.player1 = None
         self.initUI()
-        self.w = None  
+        self.w = None
+
     def get_go_rules(self):
         app = QApplication(sys.argv)
         engine = QQmlApplicationEngine()
-        window=QWidget()
-        engine.rootContext().setContextProperty('window' ,window)
+        window = QWidget()
+        engine.rootContext().setContextProperty('window', window)
         engine.load('media.qml')
         sys.exit(app.exec())
 
@@ -85,7 +89,6 @@ class Go(QMainWindow):
      
                  """
 
-
         # Window version app icon
         self.setWindowIcon(  # adding icos to window
             QIcon("./icons/games-icon-icon.png"))  # documentation: https://doc.qt.io/qt-6/qwidget.html#windowIcon-prop
@@ -125,19 +128,21 @@ class Go(QMainWindow):
         save_file.triggered.connect(self.save_as)
 
         # show rules item
-        rulesAction = QAction(QIcon("./icons/go.png"), "Rules",self)  # create a clear action with a png as an icon
+        rulesAction = QAction(QIcon("./icons/go.png"), "Rules", self)  # create a clear action with a png as an icon
         rulesAction.setShortcut('Ctrl+i')  # connect this clear action to a keyboard shortcut
         helpMenu.addAction(rulesAction)  # add this action to the file menu
         rulesAction.triggered.connect(self.show_rules)  # call method for showing dialog
 
         # show video rules item
-        videoAction = QAction(QIcon("./icons/multimedia.png"), "Video", self)  # create a clear action with a png as an icon
+        videoAction = QAction(QIcon("./icons/multimedia.png"), "Video",
+                              self)  # create a clear action with a png as an icon
         videoAction.setShortcut('Ctrl+m')  # connect this clear action to a keyboard shortcut
         helpMenu.addAction(videoAction)  # add this action to the file menu
         videoAction.triggered.connect(self.toggle_window)  # call method for showing dialog
 
         # show about item
-        aboutAction = QAction(QIcon("./icons/information.png"), "About", self)  # creating a clear action with a png as an icon
+        aboutAction = QAction(QIcon("./icons/information.png"), "About",
+                              self)  # creating a clear action with a png as an icon
         aboutAction.setShortcut('Ctrl+a')  # connect this clear action to a keyboard shortcut
         helpMenu.addAction(aboutAction)  # add this action to the file menu
         aboutAction.triggered.connect(self.show_about)  # call method for showing dialog
@@ -147,7 +152,7 @@ class Go(QMainWindow):
         playAction.setShortcut("Ctrl+g")  # add keyboard shortcut
         playAction.setStatusTip("Play")  # label upon hovering
         fileMenu.addAction(playAction)  # add this action to the file menu
-        playAction.triggered.connect(lambda:self.ContinueGame()) # call method to get user settings
+        playAction.triggered.connect(lambda: self.ContinueGame())  # call method to get user settings
 
         # Stop button
         stopAction = QAction(QIcon("./icons/pause.png"), "Pause", self)  # stop button action
@@ -155,7 +160,6 @@ class Go(QMainWindow):
         stopAction.setStatusTip("Pause")  # label upon hovering
         fileMenu.addAction(stopAction)  # add this action to the file menu
         stopAction.triggered.connect(self.stop_game)  # call method
-
 
         # Skip turn button
         skipTurnAction = QAction(QIcon("./icons/skip.png"), "Skip Turn",
@@ -186,8 +190,6 @@ class Go(QMainWindow):
         fileMenu.addAction(doAction)  # add this action to the file menu
         doAction.triggered.connect(self.board.redo)
 
-
-
         self.scoreBoard.getPlayButton().clicked.connect(
             lambda: [self.resume_game(2)])  # upon clicking triggers the game stop
 
@@ -204,25 +206,26 @@ class Go(QMainWindow):
         toolbar.addAction(redoAction)
         toolbar.addAction(doAction)
 
-
         self.board.play = False
         self.get_game_setup("Play")
 
     """EXTRA FEATURE
      function for continue game after interrupt """
+
     def ContinueGame(self):
         if not self.board.play:
             self.get_game_setup("Resume")
         pass
 
     """method for dialog window showing the game rules placed in Help"""
+
     def show_rules(self):
         rules_window = QMainWindow(self)
         rules_window.setWindowTitle("Game rules")
         rules_window.setMaximumWidth(200)
         rules_window.setMinimumHeight(200)
         rules_window.setStyleSheet(
-        """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
+            """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
         label = QLabel(self.rules)
         pix = QPixmap('./icons/games-icon.png')
         label1 = QLabel()
@@ -236,15 +239,15 @@ class Go(QMainWindow):
         rules_window.setCentralWidget(wid)
         rules_window.show()
 
-
     """method for dialog window showing information About placed in Help"""
+
     def show_about(self):
         about_window = QDialog(self)
         about_window.setWindowTitle("About")
         about_window.setMaximumWidth(250)
         about_window.setMaximumHeight(300)
         about_window.setStyleSheet(
-        """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
+            """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
 
         label = QLabel(self.about)
         layout = QVBoxLayout()
@@ -264,6 +267,7 @@ class Go(QMainWindow):
             self.board.play = False
 
     """Extra feature - function for opening the saved file"""
+
     def Open(self):
         fname = QFileDialog.getOpenFileName(
             self,
@@ -287,6 +291,7 @@ class Go(QMainWindow):
         self.w.show()
 
     """EXTRA FEATURE"""
+
     # function for resuming for reply game after restart
     def resume_game(self, x):
 
@@ -303,6 +308,7 @@ class Go(QMainWindow):
             self.board.resetGame()
 
     '''centers the window on the screen'''
+
     def center(self):
         gr = self.frameGeometry()
         screen = self.screen().availableGeometry().center()
@@ -315,28 +321,32 @@ class Go(QMainWindow):
 
     """EXTRA FEATURE, ABILITY TO SAVE GAME """
     """function for saving the game state"""
+
     def saveSettings(self):
         self.scoreBoard.setPlayers(self.player1.text(), self.player2.text())
         # populate array with data
         if self.board.logic.gameState == []:
             self.scoreBoard.alternateNames()
-            #get score from scoreboard
+            # get score from scoreboard
         self.board.setScoreBoard(self.scoreBoard)
         # ability to resume playing
         self.board.play = True
 
     """EXTRA FEATURE"""
     """saving data as..."""
+
     def save_as(self):
         response = QFileDialog.getSaveFileName(
-             parent=self,
-             caption='Select a data file',
-             directory= 'Data File.dat',
-            
-         )
+            parent=self,
+            caption='Select a data file',
+            directory='Data File.dat',
+
+        )
+
     """game setup window"""
-    def get_game_setup(self,x):
-        self.board.timer.stop() # stop timer from board
+
+    def get_game_setup(self, x):
+        self.board.timer.stop()  # stop timer from board
         self.board.play = False
 
         # dialog for game settings
@@ -349,7 +359,6 @@ class Go(QMainWindow):
         game_setup_window.setMinimumSize(int(self.width() / 1.9), int(self.height() / 4))
         game_setup_window.setStyleSheet(
             """background-image: url("icons/binding_dark.png"); color:#f6fff8; font-size: 18px """)
-
 
         """ EXTRA FEATURE; determine the game time per round"""
         time_label = QLabel("Time Limit:")
@@ -394,8 +403,8 @@ class Go(QMainWindow):
         # user input for names
         self.player1 = QLineEdit(placeholderText="Enter name", clearButtonEnabled=True)
         self.player2 = QLineEdit(placeholderText="Enter name", clearButtonEnabled=True)
-        self.player1.setValidator(validator) # validate input
-        self.player2.setValidator(validator) #validate input
+        self.player1.setValidator(validator)  # validate input
+        self.player2.setValidator(validator)  # validate input
         self.player1.setStyleSheet("color: #023047 ;font-size: 14px;")
         self.player2.setStyleSheet("color: #023047; font-size: 14px;")
 
@@ -430,19 +439,21 @@ class Go(QMainWindow):
         # upon setting selection
         time_btn_1.click()
 
-        start_game.clicked.connect(lambda:[self.start(),self.saveSettings(),game_setup_window.close()])# -> connect once method to start game from board
+        start_game.clicked.connect(lambda: [self.start(), self.saveSettings(),
+                                            game_setup_window.close()])  # -> connect once method to start game from board
 
-        game_setup_window.exec() # show dialog
+        game_setup_window.exec()  # show dialog
 
     """EXTRA FEATURE"""
     """function sets the selected round time"""
+
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
         self.board.counter = time_per_round + 1
         self.board.setTimeInterval(time_per_round)
-        
+
     """function changed the text according to the state"""
+
     def onChanged(self, text):
         self.player1.setText(text)
         self.lbl.adjustSize()
-
