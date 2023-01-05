@@ -1,8 +1,10 @@
 from PyQt6.QtWidgets import QFrame
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
-from PyQt6.QtGui import QPainter, QBrush, QColor
+from PyQt6.QtGui import QPainter, QBrush, QColor, QFont
 from game_logic import GameLogic
 from piece import Piece
+from score_board import ScoreBoard
+from PyQt6.QtWidgets import QLabel, QDialog, QGridLayout
 
 
 class Board(QFrame):  # base the board on a QFrame widget
@@ -27,10 +29,14 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.points_coordinates_redo = []  # Stack that contains all the points that were popped in the undo method
         self.points_status_undo = []
         self.points_status_redo = []
+        self.skipValidity = []
+        self.scoreBoard = ""
+        self.collectedBlack = 0.3
+        self.timerInterval = 30 #default timer
+        self.play = False
 
         self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
                            range(Board.boardWidth - 1)]
-        # self.printBoardArray()  # TODO - uncomment this method after creating the array above
 
         # Create an instance of the logic object here to enforce the rules of this game
         self.logic = GameLogic()
@@ -70,7 +76,7 @@ class Board(QFrame):  # base the board on a QFrame widget
     def start(self):
         '''starts game'''
         self.isStarted = False  # set the boolean which determines if the game has started to TRUE
-        self.resetGame()  # reset the game
+        # self.resetGame()  # reset the game
         self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
         # print("start () - timer is started")  # Commenting out to test other methods
 

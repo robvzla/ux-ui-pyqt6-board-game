@@ -159,9 +159,18 @@ class ScoreBoard(QDockWidget):
         if timeRemainng < 10:  # if 10 seconds left update icon
             self.stop_watch_label.setPixmap(self.stop_watch_red)  # updating icon
             self.stop_watch_label.update()  # icon update
+        """if counter is 0, calls names if any, resets watch label, and turn"""
+        if timeRemainng == 0:
+            # change the player name
+            self.alternateNames()
+            #reset timer
+            self.gameBoard.resetCounter()
+            # reset pixmap watch
+            self.stop_watch_label.setPixmap(self.stop_watch)
+            # add turn to logic
+            self.gameBoard.logic.increaseTurn()
 
     """reset the timer label icon"""
-
     def resetPixel(self):
         self.stop_watch_label.setPixmap(self.stop_watch)
 
@@ -179,13 +188,13 @@ class ScoreBoard(QDockWidget):
     """function for player name alternate between turns"""
     def alternateNames(self):
         # if the player is black add name string inserted, if any, else remains blank
-        if self.curent_player.text() == "black: player " + self.player1:
+        if self.curent_player.text() == "black: " + self.player1:
             # add the string name is any to white player
-            self.updateCurrentPlayer("white: player " + self.player2)
+            self.updateCurrentPlayer("white: " + self.player2)
             # color turn added for white
             self.curent_turn.setStyleSheet("""background-image: url("icons/white.png");""")
         else: # color turn added for black
-            self.updateCurrentPlayer("black: player " + self.player1)
+            self.updateCurrentPlayer("black: " + self.player1)
             self.curent_turn.setStyleSheet("""background-image: url("icons/black.png");""")
         self.update()
 
@@ -198,3 +207,86 @@ class ScoreBoard(QDockWidget):
         self.label_collected.setText(
             "\tCaptured Stones\n\nBlack : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
         self.label_collected.setStyleSheet("font-weight: bold;  color:#003049;")
+
+
+    """dialog for results output"""
+    def showResults(self, w, h, s1, s2, message):
+        # dialog for game settings and display results
+        game_setup_window = QDialog(self)
+        layout = QGridLayout()  # layout of dialog
+        trophy = QPixmap('./icons/trophy.png') # pixmap added at the top of dialog
+        winnerIcon = QLabel()
+        winnerIcon.setPixmap(trophy)
+
+        # players names labels
+        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\t\tCaptured:     " + str(s2))
+        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\t\tCaptured:     " + str(s1))
+        # style for player names display
+        name1.setFont(QFont('Baskerville', 16))
+        name1.setStyleSheet("font-weight: bold")
+        name2.setFont(QFont('Baskerville', 16))
+        name2.setStyleSheet("font-weight: bold")
+        # passing message through window title depending on the state of the game
+        game_setup_window.setWindowTitle(message)
+        game_setup_window.setMaximumWidth(600)
+        game_setup_window.setMaximumHeight(500)
+        game_setup_window.setStyleSheet("""background-image: url("icons/binding_dark.png"); color:#ffffff;width:400px;height:300px""")
+        # styling for text
+        name1.setStyleSheet("background-color:#000000;color:#ffffff")
+        name2.setStyleSheet("background-color:#000000;color:#ffffff")
+        # determine winner
+        if s1 > s2:
+            winner = "Player 2!"
+        else:
+            winner = "Player 1!"
+        #display results
+        win = QLabel("\n\tWinner is " + winner + "\n")
+        win.setStyleSheet("color:#2b9348;text-align:center;")
+        win.setFont(QFont('Baskerville', 18))
+        #button closes the window
+        start_game = QPushButton(QIcon("./icons/ok.png"), str("Ok"), self)
+        start_game.clicked.connect(game_setup_window.close)
+
+        # stylesheet for button
+        start_game.setAutoFillBackground(True)
+        start_game.setStyleSheet(""" 
+                    QPushButton{
+                        font-weight:1000;
+                        color:#f6fff8; 
+                        font-family:'Baskerville'; 
+                        background-color:#000000;
+                        font-size: 14px;
+                        height: 50px;
+                        width: 110px;
+                        border-color: #f6fff8;
+
+                    }
+                    QPushButton:hover {
+                        color:#00a896;
+                    }
+                """)
+
+        # positioning of the buttons and display data if winner
+        if s1 != 0 or s2 != 0:
+            layout.addWidget(winnerIcon, 1, 0, Qt.AlignmentFlag.AlignCenter)
+            layout.addWidget(win, 3, 0)
+            layout.addWidget(name1, 4, 0)
+            layout.addWidget(name2, 5, 0)
+        else: #else if nobody scored display minimal data
+            win.setText("Nobody Scored!")
+            layout.addWidget(win, 2, 0)
+            layout.addWidget(name1, 3, 0)
+            layout.addWidget(name2, 4, 0)
+        # upon pausing connect display data
+        if message == "Game Pause":
+            layout.addWidget(start_game, 7, 0, Qt.AlignmentFlag.AlignRight)
+            start_game.clicked.connect(lambda: [print(self.gameBoard.boardArray)])
+
+        # set layout of dialog
+        game_setup_window.setLayout(layout)
+        # upon setting selection
+        game_setup_window.exec()  # show dialog
+
+    """closes window when triggered"""
+    def close_clicked(self):
+        self.close()
