@@ -160,6 +160,35 @@ class ScoreBoard(QDockWidget):
             self.stop_watch_label.setPixmap(self.stop_watch_red)  # updating icon
             self.stop_watch_label.update()  # icon update
 
+    """reset the timer label icon"""
+
+    def resetPixel(self):
+        self.stop_watch_label.setPixmap(self.stop_watch)
+
+    """adding player names to variables for display"""
+    def setPlayers(self, p1, p2):
+        self.player1 = p1
+        self.player2 = p2
+
+    """update the text for players 1 or 2"""
+    def updateCurrentPlayer(self, n):
+        self.curent_player.setText(n)
+        #self.curent_player.setStyleSheet("font-family: Baskerville; font-size:22; font-weight:bold; color: #292f36")
+        self.update()
+
+    """function for player name alternate between turns"""
+    def alternateNames(self):
+        # if the player is black add name string inserted, if any, else remains blank
+        if self.curent_player.text() == "black: player " + self.player1:
+            # add the string name is any to white player
+            self.updateCurrentPlayer("white: player " + self.player2)
+            # color turn added for white
+            self.curent_turn.setStyleSheet("""background-image: url("icons/white.png");""")
+        else: # color turn added for black
+            self.updateCurrentPlayer("black: player " + self.player1)
+            self.curent_turn.setStyleSheet("""background-image: url("icons/black.png");""")
+        self.update()
+
     """function updated the score of both players"""
     def updateScores(self, s1, s2):
         # assign variables

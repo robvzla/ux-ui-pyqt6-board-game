@@ -289,8 +289,10 @@ class Board(QFrame):  # base the board on a QFrame widget
         else:
             return False
 
-    def skipTurn(self):
+    def skipTurn(self, scoreboard):
         self.logic.setPlayerPassedTrue()
+        scoreboard.alternateNames()
+
         print(self.logic.checkTurn())
         if self.logic.checkIfBothPlayersPassed():
             self.logic.endGame(self.boardArray)

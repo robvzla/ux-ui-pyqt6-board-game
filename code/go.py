@@ -36,6 +36,7 @@ class Go(QMainWindow):
         self.setWindowTitle('Go')
         self.show()
 
+
         # Set the skip button in the scoreBoard to work with the board
         # self.scoreBoard.skip_button.clicked.connect(lambda: self.board.logic.setPlayerPassed(self.board.logic.checkTurn(), True))
 
@@ -53,7 +54,7 @@ class Go(QMainWindow):
         self.setWindowIcon(  # adding icos to window
             QIcon("./icons/games-icon-icon.png"))  # documentation: https://doc.qt.io/qt-6/qwidget.html#windowIcon-prop
 
-        self.scoreBoard.skip_button.clicked.connect(lambda: self.board.skipTurn())
+        self.scoreBoard.skip_button.clicked.connect(lambda: self.board.skipTurn(self.scoreBoard))
         # Set up menus
         mainMenu = self.menuBar()  # create a menu bar
         mainMenu.setNativeMenuBar(False)
