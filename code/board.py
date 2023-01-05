@@ -78,17 +78,16 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.isStarted = False  # set the boolean which determines if the game has started to TRUE
         # self.resetGame()  # reset the game
         self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
-        # print("start () - timer is started")  # Commenting out to test other methods
+        print("start () - timer is started")
 
     def timerEvent(self, event):
         '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
-        # TODO adapt this code to handle your timers
         if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
             if Board.counter == 0:
-                print("Game over")
+                # print("Game over")
+                pass
             self.counter -= 1
 
-            # print('timerEvent()', self.counter)
             self.updateTimerSignal.emit(self.counter)
         else:
             super(Board, self).timerEvent(event)  # if we do not handle an event we should pass it to the super
@@ -109,7 +108,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.x_position = int(event.position().x())
         self.y_position = int(event.position().y())
 
-        # TODO you could call some game logic here
         self.clickLocationSignal.emit(clickLoc)
 
         # Check if the mouse click was within the range of the board
@@ -212,7 +210,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         for row in range(0, len(self.boardArray)):
             for col in range(0, len(self.boardArray[0])):
                 painter.save()
-                # TODO draw some the pieces as ellipses
                 # resize the piece by 2
                 painter.translate(((self.squareWidth()) * row) + self.squareWidth() * 0.75,
                                   (self.squareHeight()) * col + self.squareHeight() * 0.75)

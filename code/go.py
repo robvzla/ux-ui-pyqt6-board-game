@@ -162,6 +162,7 @@ class Go(QMainWindow):
 
         """" Adding action buttons in toolbar"""
         toolbar.addAction(exitAction)
+        toolbar.addAction(rulesAction)
         toolbar.addAction(restartAction)
         toolbar.addAction(stopAction)
         toolbar.addAction(playAction)
@@ -169,8 +170,17 @@ class Go(QMainWindow):
         toolbar.addSeparator()  # add a separator between icons
         toolbar.addAction(redoAction)
         toolbar.addAction(doAction)
-        toolbar.addAction(rulesAction)
+        # play disabled
+        self.board.play = False
+        # window with game setup pop up
+        self.get_game_setup("Play")
 
+    """EXTRA FEATURE
+     function for continue game after interrupt """
+    def ContinueGame(self):
+        if not self.board.play:
+            self.get_game_setup("Resume")
+        pass
 
     """method for non modal window showing the game rules placed in Help"""
     def show_rules(self):
@@ -331,7 +341,7 @@ class Go(QMainWindow):
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
         self.board.counter = time_per_round + 1
-        self.board.setTimeInterval(time_per_round)
+        # self.board.setTimeInterval(time_per_round)
 
     """function changed the text according to the state"""
     def onChanged(self, text):
