@@ -113,14 +113,16 @@ class Go(QMainWindow):
 
         # Undo button
         redoAction = QAction(QIcon("./icons/back.png"), "Undo", self)  # action for play button
-        redoAction.setShortcut("Ctrl+B")  # add keyboard shortcut
+        redoAction.setShortcut("Ctrl+z")  # add keyboard shortcut
         redoAction.setStatusTip("Undo")  # label upon hovering
+        fileMenu.addAction(redoAction)  # add this action to the file menu
         redoAction.triggered.connect(self.board.undo)
 
         # Redo button
         doAction = QAction(QIcon("./icons/right-arrow.png"), "Redo", self)  # action for play button
-        doAction.setShortcut("Ctrl+D")  # add keyboard shortcut
+        doAction.setShortcut("Ctrl+y")  # add keyboard shortcut
         doAction.setStatusTip("Redo")  # label upon hovering
+        fileMenu.addAction(doAction)  # add this action to the file menu
         doAction.triggered.connect(self.board.redo)
 
         """" Adding action buttons in toolbar"""
