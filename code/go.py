@@ -161,9 +161,9 @@ class Go(QMainWindow):
         skipTurnAction.triggered.connect(lambda: self.SkipTurn())  # ->  call method for next or skip
 
         # Restart button
-        restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
+        restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Reset", self)  # action for play button
         restartAction.setShortcut("Ctrl+r")  # add keyboard shortcut
-        restartAction.setStatusTip("Restart")  # label upon hovering
+        restartAction.setStatusTip("Reset")  # label upon hovering
         fileMenu.addAction(restartAction)  # add this action to the file menu
         restartAction.triggered.connect(lambda: self.resume_game(1))  # -> call method to restart game
 
@@ -215,7 +215,7 @@ class Go(QMainWindow):
         rules_window.setMaximumWidth(200)
         rules_window.setMinimumHeight(200)
         rules_window.setStyleSheet(
-            """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
+            """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 12px """)
         label = QLabel(self.rules)
         pix = QPixmap('./icons/games-icon.png')
         label1 = QLabel()
@@ -233,10 +233,10 @@ class Go(QMainWindow):
     def show_about(self):
         about_window = QDialog(self)
         about_window.setWindowTitle("About")
-        about_window.setMaximumWidth(250)
+        about_window.setMaximumWidth(200)
         about_window.setMaximumHeight(300)
         about_window.setStyleSheet(
-            """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
+            """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 12px """)
         label = QLabel(self.about)
         layout = QVBoxLayout()
         layout.addWidget(label)

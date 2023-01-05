@@ -106,7 +106,7 @@ class ScoreBoard(QDockWidget):
                           height: 40px;
                       }
                       QPushButton:hover {
-                          color:#00a896 ;
+                          color:#d90429 ;
                       }
                   """)
 
