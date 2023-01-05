@@ -113,14 +113,16 @@ class Board(QFrame):  # base the board on a QFrame widget
                 # Try to make the move
                 move = self.tryMove(self.getRow(), self.getCol())
                 # print("Move: " + str(move))
-                if move:  # If the move returns ture the it passed both the
-                    # Suicide test and the KO test
+                if move:  # If the move returns ture the it passed both the Suicide test and the KO test
                     self.logic.increaseTurn()
-                    # print("Turn increased in board")
-                    # print("New turn value: " + str(self.logic.checkTurn()))
-                    self.logic.addToGameState(self.boardArray)
-                    # Clear the redo list
+                    if self.logic.redoComplete:
+                        # self.logic.gameState.append(self.logic.currentState)
+                        # Clear the redo list and set redoComplete to False
+                        print("There was a redo last turn")
+                    self.logic.redoComplete = False
                     self.logic.redoList.clear()
+                    self.logic.addToGameState(self.boardArray)
+
                 else:
                     # If the move is false then revert the board to the previous state
                     self.logic.rewriteBoard(self.boardArray)
@@ -145,6 +147,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check whose turn it is
         turn = self.logic.checkTurn()
         print("Turn: " + str(turn))
+        print("Redo Complete: " + str(self.logic.redoComplete))
 
         # Set the Player's Passed boolean to False as they are currently trying to make a move
         self.logic.setPlayerPassedFalse(turn)
@@ -238,19 +241,23 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.update()
 
     def redo(self):
-        if self.points_coordinates_redo.__len__() != 0 and self.points_status_redo.__len__() != 0:
-            point_status = self.points_status_redo.pop()
-            # Pop and store the value inside the variable
-            point_value = self.points_coordinates_redo.pop()
-            # Storing removed point inside the undo stack
-            self.points_coordinates_undo.append(point_value)
-            # Get the row and col indexes
-            row_point = point_value.x()
-            col_point = point_value.y()
-            # Set the specific index to 0 (transparent)
-            self.boardArray[row_point][col_point].setStatus(point_status)
-            # Calling update method to re draw board and pieces
-            self.update()
+        self.logic.setCurrentState(self.boardArray)
+        self.logic.redo(self.boardArray)
+        self.update()
+
+        # if self.points_coordinates_redo.__len__() != 0 and self.points_status_redo.__len__() != 0:
+        #     point_status = self.points_status_redo.pop()
+        #     # Pop and store the value inside the variable
+        #     point_value = self.points_coordinates_redo.pop()
+        #     # Storing removed point inside the undo stack
+        #     self.points_coordinates_undo.append(point_value)
+        #     # Get the row and col indexes
+        #     row_point = point_value.x()
+        #     col_point = point_value.y()
+        #     # Set the specific index to 0 (transparent)
+        #     self.boardArray[row_point][col_point].setStatus(point_status)
+        #     # Calling update method to re draw board and pieces
+        #     self.update()
 
     def checkAllDirectionsForCapture(self, newX, newY, turn):
         # Check if the top group will be captured

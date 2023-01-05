@@ -8,6 +8,8 @@ class GameLogic:
         self.currentState = []
         self.emptyBoard = []
         self.redoList = []
+        self.undoList = []
+        self.redoComplete = False
         self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
@@ -554,23 +556,37 @@ class GameLogic:
 
 
     def undo(self, boardArray):
-        # Add the current state of the game to the redo list
-        self.redoList.append(self.currentState)
-
         # Checks first if the stack is empty. If not empty, it starts popping values
         if len(self.gameState) > 0:
+            # Add the current state of the game to the redo list
+            self.redoList.append(self.currentState)
             if len(self.gameState) == 1:
-                print(self.emptyBoard[0])  # If there was only one stone on the board, reset the board to the original state
+                # If there was only one stone on the board, reset the board to the original state
                 self.undoRedoRewriteBoard(boardArray, self.emptyBoard)
             else:
-                lastState = self.gameState[len(self.gameState) - 2]  # Get the last state in the list
-                print(str(lastState[0]))
+                if self.redoComplete:
+                    index = len(self.gameState) - 1
+                else:
+                    index = len(self.gameState) - 2
+                lastState = self.gameState[index]  # Get the last state in the list
                 self.undoRedoRewriteBoard(boardArray, lastState)
 
-        self.gameState.pop()  # Remove the lastState from the game state
+            self.gameState.pop()  # Remove the lastState from the game state
+        else:
+            pass
 
     def redo(self, boardArray):
-        pass
+        if len(self.redoList) > 0:  # If the redo list is not empty then a redo can be completed
+            self.redoComplete = True
+            print("Undo List before redo: " + str(len(self.gameState)))
+            # Add the current state of the board to the game state (undo list)
+            self.gameState.append(self.currentState)
+            self.undoRedoRewriteBoard(boardArray, self.redoList[len(self.redoList) - 1])
+            self.redoList.pop()
+            print("Undo List after redo: " + str(len(self.gameState)))
+        else:
+            print("No redo")
+
 
 
         # if self.points_coordinates_undo.__len__() != 0 and self.points_status_undo.__len__() != 0:
