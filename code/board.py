@@ -115,14 +115,11 @@ class Board(QFrame):  # base the board on a QFrame widget
                 # print("Move: " + str(move))
                 if move:  # If the move returns ture the it passed both the Suicide test and the KO test
                     self.logic.increaseTurn()
-                    if self.logic.redoComplete:
-                        # self.logic.gameState.append(self.logic.currentState)
-                        # Clear the redo list and set redoComplete to False
-                        print("There was a redo last turn")
-                    self.logic.redoComplete = False
+                    if self.logic.undoComplete:
+                        self.logic.gameState.append(self.logic.currentState)
+                    self.logic.undoComplete = False
                     self.logic.redoList.clear()
                     self.logic.addToGameState(self.boardArray)
-
                 else:
                     # If the move is false then revert the board to the previous state
                     self.logic.rewriteBoard(self.boardArray)
@@ -146,8 +143,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         """tries to move a piece"""
         # Check whose turn it is
         turn = self.logic.checkTurn()
-        print("Turn: " + str(turn))
-        print("Redo Complete: " + str(self.logic.redoComplete))
 
         # Set the Player's Passed boolean to False as they are currently trying to make a move
         self.logic.setPlayerPassedFalse(turn)

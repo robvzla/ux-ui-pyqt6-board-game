@@ -8,8 +8,7 @@ class GameLogic:
         self.currentState = []
         self.emptyBoard = []
         self.redoList = []
-        self.undoList = []
-        self.redoComplete = False
+        self.undoComplete = False
         self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
@@ -559,6 +558,7 @@ class GameLogic:
         # Checks first if the stack is empty. If not empty, it starts popping values
         if len(self.gameState) > 0:
             # Add the current state of the game to the redo list
+            self.undoComplete = True
             self.redoList.append(self.currentState)
             if len(self.gameState) == 1:
                 # If there was only one stone on the board, reset the board to the original state
@@ -570,36 +570,17 @@ class GameLogic:
                     index = len(self.gameState) - 2
                 lastState = self.gameState[index]  # Get the last state in the list
                 self.undoRedoRewriteBoard(boardArray, lastState)
-
             self.gameState.pop()  # Remove the lastState from the game state
         else:
             pass
 
     def redo(self, boardArray):
         if len(self.redoList) > 0:  # If the redo list is not empty then a redo can be completed
-            self.redoComplete = True
-            print("Undo List before redo: " + str(len(self.gameState)))
             # Add the current state of the board to the game state (undo list)
             self.gameState.append(self.currentState)
             self.undoRedoRewriteBoard(boardArray, self.redoList[len(self.redoList) - 1])
             self.redoList.pop()
-            print("Undo List after redo: " + str(len(self.gameState)))
         else:
-            print("No redo")
+            pass
 
 
-
-        # if self.points_coordinates_undo.__len__() != 0 and self.points_status_undo.__len__() != 0:
-        #     point_status = self.points_status_undo.pop()
-        #     # Pop and store the value inside the variable
-        #     point_value = self.points_coordinates_undo.pop()
-        #     print("Status = " + str(point_status))
-        #     # Storing removed point inside the redo stack
-        #     self.points_coordinates_redo.append(point_value)
-        #     # Get the row and col indexes
-        #     row_point = point_value.x()
-        #     col_point = point_value.y()
-        #     # Set the specific index to 0 (transparent)
-        #     self.boardArray[row_point][col_point].setStatus(0)
-        #     self.points_status_redo.append(point_status)
-        #     # Calling update method to re draw board and pieces
