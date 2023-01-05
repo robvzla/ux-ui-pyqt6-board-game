@@ -234,6 +234,17 @@ class Go(QMainWindow):
     def start(self):
         self.board.start()
 
+    """EXTRA FEATURE, ABILITY TO SAVE GAME """
+    """function for saving the game state"""
+    def saveSettings(self):
+        self.scoreBoard.setPlayers(self.player1.text(), self.player2.text())
+        # populate array with data
+        if self.board.logic.gameState == []:
+            self.scoreBoard.alternateNames()
+            # get score from scoreboard
+        self.board.setScoreBoard(self.scoreBoard)
+        # ability to resume playing
+        self.board.play = True
 
 
     """function for game settings window"""
@@ -341,7 +352,7 @@ class Go(QMainWindow):
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
         self.board.counter = time_per_round + 1
-        # self.board.setTimeInterval(time_per_round)
+        self.board.setTimeInterval(time_per_round)
 
     """function changed the text according to the state"""
     def onChanged(self, text):

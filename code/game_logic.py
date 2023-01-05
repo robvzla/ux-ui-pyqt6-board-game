@@ -9,6 +9,7 @@ class GameLogic:
         self.emptyBoard = []
         self.redoList = []
         self.undoComplete = False
+        self.redoComplete = False
         self.groupToCapture = []
         self.libertyList = []
         self.capturedBlackPieces = 0
@@ -577,6 +578,7 @@ class GameLogic:
     def redo(self, boardArray):
         if len(self.redoList) > 0:  # If the redo list is not empty then a redo can be completed
             # Add the current state of the board to the game state (undo list)
+            self.redoComplete = True
             self.gameState.append(self.currentState)
             self.undoRedoRewriteBoard(boardArray, self.redoList[len(self.redoList) - 1])
             self.redoList.pop()

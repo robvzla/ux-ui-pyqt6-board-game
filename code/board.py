@@ -48,6 +48,12 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.x_position = 0
         self.y_position = 0
 
+    def setScoreBoard(self, sb):
+        self.scoreBoard = sb
+
+    def setTimeInterval(self, t):
+        self.timerInterval = t
+
     def printBoardArray(self):
         '''prints the boardArray in an attractive way'''
         print("boardArray:")
@@ -76,7 +82,6 @@ class Board(QFrame):  # base the board on a QFrame widget
     def start(self):
         '''starts game'''
         self.isStarted = False  # set the boolean which determines if the game has started to TRUE
-        # self.resetGame()  # reset the game
         self.timer.start(self.timerSpeed, self)  # start the timer with the correct speed
         print("start () - timer is started")
 
@@ -134,14 +139,19 @@ class Board(QFrame):  # base the board on a QFrame widget
         height = self.height() / Board.boardHeight  # Height of a square
         if (width / 2) < self.x_position < ((width * 8) - (width / 2)) and \
                 ((height / 2) < self.y_position < ((height * 8) - (height / 2))):
-            print("In range")
             return True
-        else:
-            return False
 
     def resetGame(self):
         '''clears pieces from the board'''
-        # TODO write code to reset game
+        self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in range(Board.boardWidth - 1)]
+        self.logic.capturedWhitePieces = 0
+        self.logic.capturedBlackPieces = 0
+        self.logic.resetTurn()
+        self.update()
+
+    def resetCounter(self):
+        self.counter = self.timerInterval + 1
+        self.scoreBoard.resetPixel()
 
     def tryMove(self, newX, newY):
         """tries to move a piece"""
@@ -170,6 +180,28 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         self.update()
         return validMove
+
+    """notifications for suicide move pop dialog"""
+    def SuicideMoveNotification(self, text):
+        game_setup_window = QDialog(self)
+        layout = QGridLayout()  # layout of dialog
+
+        game_setup_window.setWindowTitle("Broken Rule")
+        game_setup_window.setMaximumSize(int(self.width() / 2), int(self.height() / 4))
+        game_setup_window.setMinimumSize(int(self.width() / 2), int(self.height() / 4))
+        game_setup_window.setStyleSheet("""background-image: url("icons/circles.png");""")
+
+        win = QLabel()
+        win.setStyleSheet("color:#d90429;text-align:center;")
+        win.setFont(QFont('Baskerville', 18))
+        win.setText(text)
+        layout.addWidget(win, 2, 0)
+
+        # set layout of dialog
+        game_setup_window.setLayout(layout)
+        # upon setting selection
+
+        game_setup_window.exec()  # show dialog
 
     def drawBoardSquares(self, painter):
         '''draw all the square on the board'''
@@ -232,6 +264,51 @@ class Board(QFrame):  # base the board on a QFrame widget
                 center = QPointF(radiusW, radiusH)
                 painter.drawEllipse(center, radiusW, radiusH)
                 painter.restore()
+
+        self.collect(painter)
+
+    """function for collected stones and places them in first and last row"""
+    def collect(self,painter):
+        collectedBlack = 0.55
+        # iterating through all the pieces captured
+        for i in range(self.logic.getPiecesCaptured(1)):
+            # check if the pieces are captured 10 times or less then saves the painting
+            if i <= 10:
+                painter.save()
+                # it translates (moves) itself over to where its squareWidth() * collectedBlack*i + self.squareWidth() would be located on
+                # screen and draws an ellipse with radiusW = self.squareWidth() / 4 and radiusH = self .squareHeight().
+                painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth() ,
+                                    (self.squareHeight()) * -0.3 + self.squareHeight() * 0.7)
+                # create a black rectangle that is 4 units wide and 7 units high.
+                colour = QColor(Qt.GlobalColor.black)
+                # then after drawing each ellipse, they are restored back into their original position
+                # before being drawn again for piece 2's capture process
+                painter.setPen(colour)
+                painter.setBrush(colour)
+                radiusW = self.squareWidth() / 4
+                radiusH = self.squareHeight() / 4
+
+                center = QPointF(radiusW, radiusH)
+                painter.drawEllipse(center, radiusW, radiusH)
+                painter.restore()
+        # repeat this process, but with white rectangles instead of black ones
+        for i in range(self.logic.getPiecesCaptured(2)):
+            if i <= 10:
+                painter.save()
+                painter.translate(((self.squareWidth()) * collectedBlack*i) + self.squareWidth(),
+                                  (self.squareHeight()) * 7 + self.squareHeight() * 0.2)
+
+                colour = QColor(Qt.GlobalColor.white)
+
+                painter.setPen(colour)
+                painter.setBrush(colour)
+                radiusW = self.squareWidth() / 4
+                radiusH = self.squareHeight() / 4
+
+                center = QPointF(radiusW, radiusH)
+                painter.drawEllipse(center, radiusW, radiusH)
+                painter.restore()
+
 
     def undo(self):
         self.logic.setCurrentState(self.boardArray)  # Get the current state of the game for the redo list
