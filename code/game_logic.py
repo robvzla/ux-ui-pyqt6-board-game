@@ -6,6 +6,7 @@ class GameLogic:
         self.turn = 2  # Black goes first
         self.gameState = []  # Game state will contain the boardArray, capturedBlackPieces, capturedWhitePieces
         self.currentState = []
+        self.emptyBoard = []
         self.redoList = []
         self.groupToCapture = []
         self.libertyList = []
@@ -16,7 +17,6 @@ class GameLogic:
         self.totalBlackPiecesAtEnd = 0
         self.totalWhitePiecesAtEnd = 0
         self.territory = []
-
 
     def checkTurn(self):
         if self.turn == 0:
@@ -78,9 +78,6 @@ class GameLogic:
                     if self.gameState[indexToCompareTo][0][row][col] == boardArray[row][col].getPiece():
                         count += 1
 
-        # print("Count: " + str(count))
-        # print("Total Size: " + str(totalSize))
-        # True is for passing the KO rule (proceed to test for suicide), False is that it fails the test an
         if count == totalSize:
             return False  # Failed the KO test
         else:
@@ -100,7 +97,6 @@ class GameLogic:
             for col in range(len(self.currentState[0][row])):
                 boardArray[row][col].setStatus(self.currentState[0][row][col])
 
-        # print("Board was re-written!")
 
     def createBoard(self, boardArray):
         board = []
@@ -353,8 +349,8 @@ class GameLogic:
         #     # print("Both players have passed!")
         #     self.endGame(boardArray)
 
-
         # print(str(turn) + str(value))
+
     def setPlayerPassedFalse(self, turn):
         if turn == 1:  # If white is playing set their passed turn variable to False
             self.whitePassed = False
@@ -368,7 +364,6 @@ class GameLogic:
             return True
         else:
             return False
-
 
     # Ending game, some repetition in code, will be refactored if time permits
     def endGame(self, boardArray):
@@ -397,8 +392,6 @@ class GameLogic:
         print("White: " + str(self.totalWhitePiecesAtEnd))
         print("Black: " + str(self.totalBlackPiecesAtEnd))
 
-
-
     def searchForTerritories(self, boardArray, colour):
         for row in range(0, len(boardArray)):
             for col in range(0, len(boardArray[row])):
@@ -416,8 +409,6 @@ class GameLogic:
                 self.compareLists(boardArray, colour)
                 self.checkForTerritories(row, col, boardArray, "right")
                 self.compareLists(boardArray, colour)
-
-
 
     def checkForTerritories(self, row, col, boardArray, direction):
         # print("Check for territories method called: ")
@@ -549,3 +540,50 @@ class GameLogic:
         self.territory.clear()
         self.libertyList.clear()
 
+    def undoRedoRewriteBoard(self, boardArray, state):
+        print("Undo Redo Rewrite board")
+        for row in range(len(state[0])):
+            for col in range(len(state[0][row])):
+                boardArray[row][col].setStatus(state[0][row][col])
+
+        self.capturedBlackPieces = state[1]
+        self.capturedWhitePieces = state[2]
+
+        print("Undo rewrite complete")
+
+
+
+    def undo(self, boardArray):
+        # Add the current state of the game to the redo list
+        self.redoList.append(self.currentState)
+
+        # Checks first if the stack is empty. If not empty, it starts popping values
+        if len(self.gameState) > 0:
+            if len(self.gameState) == 1:
+                print(self.emptyBoard[0])  # If there was only one stone on the board, reset the board to the original state
+                self.undoRedoRewriteBoard(boardArray, self.emptyBoard)
+            else:
+                lastState = self.gameState[len(self.gameState) - 2]  # Get the last state in the list
+                print(str(lastState[0]))
+                self.undoRedoRewriteBoard(boardArray, lastState)
+
+        self.gameState.pop()  # Remove the lastState from the game state
+
+    def redo(self, boardArray):
+        pass
+
+
+        # if self.points_coordinates_undo.__len__() != 0 and self.points_status_undo.__len__() != 0:
+        #     point_status = self.points_status_undo.pop()
+        #     # Pop and store the value inside the variable
+        #     point_value = self.points_coordinates_undo.pop()
+        #     print("Status = " + str(point_status))
+        #     # Storing removed point inside the redo stack
+        #     self.points_coordinates_redo.append(point_value)
+        #     # Get the row and col indexes
+        #     row_point = point_value.x()
+        #     col_point = point_value.y()
+        #     # Set the specific index to 0 (transparent)
+        #     self.boardArray[row_point][col_point].setStatus(0)
+        #     self.points_status_redo.append(point_status)
+        #     # Calling update method to re draw board and pieces
