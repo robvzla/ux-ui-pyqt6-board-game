@@ -8,3 +8,5 @@ app = QApplication([])
 app.setWindowIcon(QIcon(QPixmap("./icons/games-icon-icon.png")))
 myGo = Go()
 sys.exit(app.exec())
+
+

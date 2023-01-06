@@ -95,6 +95,20 @@ class Go(QMainWindow):
         exitAction.triggered.connect(
             QApplication.instance().quit)  # when the menu option is selected or the shortcut is used the clear slot is triggered
 
+        # open saved file
+        open_file = QAction(QIcon("./icons/folder.png"), "Open File", self)  # action for play button
+        open_file.setShortcut("Ctrl+o")  # add keyboard shortcut
+        open_file.setStatusTip("Open")  # label upon hovering
+        fileMenu.addAction(open_file)
+        open_file.triggered.connect(self.Open)
+
+        # save the game progress
+        save_file = QAction(QIcon("./icons/save.png"), "Save File", self)  # action for play button
+        save_file.setShortcut("Ctrl+s")  # add keyboard shortcut
+        save_file.setStatusTip("Save")  # label upon hovering
+        fileMenu.addAction(save_file)
+        save_file.triggered.connect(self.save_as)
+
         # show rules item
         rulesAction = QAction(QIcon("./icons/go.png"), "Rules", self)  # create a clear action with a png as an icon
         rulesAction.setShortcut('Ctrl+i')  # connect this clear action to a keyboard shortcut
@@ -108,25 +122,19 @@ class Go(QMainWindow):
         helpMenu.addAction(aboutAction)  # add this action to the file menu
         aboutAction.triggered.connect(self.show_about)  # call method for showing dialog
 
-        # Stop button
-        stopAction = QAction(QIcon("./icons/pause.png"), "Pause", self)  # stop button action
-        stopAction.setShortcut('Ctrl+0')  # setting shortcut
-        stopAction.setStatusTip("Stop")  # label upon hovering
-        stopAction.triggered.connect(self.stop_game)  # call method
-
         # Play button
         playAction = QAction(QIcon("./icons/play.png"), "Start", self)  # action for play button
         playAction.setShortcut("Ctrl+g")  # add keyboard shortcut
         playAction.setStatusTip("Play")  # label upon hovering
         fileMenu.addAction(playAction)  # add this action to the file menu
-        # playAction.triggered.connect(lambda: self.ContinueGame())  # call method to get user settings
+        playAction.triggered.connect(lambda: self.ContinueGame())  # call method to get user settings
 
         # Stop button
         stopAction = QAction(QIcon("./icons/pause.png"), "Pause", self)  # stop button action
         stopAction.setShortcut('Ctrl+p')  # setting shortcut
         stopAction.setStatusTip("Pause")  # label upon hovering
         fileMenu.addAction(stopAction)  # add this action to the file menu
-        # stopAction.triggered.connect(self.stop_game)  # call method
+        stopAction.triggered.connect(self.stop_game)  # call method
 
         # Skip turn button
         skipTurnAction = QAction(QIcon("./icons/skip.png"), "Skip Turn",
@@ -141,7 +149,7 @@ class Go(QMainWindow):
         restartAction.setShortcut("Ctrl+r")  # add keyboard shortcut
         restartAction.setStatusTip("Restart")  # label upon hovering
         fileMenu.addAction(restartAction)  # add this action to the file menu
-        #restartAction.triggered.connect(self...)  -> call method to restart game
+        restartAction.triggered.connect(lambda: self.resume_game(1))  # -> call method to restart game
 
         # Undo button
         redoAction = QAction(QIcon("./icons/back.png"), "Undo", self)  # action for play button
@@ -162,6 +170,8 @@ class Go(QMainWindow):
 
         """" Adding action buttons in toolbar"""
         toolbar.addAction(exitAction)
+        toolbar.addAction(open_file)
+        toolbar.addAction(save_file)
         toolbar.addAction(rulesAction)
         toolbar.addAction(restartAction)
         toolbar.addAction(stopAction)
@@ -218,12 +228,55 @@ class Go(QMainWindow):
 
         about_window.exec()
 
-
+    """method for stopping the game"""
     def stop_game(self):
-        self.timer.stop()  # stops timer
-        self.play_button.setEnabled(True)  # enables play to be re-clicked
+        self.board.timer.stop()  # stops timer
+        if self.board.play:
+            # upon stopping the game state is retrieved all player data
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.totalWhitePiecesAtEnd,
+                                        self.board.logic.totalBlackPiecesAtEnd, "Game Pause")
+            # if game is stopped the play is disabled
+            self.board.play = False
+
+    """Extra feature - function for opening the saved file"""
+    def Open(self):
+        fname = QFileDialog.getOpenFileName(
+            self,
+            "Open File",
+            "${HOME}",
+            "All Files (*);; Python Files (*.py);; PNG Files (*.png)",
+        )
+        # display the file
+        print(fname)
+        self.board.timer.stop()  # stops timer
+        if self.board.play:
+            # upon stopping the game state is retrieved
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.totalWhitePiecesAtEnd,
+                                        self.board.logic.totalBlackPiecesAtEnd, "Game Pause")
+            # if game is stopped the play is disabled
+            self.board.play = False
+
+    """EXTRA FEATURE"""
+    """ function for resuming for reply game after restart"""
+    def resume_game(self, x):
+        self.board.play = False
+        if x == 1:
+            # option to replay the game and reset all data
+            self.board.logic.resetGame(self.board.boardArray)
+            # Clear the scores from the scoreboard
+            self.scoreBoard.updateScores(0, 0)
+            # display new game setup
+            self.get_game_setup("Replay")
+        else:
+            # else game is terminated stop timer and retrieves the results
+            self.board.timer.stop()
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.totalWhitePiecesAtEnd,
+                                        self.board.logic.totalBlackPiecesAtEnd, "Game Results")
+            # reset board
+            self.board.resetGame()
+
+    '''centers the window on the screen'''
     def center(self):
-        '''centers the window on the screen'''
         gr = self.frameGeometry()
         screen = self.screen().availableGeometry().center()
 
@@ -246,6 +299,15 @@ class Go(QMainWindow):
         # ability to resume playing
         self.board.play = True
 
+    """EXTRA FEATURE"""
+    """saving data as..."""
+    def save_as(self):
+        response = QFileDialog.getSaveFileName(
+            parent=self,
+            caption='Select a data file',
+            directory='Data File.dat',
+
+        )
 
     """function for game settings window"""
     def get_game_setup(self, x):

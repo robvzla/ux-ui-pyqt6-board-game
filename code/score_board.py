@@ -169,10 +169,6 @@ class ScoreBoard(QDockWidget):
             self.stop_watch_label.setPixmap(self.stop_watch)
             # add turn to logic
             self.gameBoard.skipTurn(self)
-            # # self.gameBoard.logic.increaseTurn()
-            # self.gameBoard.logic.setPlayerPassedTrue()
-            # print("Black: " + str(self.gameBoard.logic.blackPassed))
-            # print("White: " + str(self.gameBoard.logic.whitePassed))
 
 
     """reset the timer label icon"""
@@ -224,8 +220,8 @@ class ScoreBoard(QDockWidget):
         winnerIcon.setPixmap(trophy)
 
         # players names labels
-        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\t\tCaptured:     " + str(s2))
-        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\t\tCaptured:     " + str(s1))
+        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\t\tScore:     " + str(s2))
+        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\t\tScore:     " + str(s1))
         # style for player names display
         name1.setFont(QFont('Baskerville', 16))
         name1.setStyleSheet("font-weight: bold")

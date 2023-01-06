@@ -16,7 +16,6 @@ class Board(QFrame):  # base the board on a QFrame widget
     timerSpeed = 1000  # the timer updates every 1 millisecond
     counter = 10  # the number the counter will count down from
 
-
     def __init__(self, parent):
         super().__init__(parent)
         self.initBoard()
@@ -91,8 +90,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
         if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
             if Board.counter == 0:
-                print("Game over")
-                # self.logic.setPlayerPassedFalse(self.logic.checkTurn())
+                # print("Game over")
                 pass
             self.counter -= 1
 
@@ -121,7 +119,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check if the mouse click was within the range of the board
         if self.checkWithinRange():
             # Check if a space is occupied
-            if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0:
+            if self.boardArray[self.getRow()][self.getCol()].getPiece() == 0 and self.play:
                 # Try to make the move
                 move = self.tryMove(self.getRow(), self.getCol())
                 # print("Move: " + str(move))
@@ -129,7 +127,7 @@ class Board(QFrame):  # base the board on a QFrame widget
                     self.logic.increaseTurn()
                     self.scoreBoard.alternateNames()
                     self.resetCounter()
-                    # self.scoreBoard.
+                    self.scoreBoard.updateScores(self.logic.capturedWhitePieces, self.logic.capturedBlackPieces)
                     if self.logic.undoComplete:
                         self.logic.gameState.append(self.logic.currentState)
                     self.logic.undoComplete = False
@@ -383,4 +381,7 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         if self.logic.checkIfBothPlayersPassed():
             self.logic.endGame(self.boardArray)
+            self.timer.stop()
+            self.scoreBoard.showResults(self.width(), self.height(), self.logic.totalWhitePiecesAtEnd,
+                                        self.logic.totalBlackPiecesAtEnd, "Game Results")
             self.update()

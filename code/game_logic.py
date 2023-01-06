@@ -20,6 +20,27 @@ class GameLogic:
         self.totalWhitePiecesAtEnd = 0
         self.territory = []
 
+    def resetGame(self, boardArray):
+        self.undoRedoRewriteBoard(boardArray, self.emptyBoard)  # Set all stones to 0 and captured stones to 0
+        self.resetTurn()  # Set turn to 2
+        self.gameState.clear()  # Empty the gamestate list
+        self.currentState.clear()  # Empty the currentState List
+        self.redoList.clear()   # Empty redoList
+        self.undoComplete = False
+        self.redoComplete = False
+        self.groupToCapture.clear()
+        self.libertyList.clear()
+        self.capturedBlackPieces = 0
+        self.capturedWhitePieces = 0
+        self.blackPassed = False
+        self.whitePassed = False
+        self.totalBlackPiecesAtEnd = 0
+        self.totalWhitePiecesAtEnd = 0
+        self.territory.clear()
+
+
+
+
     def checkTurn(self):
         if self.turn == 0:
             return 1  # Self.turn will always be initially set to two
@@ -48,8 +69,6 @@ class GameLogic:
         # same as a previous one
         count = 0
         totalSize = len(boardArray) * len(boardArray[0])
-        # print("Count: " + str(count))
-        # print("Total Size: " + str(totalSize))
         if len(self.gameState) < 3:  # If the gameState is empty it's the first go
             return True  # Or if the gameState is of length 1 or 2 then return True
         elif len(self.gameState) >= 3:  # Compare both arrays to each other
@@ -81,8 +100,10 @@ class GameLogic:
                         count += 1
 
         if count == totalSize:
+            print("Failed KO test")
             return False  # Failed the KO test
         else:
+            print("Passed KO test")
             return True  # Passed the KO test
 
     def addToGameState(self, boardArray):
@@ -98,6 +119,10 @@ class GameLogic:
         for row in range(len(self.currentState[0])):
             for col in range(len(self.currentState[0][row])):
                 boardArray[row][col].setStatus(self.currentState[0][row][col])
+
+        self.capturedBlackPieces = self.currentState[1]
+        self.capturedWhitePieces = self.currentState[2]
+
 
 
     def createBoard(self, boardArray):
@@ -544,7 +569,6 @@ class GameLogic:
         self.libertyList.clear()
 
     def undoRedoRewriteBoard(self, boardArray, state):
-        print("Undo Redo Rewrite board")
         for row in range(len(state[0])):
             for col in range(len(state[0][row])):
                 boardArray[row][col].setStatus(state[0][row][col])
@@ -552,7 +576,6 @@ class GameLogic:
         self.capturedBlackPieces = state[1]
         self.capturedWhitePieces = state[2]
 
-        print("Undo rewrite complete")
 
 
 
