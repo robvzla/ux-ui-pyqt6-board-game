@@ -133,9 +133,27 @@ class Board(QFrame):  # base the board on a QFrame widget
                     self.logic.undoComplete = False
                     self.logic.redoList.clear()
                     self.logic.addToGameState(self.boardArray)
+
+                    # # Animation
+                    # Maybe update the board first and then call the animation and use the paint event in the piece
+                    # Class to do the animation
+                    self.update()
+
+
+                    # print("About to change status")
+                    # self.boardArray[self.getRow()][self.getCol()].StatusChanged_value ="Hello"
+                    # print(self.boardArray[self.getRow()][self.getCol()].statusChanged)
+                    self.boardArray[self.getRow()][self.getCol()].StatusChanged_value = True
+                    # print(self.boardArray[self.getRow()][self.getCol()].statusChanged)
+                    # self.boardArray[self.getRow()][self.getCol()].StatusChanged_value = False
+                    # print(self.boardArray[self.getRow()][self.getCol()].statusChanged)
+
                 else:
                     # If the move is false then revert the board to the previous state
                     self.logic.rewriteBoard(self.boardArray)
+                    self.update()
+
+
 
     """EXTRA FEATURE"""
     """function sets the selected round time"""
@@ -184,7 +202,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Now check to see if the new state of the board is equal to the previous (KO rule)
         validMove = self.logic.checkKORule(self.boardArray)
 
-        self.update()
+        # self.update()
         return validMove
 
     """notifications for suicide move pop dialog"""
@@ -273,6 +291,31 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         self.collect(painter)
 
+    def animateMove(self, row, col, boardArray):
+        # White color for when it is white's turn
+        if self.boardArray[col][row].getPiece() == 1:
+            colour = QColor(Qt.GlobalColor.white)
+        # Black color for when there black's turn
+        elif self.boardArray[col][row].getPiece() == 2:
+            colour = QColor(Qt.GlobalColor.black)
+
+        # The piece will always start moving from 0, 0 co-ordinates to the place it was placed
+        startPosRow = self.squareWidth()
+        rowDistance = self.squareWidth() * row
+        startPosCol = self.squareHeight()
+        colDistance = self.squareHeight() * col
+
+
+        framesPerSquare = 10  # How many frames the piece will have per square it passes through
+        framesCount = (abs(startPosRow) + abs(startPosCol)) * framesPerSquare  # The total amount of frames that the stone will have
+
+        coords = []
+        # A loop to get the co-ordinates of where the square will be
+        for frame in range(framesCount + 1):
+            coords.append((startPosRow + ))
+
+
+
     """function for collected stones and places them in first and last row"""
     def collect(self,painter):
         collectedBlack = 0.55
@@ -325,20 +368,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.logic.setCurrentState(self.boardArray)
         self.logic.redo(self.boardArray)
         self.update()
-
-        # if self.points_coordinates_redo.__len__() != 0 and self.points_status_redo.__len__() != 0:
-        #     point_status = self.points_status_redo.pop()
-        #     # Pop and store the value inside the variable
-        #     point_value = self.points_coordinates_redo.pop()
-        #     # Storing removed point inside the undo stack
-        #     self.points_coordinates_undo.append(point_value)
-        #     # Get the row and col indexes
-        #     row_point = point_value.x()
-        #     col_point = point_value.y()
-        #     # Set the specific index to 0 (transparent)
-        #     self.boardArray[row_point][col_point].setStatus(point_status)
-        #     # Calling update method to re draw board and pieces
-        #     self.update()
 
     def checkAllDirectionsForCapture(self, newX, newY, turn):
         # Check if the top group will be captured
