@@ -346,7 +346,8 @@ class GameLogic:
         # # If both players pass then end the game
         self.increaseTurn()
         #
-        # test = self.checkIfBothPlayersPassed()
+        # if self.checkIfBothPlayersPassed():
+        #     self.endGame()
         # if test:
         #     # print("Both players have passed!")
         #     self.endGame(boardArray)

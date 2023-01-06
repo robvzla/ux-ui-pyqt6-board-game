@@ -134,7 +134,7 @@ class Go(QMainWindow):
         skipTurnAction.setShortcut("Ctrl+s")  # connect this clear action to a keyboard shortcut
         skipTurnAction.setStatusTip("Skip")  # label upon hovering
         fileMenu.addAction(skipTurnAction)  # add this action to the file menu
-        skipTurnAction.triggered.connect(lambda: self.board.skipTurn())
+        skipTurnAction.triggered.connect(lambda: self.board.skipTurn(self.scoreBoard))
 
         # Restart button
         restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button

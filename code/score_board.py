@@ -168,7 +168,12 @@ class ScoreBoard(QDockWidget):
             # reset pixmap watch
             self.stop_watch_label.setPixmap(self.stop_watch)
             # add turn to logic
-            self.gameBoard.logic.increaseTurn()
+            self.gameBoard.skipTurn(self)
+            # # self.gameBoard.logic.increaseTurn()
+            # self.gameBoard.logic.setPlayerPassedTrue()
+            # print("Black: " + str(self.gameBoard.logic.blackPassed))
+            # print("White: " + str(self.gameBoard.logic.whitePassed))
+
 
     """reset the timer label icon"""
     def resetPixel(self):

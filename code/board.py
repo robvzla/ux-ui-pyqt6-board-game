@@ -91,7 +91,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         '''this event is automatically called when the timer is updated. based on the timerSpeed variable '''
         if event.timerId() == self.timer.timerId():  # if the timer that has 'ticked' is the one in this class
             if Board.counter == 0:
-                # print("Game over")
+                print("Game over")
+                # self.logic.setPlayerPassedFalse(self.logic.checkTurn())
                 pass
             self.counter -= 1
 
@@ -127,7 +128,7 @@ class Board(QFrame):  # base the board on a QFrame widget
                 if move:  # If the move returns true then it passed both the Suicide test and the KO test
                     self.logic.increaseTurn()
                     self.scoreBoard.alternateNames()
-                    self.counter = self.time_per_round + 1
+                    self.resetCounter()
                     # self.scoreBoard.
                     if self.logic.undoComplete:
                         self.logic.gameState.append(self.logic.currentState)
@@ -380,7 +381,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.logic.setPlayerPassedTrue()
         scoreboard.alternateNames()
 
-        print(self.logic.checkTurn())
         if self.logic.checkIfBothPlayersPassed():
             self.logic.endGame(self.boardArray)
             self.update()
