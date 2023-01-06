@@ -16,6 +16,7 @@ class Board(QFrame):  # base the board on a QFrame widget
     timerSpeed = 1000  # the timer updates every 1 millisecond
     counter = 10  # the number the counter will count down from
 
+
     def __init__(self, parent):
         super().__init__(parent)
         self.initBoard()
@@ -34,6 +35,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.collectedBlack = 0.3
         self.timerInterval = 30 #default timer
         self.play = False
+        self.time_per_round = 0
 
         self.boardArray = [[Piece(0, j, i) for i in range(Board.boardHeight - 1)] for j in
                            range(Board.boardWidth - 1)]
@@ -122,8 +124,11 @@ class Board(QFrame):  # base the board on a QFrame widget
                 # Try to make the move
                 move = self.tryMove(self.getRow(), self.getCol())
                 # print("Move: " + str(move))
-                if move:  # If the move returns ture the it passed both the Suicide test and the KO test
+                if move:  # If the move returns true then it passed both the Suicide test and the KO test
                     self.logic.increaseTurn()
+                    self.scoreBoard.alternateNames()
+                    self.counter = self.time_per_round + 1
+                    # self.scoreBoard.
                     if self.logic.undoComplete:
                         self.logic.gameState.append(self.logic.currentState)
                     self.logic.undoComplete = False
@@ -132,7 +137,9 @@ class Board(QFrame):  # base the board on a QFrame widget
                 else:
                     # If the move is false then revert the board to the previous state
                     self.logic.rewriteBoard(self.boardArray)
-                    # Maybe put a pop up here to say invalid move?
+
+    """EXTRA FEATURE"""
+    """function sets the selected round time"""
 
     def checkWithinRange(self):
         width = self.width() / Board.boardWidth  # This is the width of a square

@@ -351,6 +351,7 @@ class Go(QMainWindow):
     """function sets the selected round time"""
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
+        self.board.time_per_round = time_per_round  # Set the time per round in the board class
         self.board.counter = time_per_round + 1
         self.board.setTimeInterval(time_per_round)
 
