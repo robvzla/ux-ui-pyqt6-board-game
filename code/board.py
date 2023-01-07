@@ -177,7 +177,9 @@ class Board(QFrame):  # base the board on a QFrame widget
             # Check if a piece or pieces will be taken
             if not self.checkAllDirectionsForCapture(newX, newY, turn):
                 self.SuicideMoveNotification("\tSuicide Move")
-
+                self.boardArray[newX][newY].setStatus(0)
+                return False
+            # self.checkAllDirectionsForCapture(newX, newY, turn)
         else:  # If it isn't suicide then do this
             # Place the stone
             # Check to see if pieces are taken
