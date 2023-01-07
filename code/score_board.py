@@ -41,10 +41,7 @@ class ScoreBoard(QDockWidget):
         # create two labels which will be updated by signals
         self.scoreBlack = 0
         self.scoreWhite = 0
-        # label for territory occupied
-        self.territory = QLabel("Territory : " + "Territory : "  + "\n " )
-        self.territory.setStyleSheet("color:#003049; font-weight: bold")
-        self.territory.setFont(QFont('Baskerville', 16))
+
         # self.label_clickLocation = QLabel()
         # label for stones collected by players
         self.label_collected = QLabel(
@@ -86,7 +83,6 @@ class ScoreBoard(QDockWidget):
         # adding labels to right dock widget
         self.mainWidget.setLayout(self.mainLayout)  # layout of dock
         self.mainLayout.addWidget(self.label_collected)  # location label to widget
-        self.mainLayout.addWidget(self.territory) # label for displaying territory
         #self.mainLayout.addWidget(self.label_clickLocation)  # location label to widget
         self.mainLayout.addWidget(self.stop_watch_label)  # add icon label  to widget
         self.mainLayout.addWidget(self.label_timeRemaining)  # time value label to widget
@@ -107,7 +103,7 @@ class ScoreBoard(QDockWidget):
                           height: 40px;
                       }
                       QPushButton:hover {
-                          color:#00a896 ;
+                          color:#d90429 ;
                       }
                   """)
 
@@ -206,7 +202,7 @@ class ScoreBoard(QDockWidget):
         self.scoreWhite = s2
         # displaying the stones captured
         self.label_collected.setText(
-            "\tCaptured Stones\n\nBlack : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
+            "CAPTURED BY:\n\nBlack : " + str(self.scoreBlack) + "    White : " + str(self.scoreWhite) + "\n ")
         self.label_collected.setStyleSheet("font-weight: bold;  color:#003049;")
 
 
@@ -220,8 +216,8 @@ class ScoreBoard(QDockWidget):
         winnerIcon.setPixmap(trophy)
 
         # players names labels
-        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\t\tScore:     " + str(s2))
-        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\t\tScore:     " + str(s1))
+        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\tScore:     " + str(s2) + "\tTerritory:    " +"\tStones:    ")
+        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\tScore:     " + str(s1)+  "\tTerritory:    " +"\tStones:    ")
         # style for player names display
         name1.setFont(QFont('Baskerville', 16))
         name1.setStyleSheet("font-weight: bold")
@@ -229,7 +225,7 @@ class ScoreBoard(QDockWidget):
         name2.setStyleSheet("font-weight: bold")
         # passing message through window title depending on the state of the game
         game_setup_window.setWindowTitle(message)
-        game_setup_window.setMaximumWidth(600)
+        game_setup_window.setMaximumWidth(700)
         game_setup_window.setMaximumHeight(500)
         game_setup_window.setStyleSheet("""background-image: url("icons/binding_dark.png"); color:#ffffff;width:400px;height:300px""")
         # styling for text
@@ -241,7 +237,7 @@ class ScoreBoard(QDockWidget):
         else:
             winner = "Player 1!"
         #display results
-        win = QLabel("\n\tWinner is " + winner + "\n")
+        win = QLabel("\n\t\tWinner is  " + winner + "\n")
         win.setStyleSheet("color:#2b9348;text-align:center;")
         win.setFont(QFont('Baskerville', 18))
         #button closes the window
@@ -266,9 +262,13 @@ class ScoreBoard(QDockWidget):
                         color:#00a896;
                     }
                 """)
+        # upon pausing, "Ok" and pause game
+        if message == "Game Pause":
+            layout.addWidget(start_game, 7, 0, Qt.AlignmentFlag.AlignRight)
+            start_game.clicked.connect(lambda: [print(self.gameBoard.boardArray)])
 
         # positioning of the buttons and display data if winner
-        if s1 != 0 or s2 != 0:
+        elif s1 != 0 or s2 != 0:
             layout.addWidget(winnerIcon, 1, 0, Qt.AlignmentFlag.AlignCenter)
             layout.addWidget(win, 3, 0)
             layout.addWidget(name1, 4, 0)
@@ -278,10 +278,6 @@ class ScoreBoard(QDockWidget):
             layout.addWidget(win, 2, 0)
             layout.addWidget(name1, 3, 0)
             layout.addWidget(name2, 4, 0)
-        # upon pausing connect display data
-        if message == "Game Pause":
-            layout.addWidget(start_game, 7, 0, Qt.AlignmentFlag.AlignRight)
-            start_game.clicked.connect(lambda: [print(self.gameBoard.boardArray)])
 
         # set layout of dialog
         game_setup_window.setLayout(layout)

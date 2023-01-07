@@ -176,6 +176,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
             # Check if a piece or pieces will be taken
             self.checkAllDirectionsForCapture(newX, newY, turn)
+            self.SuicideMoveNotification("\tSuicide Move")
+
         else:  # If it isn't suicide then do this
             # Place the stone
             # Check to see if pieces are taken
@@ -183,6 +185,8 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         # Now check to see if the new state of the board is equal to the previous (KO rule)
         validMove = self.logic.checkKORule(self.boardArray)
+        if not validMove:
+            self.SuicideMoveNotification("\tKO Failed")
 
         self.update()
         return validMove
