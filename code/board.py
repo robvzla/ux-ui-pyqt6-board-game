@@ -1,9 +1,8 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
+from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF
 from PyQt6.QtGui import QPainter, QBrush, QColor, QFont
 from game_logic import GameLogic
 from piece import Piece
-from score_board import ScoreBoard
 from PyQt6.QtWidgets import QLabel, QDialog, QGridLayout
 
 
@@ -32,7 +31,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.skipValidity = []
         self.scoreBoard = ""
         self.collectedBlack = 0.3
-        self.timerInterval = 30 #default timer
+        self.timerInterval = 30  # default timer
         self.play = False
         self.time_per_round = 0
 
@@ -379,13 +378,17 @@ class Board(QFrame):  # base the board on a QFrame widget
         else:
             return False
 
+    """players skip game one or twice"""
     def skipTurn(self, scoreboard):
-        self.logic.setPlayerPassedTrue()
-        scoreboard.alternateNames()
+        self.logic.setPlayerPassedTrue()  # if both players skipped
+        scoreboard.alternateNames()  # check names of players
 
-        if self.logic.checkIfBothPlayersPassed():
-            self.logic.endGame(self.boardArray)
-            self.timer.stop()
+        if self.logic.checkIfBothPlayersPassed():  # verify beth players
+            self.logic.endGame(self.boardArray)  # end game
+            self.timer.stop()  # stop game
+            # display results
             self.scoreBoard.showResults(self.width(), self.height(), self.logic.totalWhitePiecesAtEnd,
                                         self.logic.totalBlackPiecesAtEnd, "Game Results")
+            self.resetGame()  #  reset game upon skip twice
+            self.play = False  # disable play
             self.update()

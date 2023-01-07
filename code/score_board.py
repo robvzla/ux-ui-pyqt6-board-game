@@ -10,6 +10,8 @@ class ScoreBoard(QDockWidget):
 
     def __init__(self):
         super().__init__()
+        self.totalScoreB = None
+        self.totalScoreW = None
         self.player2 = None
         self.player1 = None
         self.initUI()
@@ -209,6 +211,8 @@ class ScoreBoard(QDockWidget):
     """dialog for results output"""
     def showResults(self, w, h, s1, s2, message):
         # dialog for game settings and display results
+        self.totalScoreB = self.scoreBlack + s2  # calculates stones and territory total for black
+        self.totalScoreW = self.scoreWhite + s1  # calculates stones and territory for white
         game_setup_window = QDialog(self)
         layout = QGridLayout()  # layout of dialog
         trophy = QPixmap('./icons/trophy.png') # pixmap added at the top of dialog
@@ -216,8 +220,8 @@ class ScoreBoard(QDockWidget):
         winnerIcon.setPixmap(trophy)
 
         # players names labels
-        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\tScore:     " + str(s2) + "\tTerritory:    " +"\tStones:    ")
-        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\tScore:     " + str(s1)+  "\tTerritory:    " +"\tStones:    ")
+        name1 = QLabel("Player 1 : " + str(self.player1).capitalize() + "\n\tScore:     " + str(self.totalScoreB) + "\n\tTerritory:    " + str(s2) +"\n\tCaptured Stones:    " + str(self.scoreBlack))
+        name2 = QLabel("Player 2 : " + str(self.player2).capitalize() + "\n\tScore:     " + str(self.totalScoreW) + "\n\tTerritory:    " + str(s1) +"\n\tCaptured Stones:    " + str(self.scoreWhite))
         # style for player names display
         name1.setFont(QFont('Baskerville', 16))
         name1.setStyleSheet("font-weight: bold")
@@ -237,8 +241,8 @@ class ScoreBoard(QDockWidget):
         else:
             winner = "Player 1!"
         #display results
-        win = QLabel("\n\t\tWinner is  " + winner + "\n")
-        win.setStyleSheet("color:#2b9348;text-align:center;")
+        win = QLabel("    Winner is  " + winner)
+        win.setStyleSheet("color:#2b9348;text-align:center; margin: auto")
         win.setFont(QFont('Baskerville', 18))
         #button closes the window
         start_game = QPushButton(QIcon("./icons/ok.png"), str("Ok"), self)
