@@ -1,8 +1,9 @@
 from PyQt6.QtWidgets import QFrame
-from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF
+from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
 from PyQt6.QtGui import QPainter, QBrush, QColor, QFont
 from game_logic import GameLogic
 from piece import Piece
+from score_board import ScoreBoard
 from PyQt6.QtWidgets import QLabel, QDialog, QGridLayout
 
 
@@ -31,7 +32,7 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.skipValidity = []
         self.scoreBoard = ""
         self.collectedBlack = 0.3
-        self.timerInterval = 30  # default timer
+        self.timerInterval = 30 #default timer
         self.play = False
         self.time_per_round = 0
 
@@ -174,9 +175,11 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check the suicide rule
         if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
             # Check if a piece or pieces will be taken
-            self.checkAllDirectionsForCapture(newX, newY, turn)
-            self.SuicideMoveNotification("\tSuicide Move")
-
+            if not self.checkAllDirectionsForCapture(newX, newY, turn):
+                self.SuicideMoveNotification("\tSuicide Move")
+                self.boardArray[newX][newY].setStatus(0)
+                return False
+            # self.checkAllDirectionsForCapture(newX, newY, turn)
         else:  # If it isn't suicide then do this
             # Place the stone
             # Check to see if pieces are taken
@@ -329,20 +332,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.logic.redo(self.boardArray)
         self.update()
 
-        # if self.points_coordinates_redo.__len__() != 0 and self.points_status_redo.__len__() != 0:
-        #     point_status = self.points_status_redo.pop()
-        #     # Pop and store the value inside the variable
-        #     point_value = self.points_coordinates_redo.pop()
-        #     # Storing removed point inside the undo stack
-        #     self.points_coordinates_undo.append(point_value)
-        #     # Get the row and col indexes
-        #     row_point = point_value.x()
-        #     col_point = point_value.y()
-        #     # Set the specific index to 0 (transparent)
-        #     self.boardArray[row_point][col_point].setStatus(point_status)
-        #     # Calling update method to re draw board and pieces
-        #     self.update()
-
     def checkAllDirectionsForCapture(self, newX, newY, turn):
         # Check if the top group will be captured
         top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
@@ -379,6 +368,7 @@ class Board(QFrame):  # base the board on a QFrame widget
             return False
 
     """players skip game one or twice"""
+
     def skipTurn(self, scoreboard):
         self.logic.setPlayerPassedTrue()  # if both players skipped
         scoreboard.alternateNames()  # check names of players
@@ -389,6 +379,6 @@ class Board(QFrame):  # base the board on a QFrame widget
             # display results
             self.scoreBoard.showResults(self.width(), self.height(), self.logic.totalWhitePiecesAtEnd,
                                         self.logic.totalBlackPiecesAtEnd, "Game Results")
-            self.resetGame()  #  reset game upon skip twice
+            self.resetGame()  # reset game upon skip twice
             self.play = False  # disable play
             self.update()

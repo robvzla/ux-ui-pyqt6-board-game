@@ -278,7 +278,7 @@ class ScoreBoard(QDockWidget):
             layout.addWidget(name1, 4, 0)
             layout.addWidget(name2, 5, 0)
         else: #else if nobody scored display minimal data
-            win.setText("Nobody Scored!")
+            win.setText("  Too Soon!")
             layout.addWidget(win, 2, 0)
             layout.addWidget(name1, 3, 0)
             layout.addWidget(name2, 4, 0)
