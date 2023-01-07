@@ -1,3 +1,5 @@
+import time
+
 from PyQt6.QtWidgets import QFrame
 from PyQt6.QtCore import Qt, QBasicTimer, pyqtSignal, QPointF, QPoint
 from PyQt6.QtGui import QPainter, QBrush, QColor, QFont
@@ -138,12 +140,11 @@ class Board(QFrame):  # base the board on a QFrame widget
                     # Maybe update the board first and then call the animation and use the paint event in the piece
                     # Class to do the animation
 
-
                     # print("About to change status")
                     # self.boardArray[self.getRow()][self.getCol()].StatusChanged_value ="Hello"
                     # print(self.boardArray[self.getRow()][self.getCol()].statusChanged)
                     self.boardArray[self.getRow()][self.getCol()].StatusChanged_value = True
-                    self.boardArray[self.getRow()][self.getCol()].setStatus(0)
+                    # self.boardArray[self.getRow()][self.getCol()].setStatus(0)
                     self.update()
                     # print(self.boardArray[self.getRow()][self.getCol()].statusChanged)
                     # self.boardArray[self.getRow()][self.getCol()].StatusChanged_value = False
@@ -261,7 +262,6 @@ class Board(QFrame):  # base the board on a QFrame widget
                 painter.restore()
 
     def drawPieces(self, painter):
-        print("Starting to draw the pieces")
         '''draw the prices on the board'''
         colour = Qt.GlobalColor.transparent  # empty square could be modeled with transparent pieces
         for row in range(0, len(self.boardArray)):
@@ -292,78 +292,17 @@ class Board(QFrame):  # base the board on a QFrame widget
 
         self.collect(painter)
 
-        print("Looping through the board array to find a statusChanged = True")
+        # print("Looping through the board array to find a statusChanged = True")
         # Loop through the pieces to see if any of the status has been changed to true, if it has then animate
-        for row in range(0, len(self.boardArray)):
-            for col in range(0, len(self.boardArray[row])):
-                if self.boardArray[col][row].statusChanged:
-                    self.animateMove(col, row, painter, colour)
+        # for row in range(0, len(self.boardArray)):
+        #     for col in range(0, len(self.boardArray[row])):
+                # if self.boardArray[col][row].statusChanged:
+                    # self.animateMove(col, row)
                     # print("This is the new stone!")
                     # print("Col: " + str(row) + " Row: " + str(col))
-    def animateMove(self, row, col, painter, colour):
 
-        # # White color for when it is white's turn
-        # if self.boardArray[col][row].getPiece() == 1:
-        #     newColour = QColor(Qt.GlobalColor.white)
-        # # Black color for when there black's turn
-        # elif self.boardArray[col][row].getPiece() == 2:
-        #     newColour = QColor(Qt.GlobalColor.black)
-
-        print("Starting animation!")
-        if colour == QColor(Qt.GlobalColor.white):
-            status = 1
-        elif colour == QColor(Qt.GlobalColor.black):
-            status = 2
-
-        print("Getting the start position and end positions")
-        # The piece will always start moving from 0, 0 co-ordinates to the place it was placed
-        startPosRow = self.squareWidth()
-        rowDistance = self.squareWidth() * (row + 1)
-        startPosCol = self.squareHeight()
-        colDistance = self.squareHeight() * (col + 1)
-
-        print("Start Pos Row: " + str(startPosRow))
-        print("End Pos Row: " + str(rowDistance))
-        print("Start Pos Col: " + str(startPosCol))
-        print("End Pos Col: " + str(colDistance))
-
-        framesPerSquare = 10  # How many frames the piece will have per square it passes through
-        framesCount = (abs(startPosRow) + abs(
-            startPosCol)) * framesPerSquare  # The total amount of frames that the stone will have
-
-        print("Frames per square: " + str(framesPerSquare))
-        print("Frames Count: " + str(framesCount))
-
-        rowCoords = []
-        colCoords = []
-        # A loop to get the co-ordinates of where the square will be
-        # for frame in range(framesCount + 1):
-        #     rowCoords.append((startPosRow + rowDistance) * (frame / framesCount))
-        #     colCoords.append((startPosCol + colDistance) * (frame / framesCount))
-
-        # print("Row Co-ords: ")
-        # print(rowCoords)
-        # print()
-        # print("Col Co-ords: ")
-        # print(colCoords)
-        # Erase the piece from the board, so it can be re-drawn with the animation
-        # self.boardArray[row][col].setStatus(0)
-
-        # # A loop for the actual animation
-        # for frame in range(framesCount + 1):
-        #     painter.translate(((self.squareWidth()) * row) + self.squareWidth() * 0.75,
-        #                       (self.squareHeight()) * col + self.squareHeight() * 0.75)
-        #
-        #     painter.setPen(newColour)
-        #     painter.setBrush(newColour)
-        #     radiusW = self.squareWidth() / 4
-        #     radiusH = self.squareHeight() / 4
-        #
-        #     center = QPointF(radiusW, radiusH)
-        #     painter.drawEllipse(center, radiusW, radiusH)
-        #     painter.restore()
-
-
+    # def animateMove(self, row, col):
+    #     self.boardArray[row][col].anim.start()
     """function for collected stones and places them in first and last row"""
 
     def collect(self, painter):

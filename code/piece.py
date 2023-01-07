@@ -31,15 +31,15 @@ class Piece(QObject):
         # Attribute for the animation
         self.statusChanged = False
 
-        self.child = QObject(self)
-
-        self.anim = QPropertyAnimation(self.child, b"pos")
-        self.anim.setEndValue(QPoint(400, 400))
-        self.anim.setDuration(1500)
-
-        # QObject.connect(self.statusChanged,SIGNAL("clicked()"), b2_clicked)
-        # self.
-        # self.valueChanged.connect(self.message)
+        # self.child = QCheckBox(self)
+        #
+        # self.anim = QPropertyAnimation(self.child, b"pos")
+        # self.anim.setEndValue(QPoint(400, 400))
+        # self.anim.setDuration(1500)
+        #
+        # # QObject.connect(self.statusChanged,SIGNAL("clicked()"), b2_clicked)
+        # # self.
+        # self.child.stateChanged.connect(self.message)
 
     # Attributes for changing the status of the boolean, these will be required for the animation
     @pyqtProperty(bool)
@@ -51,8 +51,8 @@ class Piece(QObject):
         if type(value) == bool:
             self.statusChanged = value
 
-        if self.statusChanged:
-            self.anim.start()
+        # if self.statusChanged:
+            # self.anim.start()
 
 
 
