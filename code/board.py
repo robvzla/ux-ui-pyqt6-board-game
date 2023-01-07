@@ -367,18 +367,18 @@ class Board(QFrame):  # base the board on a QFrame widget
         else:
             return False
 
-    def skipTurn(self, scoreboard):
-        self.logic.setPlayerPassedTrue()
-        scoreboard.alternateNames()
+    """players skip game one or twice"""
 
-        if self.logic.checkIfBothPlayersPassed():
-            self.logic.endGame(self.boardArray)
-            self.timer.stop()
-            self.scoreBoard.showResults(self.logic.totalWhitePiecesAtEnd,
-                                        self.logic.totalBlackPiecesAtEnd,
-                                        "Game Results",
-                                        (self.logic.totalBlackPiecesAtEnd - self.logic.capturedWhitePieces),  # Black Territory
-                                        (self.logic.totalWhitePiecesAtEnd - self.logic.capturedBlackPieces),  # White Territory
-                                        self.logic.capturedWhitePieces,  # Captured White Stones
-                                        self.logic.capturedBlackPieces)
+    def skipTurn(self, scoreboard):
+        self.logic.setPlayerPassedTrue()  # if both players skipped
+        scoreboard.alternateNames()  # check names of players
+
+        if self.logic.checkIfBothPlayersPassed():  # verify beth players
+            self.logic.endGame(self.boardArray)  # end game
+            self.timer.stop()  # stop game
+            # display results
+            self.scoreBoard.showResults(self.width(), self.height(), self.logic.totalWhitePiecesAtEnd,
+                                        self.logic.totalBlackPiecesAtEnd, "Game Results")
+            self.resetGame()  # reset game upon skip twice
+            self.play = False  # disable play
             self.update()
