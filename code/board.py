@@ -175,8 +175,8 @@ class Board(QFrame):  # base the board on a QFrame widget
         # Check the suicide rule
         if self.logic.checkForSuicide(newX, newY, self.boardArray, turn):  # If it's suicide then do this
             # Check if a piece or pieces will be taken
-            self.checkAllDirectionsForCapture(newX, newY, turn)
-            self.SuicideMoveNotification("\tSuicide Move")
+            if not self.checkAllDirectionsForCapture(newX, newY, turn):
+                self.SuicideMoveNotification("\tSuicide Move")
 
         else:  # If it isn't suicide then do this
             # Place the stone
@@ -330,20 +330,6 @@ class Board(QFrame):  # base the board on a QFrame widget
         self.logic.redo(self.boardArray)
         self.update()
 
-        # if self.points_coordinates_redo.__len__() != 0 and self.points_status_redo.__len__() != 0:
-        #     point_status = self.points_status_redo.pop()
-        #     # Pop and store the value inside the variable
-        #     point_value = self.points_coordinates_redo.pop()
-        #     # Storing removed point inside the undo stack
-        #     self.points_coordinates_undo.append(point_value)
-        #     # Get the row and col indexes
-        #     row_point = point_value.x()
-        #     col_point = point_value.y()
-        #     # Set the specific index to 0 (transparent)
-        #     self.boardArray[row_point][col_point].setStatus(point_status)
-        #     # Calling update method to re draw board and pieces
-        #     self.update()
-
     def checkAllDirectionsForCapture(self, newX, newY, turn):
         # Check if the top group will be captured
         top = self.logic.checkForGroup(newX, newY, self.boardArray, turn, "top")
@@ -386,6 +372,11 @@ class Board(QFrame):  # base the board on a QFrame widget
         if self.logic.checkIfBothPlayersPassed():
             self.logic.endGame(self.boardArray)
             self.timer.stop()
-            self.scoreBoard.showResults(self.width(), self.height(), self.logic.totalWhitePiecesAtEnd,
-                                        self.logic.totalBlackPiecesAtEnd, "Game Results")
+            self.scoreBoard.showResults(self.logic.totalWhitePiecesAtEnd,
+                                        self.logic.totalBlackPiecesAtEnd,
+                                        "Game Results",
+                                        (self.logic.totalBlackPiecesAtEnd - self.logic.capturedWhitePieces),  # Black Territory
+                                        (self.logic.totalWhitePiecesAtEnd - self.logic.capturedBlackPieces),  # White Territory
+                                        self.logic.capturedWhitePieces,  # Captured White Stones
+                                        self.logic.capturedBlackPieces)
             self.update()
