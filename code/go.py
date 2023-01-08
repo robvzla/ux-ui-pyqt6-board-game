@@ -145,9 +145,9 @@ class Go(QMainWindow):
         skipTurnAction.triggered.connect(lambda: self.board.skipTurn(self.scoreBoard))
 
         # Restart button
-        restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
+        restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Reset", self)  # action for play button
         restartAction.setShortcut("Ctrl+r")  # add keyboard shortcut
-        restartAction.setStatusTip("Restart")  # label upon hovering
+        restartAction.setStatusTip("Reset")  # label upon hovering
         fileMenu.addAction(restartAction)  # add this action to the file menu
         restartAction.triggered.connect(lambda: self.resume_game(1))  # -> call method to restart game
 
