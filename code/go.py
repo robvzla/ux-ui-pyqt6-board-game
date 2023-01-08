@@ -1,3 +1,5 @@
+import random
+
 from PyQt6.QtGui import QIcon, QAction, QPixmap, QRegularExpressionValidator
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QDialog, QToolBar, QGridLayout, QPushButton, \
     QRadioButton, QButtonGroup, QLineEdit, QFileDialog, QApplication, QWidget
@@ -22,25 +24,6 @@ class Go(QMainWindow):
 
     def getScoreBoard(self):
         return self.scoreBoard
-
-    """function for player to skip its turn"""
-    def SkipTurn(self):
-        # changing names accordingly
-        self.scoreBoard.alternateNames()
-        # changed the turn
-        self.board.logic.increaseTurn()
-        # increase round count
-        self.board.counter = self.time_per_round + 1
-        # verify is both players skipped, trigger results to terminate game
-        if self.board.skipValidityCheck():
-            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
-                                        self.board.logic.getPiecesCaptured(2), "Game Results")
-            # board gets reset and labels to zero
-            self.board.resetGame()
-            # continue play disabled unless manually enabled
-            self.board.play = False
-            # upon play button, game setup window and replay option
-            self.get_game_setup("Replay")
 
     def initUI(self):
         '''initiates application UI'''
@@ -91,6 +74,7 @@ class Go(QMainWindow):
         self.setWindowIcon(  # adding icons to window
             QIcon("./icons/games-icon-icon.png"))  # documentation: https://doc.qt.io/qt-6/qwidget.html#windowIcon-prop
 
+        self.scoreBoard.skip_button.clicked.connect(lambda: self.board.skipTurn(self.scoreBoard))
         # Set up menus
         mainMenu = self.menuBar()  # create a menu bar
         mainMenu.setNativeMenuBar(False)
@@ -158,12 +142,12 @@ class Go(QMainWindow):
         skipTurnAction.setShortcut("Ctrl+s")  # connect this clear action to a keyboard shortcut
         skipTurnAction.setStatusTip("Skip")  # label upon hovering
         fileMenu.addAction(skipTurnAction)  # add this action to the file menu
-        skipTurnAction.triggered.connect(lambda: self.SkipTurn())  # ->  call method for next or skip
+        skipTurnAction.triggered.connect(lambda: self.board.skipTurn(self.scoreBoard))
 
         # Restart button
-        restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Reset", self)  # action for play button
+        restartAction = QAction(QIcon("./icons/icons8-restart-94.png"), "Restart", self)  # action for play button
         restartAction.setShortcut("Ctrl+r")  # add keyboard shortcut
-        restartAction.setStatusTip("Reset")  # label upon hovering
+        restartAction.setStatusTip("Restart")  # label upon hovering
         fileMenu.addAction(restartAction)  # add this action to the file menu
         restartAction.triggered.connect(lambda: self.resume_game(1))  # -> call method to restart game
 
@@ -176,7 +160,7 @@ class Go(QMainWindow):
 
         # Redo button
         doAction = QAction(QIcon("./icons/right-arrow.png"), "Redo", self)  # action for play button
-        doAction.setShortcut("Ctrl+d")  # add keyboard shortcut
+        doAction.setShortcut("Ctrl+y")  # add keyboard shortcut
         doAction.setStatusTip("Redo")  # label upon hovering
         fileMenu.addAction(doAction)  # add this action to the file menu
         doAction.triggered.connect(self.board.redo) # connect to redo method
@@ -215,7 +199,7 @@ class Go(QMainWindow):
         rules_window.setMaximumWidth(200)
         rules_window.setMinimumHeight(200)
         rules_window.setStyleSheet(
-            """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 12px """)
+            """background-image: url("icons/binding_dark.png"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
         label = QLabel(self.rules)
         pix = QPixmap('./icons/games-icon.png')
         label1 = QLabel()
@@ -233,10 +217,10 @@ class Go(QMainWindow):
     def show_about(self):
         about_window = QDialog(self)
         about_window.setWindowTitle("About")
-        about_window.setMaximumWidth(200)
+        about_window.setMaximumWidth(250)
         about_window.setMaximumHeight(300)
         about_window.setStyleSheet(
-            """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 12px """)
+            """background-image: url("icons/binding_dark"); color: #fdfffc; font-family:'Baskerville'; font-size: 16px """)
         label = QLabel(self.about)
         layout = QVBoxLayout()
         layout.addWidget(label)
@@ -249,9 +233,9 @@ class Go(QMainWindow):
         self.board.timer.stop()  # stops timer
         if self.board.play:
             # upon stopping the game state is retrieved all player data
-            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
-                                        self.board.logic.getPiecesCaptured(2), "Game Pause")
-            # if game is stopped the play is disabled 
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.totalWhitePiecesAtEnd,
+                                        self.board.logic.totalBlackPiecesAtEnd, "Game Pause")
+            # if game is stopped the play is disabled
             self.board.play = False
 
     """Extra feature - function for opening the saved file"""
@@ -267,9 +251,9 @@ class Go(QMainWindow):
         self.board.timer.stop()  # stops timer
         if self.board.play:
             # upon stopping the game state is retrieved
-            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
-                                        self.board.logic.getPiecesCaptured(2), "Game Pause")
-            # if game is stopped the play is disabled 
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.totalWhitePiecesAtEnd,
+                                        self.board.logic.totalBlackPiecesAtEnd, "Game Pause")
+            # if game is stopped the play is disabled
             self.board.play = False
 
     """EXTRA FEATURE"""
@@ -278,14 +262,16 @@ class Go(QMainWindow):
         self.board.play = False
         if x == 1:
             # option to replay the game and reset all data
-            self.board.resetGame()
+            self.board.logic.resetGame(self.board.boardArray)
+            # Clear the scores from the scoreboard
+            self.scoreBoard.updateScores(0, 0)
             # display new game setup
             self.get_game_setup("Replay")
         else:
             # else game is terminated stop timer and retrieves the results
             self.board.timer.stop()
-            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.getPiecesCaptured(1),
-                                        self.board.logic.getPiecesCaptured(2), "Game Results")
+            self.scoreBoard.showResults(self.width(), self.height(), self.board.logic.totalWhitePiecesAtEnd,
+                                        self.board.logic.totalBlackPiecesAtEnd, "Game Results")
             # reset board
             self.board.resetGame()
 
@@ -427,6 +413,7 @@ class Go(QMainWindow):
     """function sets the selected round time"""
     def set_round_time(self, time_per_round):
         self.time_per_round = time_per_round
+        self.board.time_per_round = time_per_round  # Set the time per round in the board class
         self.board.counter = time_per_round + 1
         self.board.setTimeInterval(time_per_round)
 

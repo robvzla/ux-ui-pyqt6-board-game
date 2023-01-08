@@ -1,4 +1,3 @@
-
 class Piece(object):
     NoPiece = 0
     White = 1
